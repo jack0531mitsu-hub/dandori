@@ -1,0 +1,2327 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ダンドリ｜課題と家事を、今日やる順番に。</title>
+<meta name="description" content="授業名を書くだけで締切が決まり、空き時間から「今日やる順番」を出す、大学生のための段取りアプリ。課題・家事・バイトのシフトをまとめて管理。">
+<meta name="theme-color" content="#F5F6F2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#10131A" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ダンドリ">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ダンドリ｜課題と家事を、今日やる順番に。">
+<meta property="og:description" content="授業名を書くだけで締切が決まり、空き時間から「今日やる順番」を出す、大学生のための段取りアプリ。課題・家事・バイトのシフトをまとめて管理。">
+<meta property="og:image" content="og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap&text=%E3%83%80%E3%83%B3%E3%83%89%E3%83%AA0123456789%E6%99%82%E9%96%93%E5%88%86%E6%97%A5">
+<style>
+/* Layout: 手帳の「1日のページ」。上に使える時間と時間帯ストリップ、その下に今日の段取り。4つの画面は下のタブで切り替える */
+:root{
+  --paper:#F5F6F2; --surface:#FFFFFF; --sunk:#ECEEE8;
+  --ink:#1A2030; --ink-2:#596172; --ink-3:#8A91A0;
+  --line:#DADDE3; --grid:#E3E6E9;
+  --study:#2E4B8E; --study-soft:#E2E8F6;
+  --life:#2C7A50; --life-soft:#DCEFE3;
+  --other:#7B5A27; --other-soft:#F2E9D6;
+  --busy:#BFC5CE;
+  --marker:#F3E35A;
+  --warn:#B2421C; --warn-soft:#FAE6DC;
+  --focus:#2E4B8E;
+  --scrim:rgba(12,14,20,.48);
+  --edit:#FFF8D6; --edit-line:#D9BE3F; --edit-ink:#8A6D00;
+  --etc:#5B5591; --etc-soft:#E9E7F5; --band:rgba(46,75,142,.05); --stripe:#E6D6B8;
+  --font-display:"Dela Gothic One","Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",sans-serif;
+  --font-body:"Zen Kaku Gothic New","Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --radius:12px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#10131A; --surface:#181C24; --sunk:#1F242E;
+    --ink:#E6E8EE; --ink-2:#A2A9B7; --ink-3:#737B8A;
+    --line:#2B313C; --grid:#262B35;
+    --study:#95ABEB; --study-soft:#1E2742;
+    --life:#7DCB9B; --life-soft:#172E22;
+    --other:#D6B67E; --other-soft:#2D2618;
+    --busy:#434A57;
+    --marker:#6E6420;
+    --warn:#F28C66; --warn-soft:#3A1F16;
+    --focus:#95ABEB;
+    --scrim:rgba(0,0,0,.6);
+    --edit:#26220F; --edit-line:#7A6B22; --edit-ink:#E8CF5A;
+    --etc:#B8B2EA; --etc-soft:#24223A; --band:rgba(149,171,235,.06); --stripe:#3B3122;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#10131A; --surface:#181C24; --sunk:#1F242E;
+  --ink:#E6E8EE; --ink-2:#A2A9B7; --ink-3:#737B8A;
+  --line:#2B313C; --grid:#262B35;
+  --study:#95ABEB; --study-soft:#1E2742;
+  --life:#7DCB9B; --life-soft:#172E22;
+  --other:#D6B67E; --other-soft:#2D2618;
+  --busy:#434A57;
+  --marker:#6E6420;
+  --warn:#F28C66; --warn-soft:#3A1F16;
+  --focus:#95ABEB;
+  --scrim:rgba(0,0,0,.6);
+  --edit:#26220F; --edit-line:#7A6B22; --edit-ink:#E8CF5A;
+  --etc:#B8B2EA; --etc-soft:#24223A; --band:rgba(149,171,235,.06); --stripe:#3B3122;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--paper)}
+body{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px calc(96px + env(safe-area-inset-bottom,0px));display:grid;gap:16px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+/* header */
+.top{display:flex;align-items:center;gap:10px;padding-block:4px 0}
+.logo{font-family:var(--font-display);font-size:22px;line-height:1;letter-spacing:.03em;padding:2px 3px;background:linear-gradient(transparent 56%,var(--marker) 56%,var(--marker) 94%,transparent 94%)}
+.sync{margin-left:auto;font-size:12px;color:var(--ink-2);display:inline-flex;align-items:center;gap:6px}
+.sync::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ink-3)}
+.sync.cloud::before{background:var(--life)}
+.sync.local::before{background:var(--other)}
+.samplebar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;border:1px dashed var(--line);border-radius:10px;font-size:13px;color:var(--ink-2)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:6px 16px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:500;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.btn.ghost{background:transparent}
+.btn.small{min-height:32px;padding:3px 12px;font-size:13px}
+.btn.danger{color:var(--warn);border-color:var(--warn)}
+.btn:disabled{opacity:.5;cursor:default}
+.link{background:none;border:0;padding:0;color:var(--ink-2);font-size:13px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.link.inv{color:var(--paper)}
+
+/* segmented */
+.seg{display:inline-flex;flex-wrap:wrap;gap:4px;padding:3px;border-radius:999px;background:var(--sunk)}
+.seg button,.segopt span{display:inline-block;padding:4px 12px;border-radius:999px;border:0;background:transparent;font-size:13px;font-weight:500;cursor:pointer;color:var(--ink-2)}
+.seg button[aria-pressed="true"],.segopt input:checked+span{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.segopt{position:relative}
+.segopt input{position:absolute;opacity:0;width:1px;height:1px}
+.segopt input:focus-visible+span{outline:2px solid var(--focus);outline-offset:1px}
+
+/* today */
+.daybar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.date{font-size:20px;font-weight:700;margin:0;font-variant-numeric:tabular-nums}
+.alerts{display:grid;gap:6px}
+.alert{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:baseline;padding:10px 12px;border-radius:10px;background:var(--warn-soft);font-size:14px}
+.alert b{color:var(--warn);font-size:12px;letter-spacing:.04em;white-space:nowrap}
+.alert.lv1{background:var(--sunk)}
+.alert.lv1 b{color:var(--ink-2)}
+.alert span{min-width:0;overflow-wrap:anywhere}
+.hero{display:grid;gap:14px;padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.hero-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:10px}
+.cap-label{font-size:12px;color:var(--ink-2);letter-spacing:.06em}
+.cap{font-family:var(--font-display);font-size:34px;line-height:1.15;font-variant-numeric:tabular-nums;margin-block:2px}
+.cap mark{color:inherit;padding:0 3px;background:linear-gradient(transparent 58%,var(--marker) 58%,var(--marker) 92%,transparent 92%)}
+.cap-sub{font-size:12px;color:var(--ink-2)}
+.strip-wrap{display:grid;gap:4px}
+.strip{position:relative;height:30px;border-radius:6px;background:var(--sunk);overflow:hidden}
+.blk{position:absolute;top:0;bottom:0;display:block}
+.blk.busy{background:repeating-linear-gradient(135deg,var(--busy) 0 4px,transparent 4px 8px)}
+.blk.past{background:var(--grid)}
+.blk.study{background:var(--study)}
+.blk.life{background:var(--life)}
+.blk.other{background:var(--other)}
+.now{position:absolute;top:0;bottom:0;width:2px;background:var(--warn);display:block}
+.ticks{position:relative;height:16px;font-size:11px;color:var(--ink-3)}
+.ticks span{position:absolute;top:0;transform:translateX(-50%)}
+.ticks span.l{transform:none}
+.ticks span.r{transform:translateX(-100%)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.sw{display:inline-block;width:12px;height:8px;border-radius:2px}
+.sw.busy{background:repeating-linear-gradient(135deg,var(--busy) 0 2px,transparent 2px 4px);box-shadow:0 0 0 1px var(--busy)}
+.sw.study{background:var(--study)} .sw.life{background:var(--life)} .sw.other{background:var(--other)}
+.bal{display:grid;gap:6px}
+.bal-head{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--ink-2)}
+.bal-head b{color:var(--ink);font-weight:500;margin-left:4px}
+.bal-track{position:relative}
+.bal-bar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--sunk)}
+.bal-bar i{display:block;height:100%}
+.bal-bar i.study{background:var(--study)} .bal-bar i.life{background:var(--life)}
+.bal-target{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);transform:translateX(-1px)}
+.bal-note{font-size:12px;color:var(--ink-3)}
+
+/* adder */
+.adder{display:grid;gap:8px;padding:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.adder-row{display:flex;gap:8px}
+.adder-row input{flex:1;min-width:0}
+.adder-opts{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--ink-2)}
+.tog{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.tog input{width:16px;height:16px;accent-color:var(--ink)}
+.hint{font-size:12px;color:var(--ink-3)}
+input[type=text],input[type=number],input[type=date],input[type=time],select{width:100%;min-width:0;min-height:40px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+input[type=range]{width:100%;accent-color:var(--ink)}
+textarea{font:inherit;color:inherit;width:100%;min-width:0;min-height:88px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--paper);resize:vertical}
+textarea.code{font-family:var(--font-mono);font-size:12px;line-height:1.5;word-break:break-all}
+.h3{font-size:14px;font-weight:700;margin:0}
+.backup{display:grid;gap:8px;padding:12px 14px;border-radius:10px;border:1px dashed var(--other);background:var(--other-soft);font-size:14px}
+.backup .acts,.inapp .acts{display:flex;flex-wrap:wrap;gap:8px}
+.inapp{display:grid;gap:8px;padding:10px 12px;border-radius:10px;background:var(--warn-soft);font-size:13px}
+.inapp b{color:var(--warn)}
+.inapp.a2hs{background:var(--sunk)}
+.inapp.a2hs b{color:var(--ink)}
+.preview{display:grid;gap:4px;font-size:14px;padding:10px 12px;border-radius:8px;background:var(--sunk)}
+.warnnote{color:var(--warn)}
+
+/* sections, lists */
+.sect{display:grid;gap:10px}
+.h1{font-size:22px;font-weight:700;margin:2px 0 0;text-wrap:balance}
+.h2{font-size:16px;font-weight:700;margin:0;display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.h2-sub{font-size:12px;font-weight:500;color:var(--ink-2)}
+.note{font-size:13px;color:var(--ink-2);margin:0}
+.plan{display:grid;gap:8px}
+.item{display:grid;grid-template-columns:3.4em 1fr auto;gap:12px;align-items:center;padding:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.item.ordered{grid-template-columns:32px 1fr auto}
+.ord{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--sunk);font-family:var(--font-mono);font-weight:500;font-size:15px;color:var(--ink-2)}
+.ord.first{background:var(--marker);color:var(--ink)}
+.item.is-next{border-color:var(--ink-3);padding-block:16px}
+.item.is-next .title{font-size:17px}
+.nextlabel{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--ink-2);margin-bottom:2px}
+.sw.free{background:var(--sunk);box-shadow:inset 0 0 0 1px var(--line)}
+.time{display:grid;font-family:var(--font-mono);font-size:12px;line-height:1.35;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.time span:first-child{color:var(--ink);font-size:13px}
+.body{min-width:0}
+.title{font-weight:700;overflow-wrap:anywhere;line-height:1.45}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:4px;font-size:12px;color:var(--ink-2)}
+.tag{display:inline-flex;align-items:center;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:500;line-height:1.6}
+.tag.study{background:var(--study-soft);color:var(--study)}
+.tag.life{background:var(--life-soft);color:var(--life)}
+.tag.other{background:var(--other-soft);color:var(--other)}
+.tag.hot{background:var(--warn-soft);color:var(--warn)}
+.tag.plain{background:var(--sunk);color:var(--ink-2)}
+.check{width:36px;height:36px;border-radius:50%;border:2px solid var(--line);background:var(--surface);cursor:pointer;display:grid;place-items:center;flex:none}
+.check::after{content:"✓";font-size:16px;font-weight:700;color:var(--ink-3)}
+.check.study{border-color:var(--study)} .check.life{border-color:var(--life)} .check.other{border-color:var(--other)}
+.check:hover::after{color:var(--ink)}
+.prio{font-size:12px;color:var(--ink-2)}
+.rest{display:grid;gap:0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+.rrow{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;border-top:1px solid var(--line);font-size:14px}
+.rrow:first-child{border-top:0}
+.rrow .meta{margin:0;flex:none}
+.empty{padding:16px;border:1px dashed var(--line);border-radius:var(--radius);color:var(--ink-2);font-size:14px;display:grid;gap:10px;justify-items:start}
+.foot{font-size:12px;color:var(--ink-3);margin:0}
+details.done{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);padding:0 12px}
+details.done summary{cursor:pointer;padding:10px 0;font-size:14px;font-weight:500}
+.drow{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid var(--line);font-size:14px;color:var(--ink-2)}
+.tlist{display:grid;gap:8px}
+.trow{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.trow.two{grid-template-columns:1fr auto}
+.days .segopt input:checked+span{background:var(--ink);color:var(--paper);border-color:var(--ink);box-shadow:none}
+.grade{display:inline-grid;place-items:center;min-width:28px;height:20px;padding:0 6px;border-radius:6px;font-family:var(--font-mono);font-size:12px;font-weight:500;letter-spacing:.02em;line-height:1;background:var(--sunk);color:var(--ink-2)}
+.grade.big{min-width:36px;height:32px;font-size:15px;border-radius:8px}
+.g-SS{background:var(--warn);color:var(--paper)}
+.g-S{background:var(--warn-soft);color:var(--warn)}
+.g-A{background:var(--marker);color:var(--ink)}
+.g-B{background:var(--sunk);color:var(--ink)}
+.g-C{background:var(--sunk);color:var(--ink-2)}
+.g-D,.g-E{background:transparent;color:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line)}
+.drow .gdesc{flex:1;color:var(--ink)}
+.drow:has(.grade){justify-content:flex-start;align-items:center}
+.gnote{padding:8px 0 10px}
+.presets{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.presets-label{font-size:12px;color:var(--ink-2);margin-right:4px}
+.chip{padding:4px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:13px;cursor:pointer}
+.chip:hover{border-color:var(--life)}
+
+/* timetable */
+.tt-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+.tt{border-collapse:collapse;width:100%;min-width:330px;table-layout:fixed}
+.tt th,.tt td{border-bottom:1px solid var(--grid);padding:4px}
+.tt thead th{font-size:13px;font-weight:700;padding-block:8px;color:var(--ink-2)}
+.tt tbody th{text-align:left;font-weight:500}
+.tt thead th:first-child{width:3.2em}
+.tt tr:last-child th,.tt tr:last-child td{border-bottom:0}
+.pn{display:block;font-weight:700;font-size:14px}
+.pt{display:block;font-family:var(--font-mono);font-size:10.5px;color:var(--ink-3)}
+.cell{width:100%;min-height:44px;padding:4px;border-radius:6px;border:1px dashed var(--line);background:transparent;font-size:12px;line-height:1.3;color:var(--ink-3);cursor:pointer;overflow-wrap:anywhere}
+.cell.on{border:0;background:var(--study-soft);color:var(--study);font-weight:500}
+.cell{position:relative}
+.cell .wkdot{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:var(--study)}
+.tag.wk{background:var(--sunk);color:var(--ink-2)}
+.tag.etc{background:var(--etc-soft);color:var(--etc)}
+/* 時間割：時間の目盛りで1週間（見る／編集） */
+.h1row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.h1row .btn svg{width:14px;height:14px}
+.wk-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:8px 6px 10px 4px}
+.wk-card.editing{background:var(--edit);border-color:var(--edit-line)}
+.wk-head{display:grid;grid-template-columns:40px repeat(7,minmax(0,1fr));font-size:12px;font-weight:700;color:var(--ink-2);text-align:center;margin-bottom:6px}
+.wk-head .sun{color:var(--warn)}
+.wk-d{display:grid;justify-items:center;gap:2px}
+.wk-d .w{font-size:11px}
+.wk-d .n{font-size:14px;font-weight:700;color:var(--ink);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono)}
+.wk-d.sun .w,.wk-d.sun .n{color:var(--warn)}
+.wk-d.past .n{color:var(--ink-3)}
+.wk-d.today .n{background:var(--ink);color:var(--paper)}
+.wk-d .cnt{display:inline-flex;align-items:center;gap:2px;height:15px;padding:0 5px;border-radius:8px;font-size:10px;font-family:var(--font-mono);font-weight:700;background:var(--ink);color:var(--paper)}
+.wk-d .cnt.u{background:var(--warn)}
+.wk-d .cnt::before{content:"";width:5px;height:7px;background:currentColor;clip-path:polygon(0 0,100% 50%,0 100%)}
+.wk-d .cnt.none{visibility:hidden}
+.wk-nav{display:flex;align-items:center;gap:8px}
+.wk-arr{width:36px;height:36px;flex:none;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-size:18px;line-height:1;color:var(--ink-2);cursor:pointer}
+.wk-range{flex:1;display:grid;justify-items:center;gap:1px;text-align:center}
+.wk-range b{font-size:15px}
+.wk-range span,.wk-range .link{font-size:12px;color:var(--ink-2)}
+.wk-dl{position:absolute;left:0;right:0;height:16px;margin:0;padding:0;border:0;background:transparent;cursor:pointer;z-index:3;--c:var(--ink)}
+.wk-dl.u{--c:var(--warn)}
+.wk-dl::before{content:"";position:absolute;left:0;right:0;top:7px;border-top:1.5px solid var(--c)}
+.wk-dl::after{content:"";position:absolute;left:-1px;top:2px;width:9px;height:12px;background:var(--c);clip-path:polygon(0 0,100% 50%,0 100%)}
+.wk-legend .flg{display:inline-block;width:8px;height:10px;background:var(--warn);clip-path:polygon(0 0,100% 50%,0 100%);margin-right:4px;vertical-align:-1px}
+.wk-legend .nowk{display:inline-block;width:14px;height:0;border-top:1.5px solid var(--ink);margin-right:4px;vertical-align:3px}
+.wk-dlist{display:grid;gap:6px}
+.wk-drow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:7px 10px;font:inherit;color:inherit;cursor:pointer}
+.wk-drow .when{font-family:var(--font-mono);font-size:11px;color:var(--ink-2);line-height:1.3;text-align:center;min-width:50px}
+.wk-drow .when b{display:block;font-family:var(--font-body);font-size:12px;color:var(--ink)}
+.wk-drow .ttl{font-size:14px;font-weight:700;line-height:1.35}
+.wk-drow .ttl small{display:block;font-size:12px;font-weight:500;color:var(--ink-2)}
+.wk-drow.done{opacity:.6}
+.wk-drow.done .ttl{text-decoration:line-through}
+.wk-drow .chk{color:var(--ink-3);font-size:14px;padding:0 8px}
+.wk-pop .prow{display:flex;align-items:center;gap:6px;margin-top:4px}
+.wk-pop .pacts{display:flex;gap:6px;margin-top:8px}
+.wk-pop .stag{display:inline-block;font-size:10px;font-weight:700;background:var(--other-soft);color:var(--other);border-radius:4px;padding:0 5px;margin-left:5px;vertical-align:1px}
+.btn.accent{background:var(--other-soft);border-color:var(--other);color:var(--other);font-weight:700}
+.h1row .h1{margin-right:auto}
+.h1row{justify-content:flex-start}
+.wk-blk.shift{background:repeating-linear-gradient(135deg,var(--other-soft) 0 5px,var(--stripe) 5px 9px);color:var(--other);border-left:3px solid var(--other);font-weight:700}
+.wk-legend .shift-i{background:repeating-linear-gradient(135deg,var(--other-soft) 0 3px,var(--stripe) 3px 5px);box-shadow:inset 3px 0 0 var(--other)}
+.sf-chips{display:flex;flex-wrap:wrap;gap:6px}
+.sf-chip{border:1px solid var(--line);border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;background:var(--surface);color:var(--ink);cursor:pointer}
+.sf-chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink);font-weight:700}
+.sf-chip.add{border-style:dashed;color:var(--ink-2)}
+.sf-chip.add.on{border-style:solid;color:var(--paper)}
+.sf-chip.mono{font-family:var(--font-mono)}
+.sf-cal{border:1px solid var(--line);border-radius:12px;padding:8px;display:grid;gap:6px}
+.sf-cal .mh{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;font-weight:700}
+.sf-cal .mg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;text-align:center}
+.sf-cal .mw{font-size:11px;color:var(--ink-2);font-weight:700}
+.sf-cal .mw.sun{color:var(--warn)}
+.sf-cal .md{position:relative;height:40px;border:0;border-radius:10px;background:transparent;font:inherit;font-family:var(--font-mono);font-size:14px;color:var(--ink);cursor:pointer;padding:0}
+.sf-cal .md.sun{color:var(--warn)}
+.sf-cal .md.past{color:var(--ink-3);cursor:default}
+.sf-cal .md.today{box-shadow:inset 0 0 0 2px var(--ink)}
+.sf-cal .md.on{background:var(--ink);color:var(--paper);font-weight:700}
+.sf-cal .md i{position:absolute;bottom:4px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--other)}
+.sf-cal .md.on i{background:var(--paper)}
+.sf-cal .note{font-size:11px}
+.sf-range{display:flex;align-items:center;gap:8px}
+.sf-range input[type=time]{width:auto;max-width:9em}
+.sf-picked{display:grid;gap:6px}
+.sf-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:6px 6px 6px 10px}
+.sf-row.ov{border-color:var(--warn)}
+.sf-row .d{font-size:13px;font-weight:700;min-width:56px}
+.sf-row .t{display:flex;align-items:center;gap:4px;min-width:0}
+.sf-row .t input[type=time]{flex:1 1 0;width:auto;min-width:0;max-width:none;min-height:34px;padding:2px 4px;font-size:13px;letter-spacing:-.01em}
+.sf-row .x{border:0;background:transparent;font-size:18px;color:var(--ink-3);width:30px;height:34px;padding:0;cursor:pointer}
+.sf-row .w{grid-column:1/-1;font-size:12px;color:var(--warn);background:var(--warn-soft);border-radius:6px;padding:3px 8px}
+.wk-pop .pacts button{border:0;border-radius:999px;padding:4px 11px;font:inherit;font-size:12px;font-weight:700;background:var(--paper);color:var(--ink);cursor:pointer}
+.wk-pop .pacts button.g{background:transparent;color:var(--paper);box-shadow:inset 0 0 0 1px currentColor}
+.wk-body{position:relative;display:grid;grid-template-columns:40px repeat(7,minmax(0,1fr))}
+.wk-axis{position:relative}
+.wk-axis .h{position:absolute;right:5px;transform:translateY(-50%);font-size:10px;font-family:var(--font-mono);color:var(--ink-3)}
+.wk-axis .pn{position:absolute;left:1px;transform:translateY(-50%);width:17px;height:17px;border-radius:50%;background:var(--sunk);color:var(--ink-2);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.editing .wk-axis .pn{background:var(--ink);color:var(--paper)}
+.wk-col{position:relative;border-left:1px solid var(--grid)}
+.wk-hl{position:absolute;left:40px;right:0;height:0;border-top:1px solid var(--grid);pointer-events:none}
+.wk-band{position:absolute;left:40px;right:0;background:var(--band);pointer-events:none}
+.editing .wk-band{background:transparent}
+.wk-blk{position:absolute;left:2px;right:2px;margin:0;border:0;border-radius:6px;font:inherit;font-size:10px;line-height:1.2;padding:3px;overflow:hidden;font-weight:500;text-align:left;display:block;cursor:pointer;overflow-wrap:anywhere;z-index:1}
+.wk-blk .tm{display:block;font-family:var(--font-mono);font-size:8.5px;letter-spacing:-.02em;white-space:nowrap;opacity:.85;margin-top:1px}
+.wk-blk.cls{background:var(--study-soft);color:var(--study);border-left:3px solid var(--study)}
+.wk-blk.job{background:var(--other-soft);color:var(--other);border-left:3px solid var(--other);font-weight:700}
+.wk-blk.cir{background:var(--life-soft);color:var(--life);border-left:3px solid var(--life);font-weight:700}
+.wk-blk.etc{background:var(--etc-soft);color:var(--etc);border-left:3px solid var(--etc);font-weight:700}
+.editing .wk-blk{box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.wk-blk.ovl{box-shadow:inset 0 0 0 2px var(--warn)}
+.wk-blk .ov{position:absolute;right:2px;bottom:2px;width:14px;height:14px;border-radius:50%;background:var(--warn);color:var(--paper);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.wk-blk .wkdot{position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:50%;background:var(--study)}
+.wk-slot{position:absolute;left:2px;right:2px;margin:0;padding:0;border:1.5px dashed var(--edit-line);border-radius:6px;background:transparent;color:var(--edit-ink);font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.wk-now{position:absolute;left:0;right:0;height:0;border-top:1.5px solid var(--ink);opacity:.8;z-index:2;pointer-events:none}
+.wk-now::before{content:"";position:absolute;left:-3px;top:-4px;width:6px;height:6px;border-radius:50%;background:var(--ink)}
+.wk-pop{position:absolute;z-index:5;max-width:260px;background:var(--ink);color:var(--paper);border-radius:10px;padding:8px 11px;font-size:12px;line-height:1.55;box-shadow:0 8px 22px rgba(0,0,0,.25)}
+.wk-pop b{font-size:13px}
+.wk-pop .sub{opacity:.72;font-size:11px}
+.wk-pop .warnline{color:var(--warn-soft);font-weight:700}
+.wk-banner{display:flex;gap:10px;align-items:flex-start;background:var(--edit);border:1px solid var(--edit-line);border-radius:10px;padding:8px 12px;font-size:13px;line-height:1.55}
+.wk-banner b{white-space:nowrap;color:var(--edit-ink)}
+.wk-legend{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:12px;color:var(--ink-2)}
+.wk-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.wk-warn{font-size:12.5px;color:var(--warn);background:var(--warn-soft);border-radius:8px;padding:7px 10px;line-height:1.55}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+
+/* intro */
+.intro{display:grid;gap:14px;padding:20px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.intro-h{font-size:22px;line-height:1.45;margin:0;text-wrap:balance}
+.intro p{margin:0;color:var(--ink-2)}
+.steps{margin:0;padding:0;list-style:none;counter-reset:s;display:grid;gap:10px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;column-gap:10px}
+.steps li::before{content:counter(s);grid-row:span 2;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--marker);font-family:var(--font-mono);font-weight:500;color:var(--ink)}
+.steps b{font-weight:700}
+.steps span{font-size:13px;color:var(--ink-2)}
+.intro-acts{display:flex;flex-wrap:wrap;gap:8px}
+
+/* tabs */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.tabs-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.tabs button{min-height:56px;border:0;background:none;font-size:13px;font-weight:500;color:var(--ink-2);cursor:pointer;position:relative}
+.tabs button[aria-current="page"]{color:var(--ink);font-weight:700}
+.tabs button[aria-current="page"]::after{content:"";position:absolute;left:30%;right:30%;bottom:10px;height:5px;border-radius:3px;background:var(--marker)}
+
+/* sheet */
+.scrim{position:fixed;inset:0;z-index:40;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:560px;max-height:88%;overflow-y:auto;background:var(--surface);border-radius:16px 16px 0 0;padding-block:18px calc(20px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:14px}
+.sh-title{font-size:18px;font-weight:700;margin:0;overflow-wrap:anywhere}
+.sh-acts{display:flex;flex-wrap:wrap;gap:8px}
+.f{display:grid;gap:4px;min-width:0}
+.f label,.flabel{font-size:12px;color:var(--ink-2);font-weight:500}
+.f .link{justify-self:start;margin-top:2px}
+.callist{display:grid;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+.crow{display:grid;gap:2px;padding:10px 12px;border-top:1px solid var(--line);min-width:0}
+.crow:first-child{border-top:0}
+.crow .meta{margin-top:0}
+.howto{margin:0 0 4px;padding-left:1.4em;display:grid;gap:4px;font-size:14px}
+.rowcard .link{justify-self:start}
+.rowcard input[type=time]{width:auto;max-width:11em;justify-self:start}
+.morning{display:grid;gap:8px;padding:16px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--line)}
+.greet{margin:0;font-size:13px;font-weight:700;letter-spacing:.04em;color:var(--ink-2)}
+.mline{margin:0;font-size:17px;line-height:1.6;font-weight:500;overflow-wrap:anywhere}
+.mline b{font-weight:700;padding:0 2px;background:linear-gradient(transparent 60%,var(--marker) 60%,var(--marker) 92%,transparent 92%)}
+.streak{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;margin-top:4px;padding-top:12px;border-top:1px dashed var(--line)}
+.snum{display:flex;align-items:baseline;gap:2px;min-width:3.2em}
+.snum b{font-family:var(--font-display);font-weight:400;font-size:32px;line-height:1;font-variant-numeric:tabular-nums}
+.snum span{font-size:14px;font-weight:700}
+.stext{display:grid;gap:1px;font-size:14px;min-width:0}
+.slabel{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--ink-3)}
+.ssub{font-size:12px;color:var(--ink-3)}
+.autonote{padding:8px 10px;border-radius:8px;background:var(--study-soft);color:var(--study)}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rowcard{display:grid;gap:10px;padding:12px;border:1px solid var(--line);border-radius:10px}
+.stepper{display:flex;gap:6px;align-items:center}
+.stepper input{width:6em;flex:none;text-align:center}
+.days{display:flex;flex-wrap:wrap;gap:4px}
+.ptimes{display:grid;gap:6px}
+.prow{display:grid;grid-template-columns:2.4em 1fr auto 1fr;gap:6px;align-items:center;font-size:13px}
+.kv{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--ink-2)}
+.toast{position:fixed;z-index:50;left:50%;transform:translateX(-50%);bottom:calc(68px + env(safe-area-inset-bottom,0px));width:min(520px,calc(100% - 32px));display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:var(--ink);color:var(--paper);font-size:14px}
+@media (max-width:380px){.f2{grid-template-columns:1fr}.cap{font-size:30px}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+
+<div id="app" class="wrap"></div>
+
+<nav class="tabs" aria-label="画面の切り替え">
+  <div class="tabs-in">
+    <button type="button" data-act="tab" data-v="today">今日</button>
+    <button type="button" data-act="tab" data-v="week">時間割</button>
+    <button type="button" data-act="tab" data-v="tasks">やること</button>
+    <button type="button" data-act="tab" data-v="routines">家事</button>
+  </div>
+</nav>
+
+<div id="sheet" class="scrim" hidden>
+  <form id="sheet-form" class="sheet" autocomplete="off" novalidate></form>
+</div>
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- 基本の道具 ---------- */
+const WD = ['日','月','火','水','木','金','土'];
+const CAT = {study:'学業', life:'生活', other:'その他'};
+const IMP = [0, 0.8, 1, 1.3];
+const COND = {good:{label:'元気', m:1}, normal:{label:'ふつう', m:0.85}, tired:{label:'お疲れ', m:0.6}};
+const SID = Math.random().toString(36).slice(2);
+const LS_KEY = 'dandori.v1', LS_VIEW = 'dandori.view';
+// claude.ai の外（自分のWebアドレスやアプリ）で動いているとき true。保存は端末、ファイルは普通のダウンロードで渡す
+const IS_WEB = !(window.claude && typeof window.claude.use === 'function');
+const IS_IOS = /iPhone|iPad|iPod/.test(navigator.userAgent || '') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const IS_STANDALONE = (() => { try { return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } })();
+// 感想フォーム（GoogleフォームのURL）。空のあいだは設定画面にボタンを出さない
+const FEEDBACK_URL = 'https://forms.gle/vNWosybxXnKr1gSEA';
+const EXTRA_PERIODS = [['18:30','20:00'],['20:15','21:45']];
+
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseYmd = s => { const [y,m,d] = String(s).split('-').map(Number); return new Date(y, m-1, d); };
+const addDays = (s, n) => { const d = parseYmd(s); d.setDate(d.getDate()+n); return ymd(d); };
+const daysBetween = (a, b) => Math.round((parseYmd(b) - parseYmd(a)) / 864e5);
+const todayStr = () => ymd(new Date());
+const nowMin = () => { const d = new Date(); return d.getHours()*60 + d.getMinutes(); };
+const toMin = s => { const [h,m] = String(s || '0:0').split(':').map(Number); return (h||0)*60 + (m||0); };
+const clock = m => `${Math.floor(m/60)}:${pad(m%60)}`;
+const dur = m => { m = Math.max(0, Math.round(m)); const h = Math.floor(m/60), r = m % 60; return h ? `${h}時間${r ? r + '分' : ''}` : `${r}分`; };
+const round5 = m => Math.max(5, Math.round((Number(m) || 0) / 5) * 5);
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const md = s => { const d = parseYmd(s); return `${d.getMonth()+1}/${d.getDate()}（${WD[d.getDay()]}）`; };
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- 状態 ---------- */
+function defaults(){
+  return {
+    v:1, rev:0, sid:'', sample:false,
+    tasks:[], routines:[], timetable:{},
+    periods:[['08:45','10:15'],['10:30','12:00'],['13:15','14:45'],['15:00','16:30'],['16:45','18:15']],
+    jobs:[],
+    settings:{dayStart:'09:00', dayEnd:'23:30', buffer:10, studyRatio:0.75, courseDue:'before', showTimes:false, morningOn:true, morningTime:'07:30'},
+    doneDays:{}, best:0,
+    backupAt:null, nagUntil:null,
+    weekly:[], shifts:[], places:[],
+    cond:{},
+    learn:{study:{r:1,n:0}, life:{r:1,n:0}, other:{r:1,n:0}},
+    log:[]
+  };
+}
+function merge(d){
+  const b = defaults();
+  if (!d || typeof d !== 'object') return b;
+  // クラウドから届くデータは書き換え禁止（凍結）なので、まるごと複製してから使う
+  try { d = JSON.parse(JSON.stringify(d)); } catch (e) { return b; }
+  return {
+    ...b, ...d,
+    settings:{...b.settings, ...(d.settings || {})},
+    learn:{
+      study:{...b.learn.study, ...((d.learn || {}).study || {})},
+      life:{...b.learn.life, ...((d.learn || {}).life || {})},
+      other:{...b.learn.other, ...((d.learn || {}).other || {})}
+    },
+    tasks:Array.isArray(d.tasks) ? d.tasks : [],
+    routines:Array.isArray(d.routines) ? d.routines : [],
+    jobs:Array.isArray(d.jobs) ? d.jobs : [],
+    weekly:Array.isArray(d.weekly) ? d.weekly : [],
+    shifts:Array.isArray(d.shifts) ? d.shifts : [],
+    places:Array.isArray(d.places) ? d.places : [],
+    periods:Array.isArray(d.periods) && d.periods.length ? d.periods : b.periods,
+    timetable:d.timetable && typeof d.timetable === 'object' ? d.timetable : {},
+    cond:d.cond && typeof d.cond === 'object' ? d.cond : {},
+    log:Array.isArray(d.log) ? d.log : [],
+    // 「やった日」の記録。古いデータには無いので、完了の記録から作る
+    doneDays:d.doneDays && typeof d.doneDays === 'object' ? d.doneDays : (Array.isArray(d.log) ? d.log : []).reduce((m, x) => { if (x && x.d) m[x.d] = (m[x.d] || 0) + 1; return m; }, {}),
+    best:Number(d.best) || 0
+  };
+}
+const hasData = s => !!s && ((s.tasks || []).length > 0 || (s.routines || []).length > 0 || Object.keys(s.timetable || {}).length > 0 || (s.jobs || []).length > 0);
+
+let S = defaults();
+const UI = {view:'today', day:'today', filter:'all', sheet:null, ai:true, undo:null, ctl:null, tt:null, ttEdit:false, weekOff:0};
+try { const v = localStorage.getItem(LS_VIEW); if (['today','tasks','routines','week'].includes(v)) UI.view = v; } catch (e) {}
+
+/* ---------- 保存（クラウド＝本人だけの領域 / 使えなければこの端末） ---------- */
+const store = {mode:'loading', ref:null, writing:false, again:false, timer:null, retries:0};
+let sampleFn = null, dlFn = null;
+
+function loadLocal(){ try { const t = localStorage.getItem(LS_KEY); return t ? JSON.parse(t) : null; } catch (e) { return null; } }
+function saveLocal(){ try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) {} }
+
+function commit(){
+  S.rev = (S.rev || 0) + 1; S.sid = SID;
+  prune();
+  render();
+  clearTimeout(store.timer);
+  store.timer = setTimeout(flush, 400);
+}
+async function flush(){
+  if (store.mode === 'cloud' && store.ref){
+    if (store.writing){ store.again = true; return; }
+    store.writing = true;
+    try {
+      await store.ref.set(JSON.parse(JSON.stringify(S)));
+      store.retries = 0;
+    } catch (e) {
+      const code = e && e.code;
+      if (code === 'unavailable' && store.retries < 2){ store.retries++; store.again = true; }
+      else if (code === 'quota_exceeded'){ toast('保存できる量の上限です。終わったタスクや古い予定を消してください'); }
+      else { store.mode = 'local'; saveLocal(); render(); toast('この共有のしかたではクラウドに保存できないため、この端末に保存します'); }
+    } finally {
+      store.writing = false;
+      if (store.again){ store.again = false; setTimeout(flush, 500 + Math.random()*500); }
+    }
+  } else if (store.mode === 'local'){
+    saveLocal();
+  }
+}
+function prune(){
+  const today = todayStr();
+  S.log = S.log.slice(-80);
+  S.tasks = S.tasks.filter(t => !t.done || !t.doneAt || daysBetween(t.doneAt, today) <= 30);
+  for (const k of Object.keys(S.cond)) if (daysBetween(k, today) > 14) delete S.cond[k];
+  for (const k of Object.keys(S.doneDays)) if (daysBetween(k, today) > 150) delete S.doneDays[k];
+  S.shifts = (S.shifts || []).filter(x => x && x.date && daysBetween(x.date, today) <= 60);
+}
+async function boot(){
+  render();
+  const c = window.claude;
+  let db = null, user = null;
+  if (c && typeof c.use === 'function'){
+    try { [db, user, sampleFn, dlFn] = await Promise.all([c.use('db'), c.use('user'), c.use('sample'), c.use('downloads')]); } catch (e) {}
+  }
+  if (IS_WEB && !dlFn) dlFn = {save:async ({filename, data}) => {
+    const blob = data instanceof Blob ? data : new Blob([data], {type:/\.ics$/.test(filename) ? 'text/calendar' : 'text/plain'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+    return {status:'saved'};
+  }};
+  let id = null;
+  try { id = user ? await user.id() : null; } catch (e) {}
+  if (db && id){
+    try {
+      // 「見るだけ」の共有で開いた人はクラウドに書けない。分かる場合は最初から端末保存にする
+      let canWrite = null;
+      try { canWrite = await user.can('data.write'); } catch (e) {}
+      if (canWrite === false) throw new Error('readonly');
+      store.ref = db.doc(`data/users/${id}/app`);
+      const snap = await store.ref.get();
+      if (snap.exists) S = merge(snap.data());
+      else {
+        // 初めて開いた人：書けるかどうかを1回だけ試す（断られたら、途中でエラーを出さずに端末保存へ）
+        const l = loadLocal();
+        S = merge(hasData(l) ? l : null);
+        await store.ref.set(JSON.parse(JSON.stringify(S)));
+      }
+      store.mode = 'cloud';
+      store.ref.onSnapshot(onSnap, () => {});
+    } catch (e) {
+      store.mode = 'local'; store.ref = null; S = merge(loadLocal());
+    }
+  } else {
+    store.mode = 'local'; S = merge(loadLocal());
+  }
+  if (!checkWeekly()) render();
+}
+function onSnap(snap){
+  if (!snap || !snap.exists || (snap.metadata && snap.metadata.hasPendingWrites)) return;
+  const d = snap.data();
+  if (d && d.sid !== SID && (d.rev || 0) > (S.rev || 0)){ S = merge(d); render(); }
+}
+
+/* ---------- 空き時間の計算 ---------- */
+function busyFor(date){
+  const wd = parseYmd(date).getDay();
+  const out = [];
+  if (wd >= 1 && wd <= 6){
+    S.periods.forEach((p, i) => {
+      const name = S.timetable[`${wd}-${i+1}`];
+      if (name) out.push({s:toMin(p[0]), e:toMin(p[1]), label:name});
+    });
+  }
+  S.jobs.filter(j => j.wd === wd).forEach(j => out.push({s:toMin(j.start), e:toMin(j.end), label:j.label || 'バイト'}));
+  shiftsOn(date).forEach(x => out.push({s:toMin(x.start), e:toMin(x.end), label:x.place || 'バイト'}));
+  return out.sort((a, b) => a.s - b.s);
+}
+function freeFor(date, fromMin){
+  const st = S.settings;
+  let ws = toMin(st.dayStart); const we = toMin(st.dayEnd);
+  if (fromMin != null) ws = Math.max(ws, Math.ceil(fromMin / 5) * 5);
+  if (we <= ws) return [];
+  const buf = Number(st.buffer) || 0;
+  const busy = busyFor(date).map(b => ({s:b.s - buf, e:b.e + buf}));
+  const free = []; let cur = ws;
+  for (const b of busy){
+    if (b.e <= cur) continue;
+    if (b.s > cur) free.push({s:cur, e:Math.min(b.s, we)});
+    cur = Math.max(cur, b.e);
+    if (cur >= we) break;
+  }
+  if (cur < we) free.push({s:cur, e:we});
+  return free.filter(f => f.e - f.s >= 15);
+}
+const sumFree = fr => fr.reduce((a, f) => a + f.e - f.s, 0);
+const condOf = date => COND[S.cond[date]] ? S.cond[date] : 'normal';
+
+/* ---------- 時間割から課題の締切を決める ---------- */
+const normName = s => String(s || '').normalize('NFKC').toLowerCase().replace(/[\s・･()（）「」『』【】\[\]_\-]/g, '');
+const courseNames = () => [...new Set(Object.values(S.timetable).filter(Boolean))];
+function matchCourse(title){
+  const t = normName(title); if (!t) return null;
+  let best = null;
+  for (const c of courseNames()){
+    const n = normName(c);
+    if (n.length >= 2 && t.includes(n) && (!best || n.length > normName(best).length)) best = c;
+  }
+  if (best) return best;
+  // 略した書き方（例：「民法 課題」→「民法総則」）。候補が1つに絞れるときだけ使う
+  const tokens = String(title).normalize('NFKC').split(/[\s、,・]+/).map(normName).filter(x => x.length >= 2);
+  const hits = courseNames().filter(c => tokens.some(tk => normName(c).startsWith(tk)));
+  return hits.length === 1 ? hits[0] : null;
+}
+function nextClass(course, fromDate, fromMin){
+  for (let i = 0; i <= 14; i++){
+    const ds = addDays(fromDate, i), wd = parseYmd(ds).getDay();
+    if (wd < 1 || wd > 6) continue;
+    for (let p = 0; p < S.periods.length; p++){
+      if (S.timetable[`${wd}-${p+1}`] !== course) continue;
+      if (i === 0 && toMin(S.periods[p][0]) <= fromMin) continue;
+      return {date:ds, start:S.periods[p][0], wd, period:p+1};
+    }
+  }
+  return null;
+}
+function courseDue(course){
+  const today = todayStr();
+  const nc = nextClass(course, today, nowMin()); if (!nc) return null;
+  const when = `${md(nc.date)} ${nc.period}限（${nc.start}〜）`;
+  if (S.settings.courseDue === 'daybefore' && addDays(nc.date, -1) >= today)
+    return {deadline:addDays(nc.date, -1), dueTime:null, course, note:`時間割の「${course}」から、次の授業 ${when} の前日を締切にしました`};
+  return {deadline:nc.date, dueTime:nc.start, course, note:`時間割の「${course}」から、次の授業 ${when} が始まる前までを締切にしました`};
+}
+/* 読み取った行に授業を結びつけ、締切が書かれていなければ次の授業から決める */
+function withCourse(row){
+  const course = row.course && courseNames().includes(row.course) ? row.course : matchCourse(row.title);
+  if (!course) return {...row, course:null, dueTime:null};
+  if (!row.deadline){ const cd = courseDue(course); if (cd) return {...row, cat:'study', deadline:cd.deadline, dueTime:cd.dueTime, course, note:cd.note}; }
+  return {...row, cat:'study', course, dueTime:null};
+}
+/* ---------- シフト（日付で入れるバイト） ---------- */
+const shiftsOn = date => (S.shifts || []).filter(x => x.date === date).sort((a, b) => toMin(a.start) - toMin(b.start));
+function shiftPresets(){
+  const cnt = {};
+  for (const x of S.shifts || []){ const k = `${x.start}-${x.end}`; cnt[k] = (cnt[k] || 0) + 1; }
+  const ks = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a]).slice(0, 3);
+  return ks.length ? ks : ['18:00-22:00', '10:00-15:00'];
+}
+/* その日の授業・毎週の予定・ほかのシフトのうち、指定の時間と重なるもの */
+function busyLabelsOn(date, s, e, skipId){
+  const wd = parseYmd(date).getDay(), out = [];
+  if (wd >= 1 && wd <= 6) S.periods.forEach((p, i) => { const n = S.timetable[`${wd}-${i + 1}`]; if (n && toMin(p[0]) < e && toMin(p[1]) > s) out.push(`${n}（${p[0]}〜${p[1]}）`); });
+  S.jobs.filter(j => j.wd === wd).forEach(j => { if (toMin(j.start) < e && toMin(j.end) > s) out.push(`${j.label || JOB_KIND[jobKind(j)]}（${j.start}〜${j.end}）`); });
+  shiftsOn(date).forEach(x => { if (x.id !== skipId && toMin(x.start) < e && toMin(x.end) > s) out.push(`${x.place}のシフト（${x.start}〜${x.end}）`); });
+  return out;
+}
+function keepShiftInputs(){
+  const sh = UI.sheet; if (!sh || (sh.type !== 'shift')) return;
+  const ps = formEl.querySelector('#sh-ps'), pe = formEl.querySelector('#sh-pe'), np = formEl.querySelector('#sh-newplace');
+  if (ps && ps.value) sh.ps = ps.value;
+  if (pe && pe.value) sh.pe = pe.value;
+  if (np) sh.newPlace = np.value;
+  for (const d of sh.sel){
+    const a = formEl.querySelector(`[name="ts-${d}"]`), b = formEl.querySelector(`[name="te-${d}"]`);
+    if (a && b) sh.times[d] = [a.value || sh.ps, b.value || sh.pe];
+  }
+}
+function openShiftSheet(){
+  const thisMon = mondayOf(todayStr()), shown = addDays(thisMon, 7 * (UI.weekOff || 0));
+  const [ps, pe] = shiftPresets()[0].split('-');
+  const places = S.places || [];
+  openSheet({type:'shift', from:shown > thisMon ? shown : thisMon, sel:[], times:{}, edited:{}, ps, pe, place:places[0] || '', adding:!places.length, newPlace:''});
+}
+/* ---------- 毎週の予定の種類（バイト／サークル／その他） ---------- */
+const JOB_KIND = {job:'バイト', cir:'サークル', etc:'その他'};
+const jobKind = j => JOB_KIND[j.kind] ? j.kind : (/サークル|部活/.test(j.label || '') ? 'cir' : (!j.label || /バイト/.test(j.label)) ? 'job' : 'etc');
+/* ---------- 毎週の課題：授業が終わったら、次の授業までの課題を自動で入れる ---------- */
+function courseSlots(course){
+  const out = [];
+  for (const [k, v] of Object.entries(S.timetable)){
+    if (v !== course) continue;
+    const [wd, p] = k.split('-').map(Number), per = S.periods[p - 1];
+    if (!per || wd < 1 || wd > 6) continue;
+    out.push({wd, period:p, start:per[0], end:per[1]});
+  }
+  return out.sort((a, b) => a.wd - b.wd || a.period - b.period);
+}
+// 「週1回」にしたときは、その週の最初のコマだけを数える
+const weeklySlots = w => { const s = courseSlots(w.course); return w.per === 'week' ? s.slice(0, 1) : s; };
+function lastEndedClass(w, today, now){
+  const slots = weeklySlots(w);
+  for (let i = 0; i <= 7 && slots.length; i++){
+    const ds = addDays(today, -i), wd = parseYmd(ds).getDay();
+    const c = slots.filter(x => x.wd === wd && (i > 0 || toMin(x.end) <= now)).sort((a, b) => b.period - a.period)[0];
+    if (c) return {date:ds, period:c.period, end:c.end, key:`${ds}#${c.period}`};
+  }
+  return null;
+}
+function nextWeeklyClass(w){
+  const slots = weeklySlots(w), today = todayStr(), now = nowMin();
+  for (let i = 0; i <= 14 && slots.length; i++){
+    const ds = addDays(today, i), wd = parseYmd(ds).getDay();
+    const c = slots.filter(x => x.wd === wd && (i > 0 || toMin(x.end) > now)).sort((a, b) => a.period - b.period)[0];
+    if (c) return {date:ds, period:c.period, end:c.end};
+  }
+  return null;
+}
+function weeklyDue(w, occ){
+  let nc = null;
+  if (w.per === 'week'){
+    const s = weeklySlots(w)[0];
+    for (let i = 1; s && i <= 14 && !nc; i++){ const ds = addDays(occ.date, i); if (parseYmd(ds).getDay() === s.wd) nc = {date:ds, start:s.start}; }
+  } else nc = nextClass(w.course, occ.date, toMin(occ.end));
+  if (!nc) return null;
+  if (S.settings.courseDue === 'daybefore' && addDays(nc.date, -1) > occ.date) return {deadline:addDays(nc.date, -1), dueTime:null, next:nc};
+  return {deadline:nc.date, dueTime:nc.start, next:nc};
+}
+function runWeekly(){
+  const today = todayStr(), now = nowMin(), made = [];
+  let changed = false;
+  for (const w of S.weekly || []){
+    if (!w.on || !courseNames().includes(w.course)) continue;
+    const occ = lastEndedClass(w, today, now);
+    if (!occ || w.lastKey === occ.key) continue;
+    w.lastKey = occ.key; changed = true;
+    if (S.tasks.some(t => t.weekly === w.id && t.occ === occ.key)) continue;
+    const due = weeklyDue(w, occ); if (!due) continue;
+    // 授業中などで、締切がもう過ぎているときは入れない
+    if (due.deadline < today || (due.deadline === today && due.dueTime && toMin(due.dueTime) <= now)) continue;
+    // 同じ授業で同じころが締切のやることを自分で入れてあれば、それを今回の分として扱う
+    const same = S.tasks.find(t => !t.done && !t.weekly && t.course === w.course && t.deadline && t.deadline <= due.next.date && t.deadline >= addDays(due.next.date, -1));
+    if (same){ same.weekly = w.id; same.occ = occ.key; continue; }
+    const d = parseYmd(occ.date);
+    const t = makeTask({title:`${w.title}（${d.getMonth()+1}/${d.getDate()}の回）`, cat:'study', deadline:due.deadline, dueTime:due.dueTime, course:w.course, min:w.min, imp:w.imp});
+    t.weekly = w.id; t.occ = occ.key;
+    S.tasks.push(t); made.push(t);
+  }
+  return {made, changed};
+}
+function weeklyStatus(w){
+  if (!courseNames().includes(w.course)) return '時間割にこの授業がありません';
+  if (!w.on) return 'お休み中（自動では追加しません）';
+  const o = nextWeeklyClass(w); if (!o) return '';
+  const due = weeklyDue(w, o);
+  return `次は${md(o.date)} ${o.end}に追加${due ? `（締切 ${md(due.deadline)}${due.dueTime ? ' ' + due.dueTime : ''}）` : ''}`;
+}
+function toastWeekly(made){
+  if (!made.length) return;
+  toast(made.length === 1 ? `毎週の課題「${made[0].title}」を追加しました（締切 ${dueText(made[0])}）` : `毎週の課題を${made.length}件追加しました`);
+}
+function checkWeekly(){
+  if (store.mode === 'loading') return false;
+  const wk = runWeekly();
+  if (wk.changed){ commit(); toastWeekly(wk.made); }
+  return wk.changed;
+}
+const dueText = t => t.deadline ? `${md(t.deadline)}${t.dueTime ? ` ${t.dueTime}${t.course ? `（${t.course}の前）` : ''}` : ''}` : '締切なし';
+
+/* ---------- 優先度の計算 ---------- */
+const ratio = cat => clamp((S.learn[cat] || {r:1}).r || 1, 0.5, 2.5);
+const effMin = t => round5(t.remaining * ratio(t.cat));
+
+function taskScore(t, d){
+  const urg = d === null ? 0.8 : d < 0 ? 12 : 10 / (d + 1);
+  const pressure = d === null ? 0 : Math.min(6, 2 * (effMin(t) / 60) / (Math.max(d, 0) + 1));
+  return (urg + pressure) * IMP[t.imp || 2];
+}
+function taskWhy(d, t){
+  if (d === null) return '締切なし';
+  if (d < 0) return `締切を${-d}日過ぎています`;
+  if (d === 0) return t && t.dueTime ? `今日${t.dueTime}の授業まで` : '締切は今日';
+  if (d === 1) return t && t.dueTime ? `あした${t.dueTime}の授業まで` : '締切はあした';
+  return `締切まで${d}日`;
+}
+function routineDue(r, date){
+  if (r.snooze && r.snooze > date) return null;
+  if (r.type === 'weekly'){
+    const wd = parseYmd(date).getDay();
+    if (!(r.days || []).includes(wd) || r.last === date) return null;
+    return {overdue:0, weekly:true};
+  }
+  if (!r.last) return {overdue:0};
+  const since = daysBetween(r.last, date);
+  const every = Math.max(1, Number(r.every) || 1);
+  if (since < every) return null;
+  return {overdue:since - every};
+}
+function routineScore(r, due){
+  const base = due.weekly ? 9 : Math.min(12, 2.5 + 1.5 * due.overdue);
+  return base * IMP[r.imp || 2];
+}
+/* 優先度の7段階（SS〜E）。スコアは締切までの日数・かかる時間・重要度から計算 */
+const GRADES = [
+  {g:'SS', min:12, desc:'今すぐ。締切を過ぎた、または今日が締切で時間がかかる'},
+  {g:'S', min:8, desc:'今日中に。今日が締切、または今日の曜日の家事'},
+  {g:'A', min:5, desc:'あしたまでに'},
+  {g:'B', min:3, desc:'2〜3日のうちに'},
+  {g:'C', min:1.8, desc:'今週のうちに'},
+  {g:'D', min:1, desc:'余裕あり'},
+  {g:'E', min:-Infinity, desc:'いつでもよい'}
+];
+const gradeOf = s => GRADES.find(x => s >= x.min).g;
+const gradeTag = (s, big) => { const g = gradeOf(s); return `<span class="grade g-${g}${big ? ' big' : ''}" title="優先度 ${g}">${g}</span>`; };
+
+function itemsFor(date){
+  const items = [];
+  for (const t of S.tasks){
+    if (t.done || (t.snooze && t.snooze > date)) continue;
+    const d = t.deadline ? daysBetween(date, t.deadline) : null;
+    items.push({kind:'task', ref:t, id:t.id, title:t.title, cat:t.cat, min:effMin(t), score:taskScore(t, d), why:taskWhy(d, t)});
+  }
+  for (const r of S.routines){
+    const due = routineDue(r, date);
+    if (!due) continue;
+    items.push({kind:'routine', ref:r, id:r.id, title:r.title, cat:'life', min:round5(r.est), score:routineScore(r, due),
+      why: due.weekly ? '今日の曜日の家事' : due.overdue > 0 ? `${due.overdue}日おくれ` : '今日が目安の日'});
+  }
+  return items.sort((a, b) => b.score - a.score);
+}
+
+/* 学業と生活のバランスを取りながら、空き時間に詰める */
+function buildPlan(date, isToday){
+  const free = freeFor(date, isToday ? nowMin() : null);
+  const freeTotal = sumFree(free);
+  const mult = COND[condOf(date)].m;
+  const cap = Math.floor(freeTotal * mult / 5) * 5;
+  const items = itemsFor(date);
+  const life = items.filter(i => i.cat === 'life'), work = items.filter(i => i.cat !== 'life');
+  const lifeBudget = life.length ? Math.round(cap * (1 - S.settings.studyRatio)) : 0;
+  const chosen = [], left = new Set(items.map(i => i.id));
+  let used = 0, lifeUsed = 0;
+  const take = (it, min, partial) => { chosen.push({...it, min, partial:!!partial}); used += min; if (it.cat === 'life') lifeUsed += min; left.delete(it.id); };
+
+  // 1) 生活の枠（目安の配分ぶん）。今日やらないといけない家事は枠を超えても入れる
+  for (const it of life){
+    if (used + it.min > cap) continue;
+    if (lifeUsed + it.min <= lifeBudget || it.score >= 9) take(it, it.min);
+  }
+  // 2) 学業・その他を優先度順に。入りきらない大きな課題は「一部だけ進める」
+  for (const it of work){
+    const rem = cap - used;
+    if (rem < 15) break;
+    if (it.min <= rem) take(it, it.min);
+    else if (rem >= 30) take(it, Math.floor(rem / 5) * 5, true);
+  }
+  // 3) まだ時間が余れば残りの家事
+  for (const it of life){
+    if (left.has(it.id) && used + it.min <= cap) take(it, it.min);
+  }
+  // 時間帯に割り当てる（優先度の高いものから早い時間へ）
+  chosen.sort((a, b) => b.score - a.score);
+  const slots = free.map(f => ({s:f.s, e:f.e, cur:f.s}));
+  for (const c of chosen){
+    // 授業の前が締切の課題は、その授業の前（移動時間も引く）までに入れる
+    const lim = c.kind === 'task' && c.ref.dueTime && c.ref.deadline === date ? toMin(c.ref.dueTime) - (Number(S.settings.buffer) || 0) : Infinity;
+    const room = sl => Math.min(sl.e, lim) - sl.cur;
+    let slot = slots.find(sl => room(sl) >= c.min);
+    if (!slot && c.cat !== 'life'){
+      const big = slots.reduce((a, b) => (!a || room(b) > room(a)) ? b : a, null);
+      const r = big ? Math.floor(room(big) / 5) * 5 : 0;
+      if (r >= 15){ c.min = r; c.partial = true; slot = big; }
+    }
+    if (slot){ c.s = slot.cur; c.e = slot.cur + c.min; slot.cur = c.e; c.placed = true; }
+  }
+  const plan = chosen.filter(c => c.placed).sort((a, b) => a.s - b.s);
+  const inPlan = new Set(plan.map(p => p.id));
+  const overflow = items.filter(i => !inPlan.has(i.id));
+  return {free, freeTotal, cap, plan, overflow};
+}
+
+/* 締切までの空き時間（7割を使える前提）より作業が多ければ「間に合わないおそれ」 */
+function riskSet(){
+  const today = todayStr(), n0 = nowMin();
+  const capCache = {};
+  const dayCap = i => {
+    if (capCache[i] != null) return capCache[i];
+    const ds = addDays(today, i);
+    const fr = sumFree(freeFor(ds, i === 0 ? n0 : null));
+    return (capCache[i] = fr * (i === 0 ? COND[condOf(ds)].m : 0.7));
+  };
+  const ts = S.tasks.filter(t => !t.done && t.deadline).sort((a, b) => a.deadline.localeCompare(b.deadline));
+  const risky = new Set(); let work = 0;
+  for (const t of ts){
+    const d = daysBetween(today, t.deadline);
+    if (d < 0){ risky.add(t.id); continue; }
+    work += effMin(t);
+    let capSum = 0;
+    for (let i = 0; i <= Math.min(30, d); i++){
+      if (i === d && t.dueTime){
+        const ds = addDays(today, i), lim = toMin(t.dueTime);
+        const fr = freeFor(ds, i === 0 ? n0 : null).reduce((a, f) => a + Math.max(0, Math.min(f.e, lim) - f.s), 0);
+        capSum += fr * (i === 0 ? COND[condOf(ds)].m : 0.7);
+      } else capSum += dayCap(i);
+    }
+    if (work > capSum) risky.add(t.id);
+  }
+  return risky;
+}
+function alerts(){
+  const today = todayStr(), risky = riskSet(), out = [];
+  for (const t of S.tasks){
+    if (t.done || !t.deadline) continue;
+    const d = daysBetween(today, t.deadline);
+    if (d < 0) out.push({lv:3, label:'要注意', html:`「${esc(t.title)}」の締切を${-d}日過ぎています`});
+    else if (d === 0 && t.dueTime && nowMin() >= toMin(t.dueTime)) out.push({lv:3, label:'要注意', html:`「${esc(t.title)}」の締切（今日 ${t.dueTime}）を過ぎています`});
+    else if (risky.has(t.id)) out.push({lv:3, label:'要注意', html:`「${esc(t.title)}」は、今の空き時間だと締切 ${esc(dueText(t))} に間に合わないおそれがあります`});
+    else if (d <= 1) out.push({lv:2, label:'締切が近い', html:`「${esc(t.title)}」の締切は${d === 0 ? '今日' : 'あした'}${t.dueTime ? ` ${t.dueTime}（授業の前）` : ''}です（残り約${dur(effMin(t))}）`});
+  }
+  for (const r of S.routines){
+    const due = routineDue(r, today);
+    if (due && due.overdue >= 2) out.push({lv:1, label:'たまっている', html:`${esc(r.title)}が${due.overdue}日おくれています`});
+  }
+  return out.sort((a, b) => b.lv - a.lv).slice(0, 3);
+}
+
+/* ---------- 記録と学習 ---------- */
+function learn(cat, x){
+  const L = S.learn[cat] || (S.learn[cat] = {r:1, n:0});
+  L.r = +((L.r || 1) * 0.7 + clamp(x, 0.4, 2.5) * 0.3).toFixed(3);
+  L.n = (L.n || 0) + 1;
+}
+/* ---------- やった記録（連続記録）。週に2日までは休んでも途切れない ---------- */
+const REST_PER_WEEK = 2;
+const mondayOf = d => addDays(d, -((parseYmd(d).getDay() + 6) % 7));
+function streakInfo(){
+  const today = todayStr(), days = S.doneDays || {};
+  const active = d => (days[d] || 0) > 0;
+  const keys = Object.keys(days).filter(active).sort();
+  const todayDone = active(today);
+  // 今週すでに休んだ日（月曜〜きのう、記録を始める前の日は数えない）
+  const first = keys[0] || today;
+  let restUsed = 0;
+  for (let d = mondayOf(today); d < today; d = addDays(d, 1)) if (d >= first && !active(d)) restUsed++;
+  const restLeft = Math.max(0, REST_PER_WEEK - restUsed);
+  if (!keys.length) return {n:0, todayDone, restLeft, best:S.best || 0};
+  let n = todayDone ? 1 : 0, misses = 0, wk = mondayOf(today);
+  for (let d = addDays(today, -1); d >= first; d = addDays(d, -1)){
+    const w = mondayOf(d); if (w !== wk){ wk = w; misses = 0; }
+    if (active(d)) n++;
+    else if (misses < REST_PER_WEEK) misses++;
+    else break;
+  }
+  return {n, todayDone, restLeft, best:Math.max(S.best || 0, n)};
+}
+function recordDone(kind, id, act, how){
+  const today = todayStr();
+  UI.undo = JSON.stringify(S);
+  act = clamp(Math.round(Number(act) || 0), 1, 600);
+  const firstToday = !((S.doneDays || {})[today] > 0);
+  let msg;
+  if (kind === 'routine'){
+    const r = S.routines.find(x => x.id === id); if (!r) return;
+    r.last = today; r.snooze = null;
+    r.est = round5(r.est * 0.6 + act * 0.4);
+    S.log.push({d:today, title:r.title, cat:'life', act});
+    msg = `「${r.title}」を記録しました`;
+  } else {
+    const t = S.tasks.find(x => x.id === id); if (!t) return;
+    t.actual = (t.actual || 0) + act;
+    if (how === 'finish'){
+      learn(t.cat, act / Math.max(5, t.remaining));
+      t.done = true; t.doneAt = today; t.remaining = 0;
+      msg = `「${t.title}」完了。${act}分で記録しました`;
+    } else {
+      t.remaining = Math.max(5, round5(t.remaining - act / ratio(t.cat)));
+      t.snooze = null;
+      msg = `記録しました。残りは約${dur(effMin(t))}です`;
+    }
+    S.log.push({d:today, title:t.title, cat:t.cat, act});
+  }
+  S.doneDays[today] = (S.doneDays[today] || 0) + 1;
+  const st = streakInfo();
+  S.best = Math.max(S.best || 0, st.n);
+  if (firstToday) msg = st.n >= 2 ? `今日の1つ目。やった記録 ${st.n}日目です` : '今日の1つ目。やった記録がスタートしました';
+  toast(msg, true);
+  closeSheet(); commit();
+}
+
+/* ---------- 入力の読み取り ---------- */
+const LIFE_RE = /洗濯|掃除|片付|買い物|買い出し|買う|ゴミ|ごみ|料理|自炊|作り置き|洗い物|皿|風呂|トイレ|布団|シーツ|振込|支払|払う|手続|役所|郵便|クリーニング|散髪|病院|歯医者|銀行|家賃|光熱費/;
+const STUDY_RE = /レポート|課題|宿題|予習|復習|試験|テスト|小テスト|発表|ゼミ|論文|読書|単語|勉強|授業|講義|演習|レジュメ|判例|条文|提出|資格/;
+function localParse(line){
+  let s = String(line).trim(); if (!s) return null;
+  const today = todayStr(); let min = null, deadline = '', imp = 2, m;
+  if ((m = s.match(/(\d+(?:\.\d+)?)\s*(?:時間|h)(?:\s*(\d+)\s*分)?/i))){ min = Math.round(parseFloat(m[1]) * 60) + (m[2] ? +m[2] : 0); s = s.replace(m[0], ' '); }
+  else if ((m = s.match(/(\d+)\s*(?:分|min)/i))){ min = +m[1]; s = s.replace(m[0], ' '); }
+  const rel = [['しあさって',3],['明明後日',3],['あさって',2],['明後日',2],['あした',1],['明日',1],['きょう',0],['今日',0]];
+  for (const [w, n] of rel){ if (s.includes(w)){ deadline = addDays(today, n); s = s.replace(w, ' '); break; } }
+  if (!deadline && (m = s.match(/(\d+)\s*日後/))){ deadline = addDays(today, +m[1]); s = s.replace(m[0], ' '); }
+  if (!deadline && (m = s.match(/(\d{1,2})\s*[\/月]\s*(\d{1,2})\s*日?/))){
+    const y = new Date().getFullYear(); let dt = ymd(new Date(y, +m[1]-1, +m[2]));
+    if (daysBetween(today, dt) < -30) dt = ymd(new Date(y+1, +m[1]-1, +m[2]));
+    deadline = dt; s = s.replace(m[0], ' ');
+  }
+  if (!deadline && (m = s.match(/(来週|今週)?\s*([月火水木金土日])曜日?/))){
+    const target = '日月火水木金土'.indexOf(m[2]), cur = parseYmd(today).getDay();
+    if (m[1] === '来週'){ const toMon = ((8 - cur) % 7) || 7; deadline = addDays(today, toMon + ((target + 6) % 7)); }
+    else deadline = addDays(today, (target - cur + 7) % 7);
+    s = s.replace(m[0], ' ');
+  }
+  s = s.replace(/(までに|まで|締め?切り?|〆切?|提出期限)/g, ' ');
+  if (/重要|大事|必修|絶対|単位/.test(s)) imp = 3;
+  else if (/ついで|いつでも|ひまな?とき|暇/.test(s)) imp = 1;
+  const cat = LIFE_RE.test(s) ? 'life' : STUDY_RE.test(s) ? 'study' : 'other';
+  const title = s.replace(/\s+/g, ' ').trim() || String(line).trim();
+  if (min == null) min = cat === 'life' ? 20 : 60;
+  return withCourse({title:title.slice(0, 60), cat, deadline, min:clamp(round5(min), 5, 600), imp});
+}
+function normRow(o){
+  if (!o || typeof o !== 'object') return null;
+  const title = String(o.title ?? '').trim().slice(0, 60); if (!title) return null;
+  const cat = ['study','life','other'].includes(o.cat) ? o.cat : 'study';
+  const deadline = /^\d{4}-\d{2}-\d{2}$/.test(String(o.deadline)) ? String(o.deadline) : '';
+  const min = clamp(round5(o.minutes ?? o.min ?? 30), 5, 600);
+  const imp = clamp(Math.round(Number(o.importance ?? o.imp ?? 2)) || 2, 1, 3);
+  const course = typeof o.course === 'string' ? o.course : null;
+  return withCourse({title, cat, deadline, min, imp, course});
+}
+async function aiParse(q, signal){
+  const today = todayStr();
+  const prompt = `大学生向けのタスク管理アプリの入力欄に書かれた文章を、タスクのデータに変換してください。
+今日は ${today}（${WD[parseYmd(today).getDay()]}曜日）です。
+
+ルール:
+- 文章に複数のやることがあれば、それぞれ別の要素にする
+- title: やることを短く（20文字程度まで）。日付や所要時間の表現は含めない
+- cat: 授業・課題・レポート・試験勉強・予習復習などの学業は "study"、家事・買い物・手続きなど身の回りのことは "life"、それ以外（バイトの準備、サークル、趣味など）は "other"
+- deadline: 締切または実行日が分かれば "YYYY-MM-DD"（「あさって」「来週火曜」などは今日を基準に計算）。分からなければ null
+- minutes: かかる時間（分、整数）。書かれていなければ大学生の一般的な目安で推定
+- importance: 成績・単位・お金・期限付きの手続きに直結するものは 3、ふつうは 2、後回しにしてよいものは 1
+- course: 次の時間割の授業のどれかに関係するやることなら、その授業名をリストと完全に同じ文字で。関係なければ null
+- 授業に関係するやることで、締切が文章に書かれていなければ deadline は null にする（アプリが時間割から決めます）
+
+時間割の授業: ${courseNames().join('、') || '（なし）'}
+
+次の形のJSON配列だけを返してください:
+[{"title":"民法レポート","cat":"study","deadline":"${addDays(today, 2)}","minutes":90,"importance":3,"course":null}]
+
+入力:
+${q.slice(0, 1000)}`;
+  const out = await sampleFn.json(prompt, {modelTier:'quick', signal});
+  const arr = Array.isArray(out) ? out : (out && Array.isArray(out.tasks)) ? out.tasks : out ? [out] : [];
+  return arr.map(normRow).filter(Boolean).slice(0, 10);
+}
+async function quickAdd(form){
+  const input = form.querySelector('#quick-in');
+  const q = (input && input.value || '').trim();
+  if (!q) { input && input.focus(); return; }
+  let rows = null, via = 'local', note = '';
+  if (sampleFn && UI.ai){
+    const ctl = new AbortController(); UI.ctl = ctl;
+    openSheet({type:'thinking', q});
+    try { rows = await aiParse(q, ctl.signal); via = 'ai'; }
+    catch (e) {
+      const code = e && e.code;
+      if (['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(code)){ sampleFn = null; note = 'AIが使えないため、簡易読み取りの結果です。'; }
+      else if (code === 'rate_limited') note = 'AIの利用が混み合っているため、簡易読み取りの結果です。';
+      else if (code !== 'cancelled') note = 'AIの読み取りに失敗したため、簡易読み取りの結果です。';
+      rows = null;
+    }
+    UI.ctl = null;
+    if (!UI.sheet || UI.sheet.type !== 'thinking') return;
+  }
+  if (!rows || !rows.length){ rows = q.split(/\n+/).map(localParse).filter(Boolean); via = 'local'; }
+  if (!rows.length) return;
+  const cur = document.getElementById('quick-in'); if (cur) cur.value = '';
+  openSheet({type:'confirm', rows, via, note});
+}
+const makeTask = r => ({id:newId(), title:r.title, cat:r.cat, deadline:r.deadline || null, dueTime:r.dueTime || null, course:r.course || null, est:r.min, remaining:r.min, imp:r.imp, done:false, created:todayStr()});
+
+/* ---------- サンプル ---------- */
+function loadSample(){
+  const t = todayStr();
+  const mk = (title, cat, d, min, imp) => ({id:newId(), title, cat, deadline: d === null ? null : addDays(t, d), est:min, remaining:min, imp, done:false, created:t});
+  S = defaults(); S.sample = true;
+  S.timetable = {'1-2':'民法総則','1-3':'英語（リーディング）','2-1':'統計学入門','2-4':'憲法','3-2':'刑法総論','4-3':'英語（ライティング）','4-4':'情報基礎','5-2':'民法総則','5-3':'政治学'};
+  S.jobs = [{id:newId(), wd:3, start:'18:00', end:'22:00', label:'バイト'}, {id:newId(), wd:6, start:'10:00', end:'15:00', label:'バイト'}];
+  S.tasks = [mk('民法総則のレポート','study',2,120,3), mk('英語の予習（Unit 5）','study',1,40,2), mk('統計学の小テスト対策','study',5,90,2), mk('図書館の本を返す','other',3,15,1), mk('新しいシーツを買う','life',null,30,1)];
+  S.routines = [
+    {id:newId(), title:'ゴミ出し（燃やすごみ）', type:'weekly', days:[2,5], every:7, est:5, imp:3, last:null},
+    {id:newId(), title:'洗濯', type:'interval', days:[], every:3, est:30, imp:2, last:addDays(t,-4)},
+    {id:newId(), title:'掃除機をかける', type:'interval', days:[], every:7, est:20, imp:2, last:addDays(t,-9)},
+    {id:newId(), title:'食料の買い出し', type:'interval', days:[], every:7, est:40, imp:2, last:addDays(t,-5)}
+  ];
+  UI.view = 'today'; UI.day = 'today';
+  commit();
+}
+const PRESETS = [
+  {title:'ゴミ出し（燃やすごみ）', type:'weekly', days:[2,5], every:7, est:5, imp:3},
+  {title:'洗濯', type:'interval', days:[], every:3, est:30, imp:2},
+  {title:'掃除機をかける', type:'interval', days:[], every:7, est:20, imp:2},
+  {title:'食料の買い出し', type:'interval', days:[], every:7, est:40, imp:2},
+  {title:'作り置きの自炊', type:'interval', days:[], every:7, est:60, imp:1},
+  {title:'シーツを洗う', type:'interval', days:[], every:14, est:20, imp:1}
+];
+
+/* ---------- 描画 ---------- */
+const app = document.getElementById('app');
+const sheetEl = document.getElementById('sheet');
+const formEl = document.getElementById('sheet-form');
+const toastEl = document.getElementById('toast');
+
+function render(){
+  const qi = document.getElementById('quick-in');
+  const keep = qi ? {v:qi.value, f:document.activeElement === qi} : null;
+  app.innerHTML = header() + view();
+  if (keep){ const n = document.getElementById('quick-in'); if (n){ n.value = keep.v; if (keep.f) n.focus(); } }
+  document.querySelectorAll('.tabs button').forEach(b => { if (b.dataset.v === UI.view) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+}
+function header(){
+  const chip = {loading:'準備中', cloud:'クラウドに保存', local:'この端末に保存'}[store.mode];
+  return `<header class="top"><span class="logo">ダンドリ</span><span class="sync ${store.mode}">${chip}</span><button class="btn ghost small" type="button" data-act="settings">設定</button></header>`
+    + (S.sample ? `<div class="samplebar"><span>サンプルデータを表示しています</span><button class="btn small" type="button" data-act="clear-sample">消して自分の予定を入れる</button></div>` : '')
+    + inAppBar() + a2hsBar();
+}
+/* TikTokなどのアプリ内ブラウザでは、保存したデータがSafari・Chromeと別になる */
+const IN_APP = (ua => /TikTok|musical_ly|Bytedance/i.test(ua) ? 'TikTok' : /Instagram/i.test(ua) ? 'Instagram' : /\bLine\//i.test(ua) ? 'LINE' : /FBAN|FBAV/i.test(ua) ? 'Facebook' : '')(navigator.userAgent || '');
+function a2hsBar(){
+  if (!IS_WEB || !IS_IOS || IS_STANDALONE || IN_APP || UI.a2hsHidden) return '';
+  try { if (localStorage.getItem('dandori.a2hs') === 'off') return ''; } catch (e) {}
+  return `<div class="inapp a2hs" role="note"><span><b>ホーム画面に追加すると、アプリのように使えます。</b>下の共有ボタン（□に↑）→「ホーム画面に追加」。追加したアイコンとSafariではデータが別になるので、追加してから使い始めるのがおすすめです（今のデータは設定の「引き継ぎコード」で移せます）。</span><div class="acts"><button type="button" class="btn ghost small" data-act="a2hs-hide">閉じる</button></div></div>`;
+}
+function inAppBar(){
+  if (!IN_APP || store.mode !== 'local' || UI.inappHidden) return '';
+  return `<div class="inapp" role="note"><span><b>${IN_APP}の中のブラウザで開いています。</b>ここに入れたデータは、あとでSafariやChromeで開いたときには出てきません。右上の「…」から「ブラウザで開く」を選んでから使うのがおすすめです。</span><div class="acts"><button type="button" class="btn ghost small" data-act="inapp-hide">このまま使う</button></div></div>`;
+}
+function backupCard(today){
+  if (store.mode !== 'local' || S.sample) return '';
+  if (S.tasks.length + S.routines.length < 3) return '';
+  if (S.backupAt && daysBetween(S.backupAt, today) < 14) return '';
+  if (S.nagUntil && S.nagUntil > today) return '';
+  return `<section class="backup" aria-label="データの控え">
+    <b>${S.backupAt ? 'そろそろ控えを新しくしておこう' : 'データの控えを作っておこう'}</b>
+    <span>いまのデータは、この端末の中だけにあります。機種変更やブラウザのデータ削除で消えないように、引き継ぎコードを作ってLINEのKeepなどに貼っておくと安心です。</span>
+    <div class="acts"><button type="button" class="btn small" data-act="transfer">引き継ぎコードを作る</button><button type="button" class="btn ghost small" data-act="nag-later">あとで</button></div>
+  </section>`;
+}
+function view(){
+  switch (UI.view){
+    case 'tasks': return tasksView();
+    case 'routines': return routinesView();
+    case 'week': return weekView();
+    default: return todayView();
+  }
+}
+const segBtn = (act, v, label, on, extra = '') => `<button type="button" data-act="${act}" data-v="${v}" ${extra} aria-pressed="${on}">${label}</button>`;
+
+function onboarding(){
+  const dis = store.mode === 'loading' ? 'disabled' : '';
+  return `<section class="intro">
+    <h1 class="intro-h">課題と家事を、<br>今日やる順番に。</h1>
+    <p>授業・バイトの予定と、やることを入れておくと、空き時間に合わせて「今日の段取り」を作ります。学業と生活の配分も自動で考えます。</p>
+    <ol class="steps">
+      <li><b>時間割とバイトを入れる</b><span>空き時間が自動で分かります</span></li>
+      <li><b>やることを書く</b><span>「民法レポート あさって 90分」のように文章でOK</span></li>
+      <li><b>今日の段取りを見る</b><span>終わったら何分かかったかを記録。次から見積もりが正確になります</span></li>
+    </ol>
+    <div class="intro-acts"><button type="button" class="btn primary" data-act="load-sample" ${dis}>サンプルで試す</button><button type="button" class="btn" data-act="tab" data-v="week" ${dis}>時間割から始める</button></div>
+    ${store.mode === 'loading' ? '<p class="hint">保存先を準備しています…</p>' : ''}
+  </section>`;
+}
+/* 朝の「3秒チェック」：今日やる量と最初の1つ、やった記録だけを出す */
+function morningCard(P){
+  const h = new Date().getHours();
+  const greet = h < 4 ? 'おつかれさま。' : h < 11 ? 'おはよう。' : h < 17 ? 'こんにちは。' : 'こんばんは。';
+  const st = streakInfo();
+  const order = S.settings.showTimes ? P.plan : P.plan.slice().sort((a, b) => b.score - a.score);
+  const total = order.reduce((a, p) => a + p.min, 0);
+  const doneToday = (S.doneDays || {})[todayStr()] || 0;
+  let line;
+  if (order.length) line = `今日は <b>${order.length}件・${dur(total)}</b> やれば大丈夫。最初は「${esc(order[0].title)}」から。`;
+  else if (doneToday) line = '今日の段取りは全部終わりました。おつかれさま。';
+  else line = '今日はゆったりした日です。休むのも段取りのうち。';
+  const sline = st.n === 0 ? '1つ終わらせると、記録がスタートします'
+    : st.todayDone ? `今日も進めました。ベストは${st.best}日`
+    : `今日1つ終わらせると${st.n + 1}日目`;
+  return `<section class="morning" aria-label="今日のまとめ">
+    <p class="greet">${greet}</p>
+    <p class="mline">${line}</p>
+    <div class="streak">
+      <div class="snum"><b>${st.n}</b><span>日</span></div>
+      <div class="stext"><span class="slabel">やった記録</span><span>${sline}</span><span class="ssub">今週のお休み あと${st.restLeft}回。週${REST_PER_WEEK}日までは休んでも途切れません</span></div>
+    </div>
+  </section>`;
+}
+function todayView(){
+  if (!hasData(S)) return onboarding();
+  const today = todayStr(), isToday = UI.day === 'today';
+  const date = isToday ? today : addDays(today, 1);
+  const P = buildPlan(date, isToday);
+  const al = isToday ? alerts() : [];
+  const cond = condOf(date);
+  const studyMin = P.plan.filter(p => p.cat !== 'life').reduce((a, p) => a + p.min, 0);
+  const lifeMin = P.plan.filter(p => p.cat === 'life').reduce((a, p) => a + p.min, 0);
+  return `
+  <section class="daybar">
+    <h1 class="date">${md(date)}</h1>
+    <div class="seg" role="group" aria-label="表示する日">${segBtn('day','today','今日',isToday)}${segBtn('day','tomorrow','あした',!isToday)}</div>
+  </section>
+  ${isToday ? morningCard(P) : ''}
+  ${isToday ? backupCard(today) : ''}
+  ${al.length ? `<section class="alerts" aria-label="要注意">${al.map(a => `<div class="alert lv${a.lv}"><b>${a.label}</b><span>${a.html}</span></div>`).join('')}</section>` : ''}
+  <section class="hero" aria-label="使える時間">
+    <div class="hero-top">
+      <div>
+        <div class="cap-label">${isToday ? 'これから使える時間' : 'あした使える時間'}</div>
+        <div class="cap"><mark>${dur(P.cap)}</mark></div>
+        <div class="cap-sub">空き時間 ${dur(P.freeTotal)} × コンディション「${COND[cond].label}」</div>
+      </div>
+      <div class="seg" role="group" aria-label="コンディション">${Object.keys(COND).map(k => segBtn('cond', k, COND[k].label, k === cond, `data-date="${date}"`)).join('')}</div>
+    </div>
+    ${strip(date, isToday, P)}
+    ${balance(studyMin, lifeMin)}
+  </section>
+  ${adder()}
+  <section class="sect">
+    <h2 class="h2">${isToday ? '今日の段取り' : 'あしたの段取り'}<span class="h2-sub">${P.plan.length ? `${P.plan.length}件・${dur(studyMin + lifeMin)}` : ''}</span></h2>
+    ${P.plan.length ? `<div class="plan">${(S.settings.showTimes ? P.plan : P.plan.slice().sort((a, b) => b.score - a.score)).map((p, i) => planItem(p, isToday, i)).join('')}</div>
+    <p class="note">${S.settings.showTimes ? '時刻は目安です。' : '上から順に進めるのがおすすめです。'}順番どおりにできなくても、開くたびに「今から」の時間で組み直します。</p>` : emptyPlan(P, isToday)}
+  </section>
+  ${P.overflow.length ? `<section class="sect"><h2 class="h2">入りきらなかったもの<span class="h2-sub">${isToday ? 'あした以降に回ります' : 'あさって以降に回ります'}</span></h2><div class="rest">${P.overflow.map(o => `<div class="rrow"><span class="title">${esc(o.title)}</span><span class="meta">${gradeTag(o.score)}<span>${esc(o.why)}</span><span class="num">${dur(o.min)}</span></span></div>`).join('')}</div></section>` : ''}
+  ${isToday ? doneToday(today) : ''}
+  <p class="foot">スマホへの通知の代わりに、開いたときに「要注意」をいちばん上に出します。</p>`;
+}
+function strip(date, isToday, P){
+  const ws = toMin(S.settings.dayStart), we = toMin(S.settings.dayEnd), span = Math.max(60, we - ws);
+  const pos = m => ((clamp(m, ws, we) - ws) / span * 100);
+  const blk = (cls, a, b, title) => { const w = pos(b) - pos(a); return w > 0 ? `<i class="blk ${cls}" style="left:${pos(a).toFixed(2)}%;width:${w.toFixed(2)}%"${title ? ` title="${esc(title)}"` : ''}></i>` : ''; };
+  let html = '';
+  const n = nowMin();
+  if (isToday && n > ws) html += blk('past', ws, n);
+  for (const b of busyFor(date)) html += blk('busy', b.s, b.e, b.label);
+  if (S.settings.showTimes) for (const p of P.plan) html += blk(p.cat, p.s, p.e, p.title);
+  if (isToday && n >= ws && n <= we) html += `<i class="now" style="left:${pos(n).toFixed(2)}%"></i>`;
+  let ticks = '';
+  for (let t = Math.ceil(ws / 180) * 180; t <= we; t += 180){
+    const x = pos(t);
+    ticks += `<span class="num${x < 5 ? ' l' : x > 95 ? ' r' : ''}" style="left:${x.toFixed(2)}%">${Math.floor(t/60)}時</span>`;
+  }
+  return `<div class="strip-wrap">
+    <div class="strip" role="img" aria-label="${md(date)}の時間の使い方（${S.settings.dayStart}〜${S.settings.dayEnd}）">${html}</div>
+    <div class="ticks" aria-hidden="true">${ticks}</div>
+    <div class="legend">${S.settings.showTimes
+      ? '<span><i class="sw busy"></i>授業・バイト</span><span><i class="sw study"></i>学業</span><span><i class="sw life"></i>生活</span><span><i class="sw other"></i>その他</span>'
+      : '<span><i class="sw busy"></i>授業・バイト</span><span><i class="sw free"></i>空き時間</span>'}</div>
+  </div>`;
+}
+function balance(studyMin, lifeMin){
+  const tot = studyMin + lifeMin, r = S.settings.studyRatio;
+  return `<div class="bal">
+    <div class="bal-head"><span>学業・その他<b class="num">${dur(studyMin)}</b></span><span>生活<b class="num">${dur(lifeMin)}</b></span></div>
+    <div class="bal-track"><div class="bal-bar">${tot ? `<i class="study" style="width:${(studyMin/tot*100).toFixed(1)}%"></i><i class="life" style="width:${(lifeMin/tot*100).toFixed(1)}%"></i>` : ''}</div><span class="bal-target" style="left:${(r*100).toFixed(1)}%" aria-hidden="true"></span></div>
+    <div class="bal-note">黒い線が目安の配分（学業 ${Math.round(r*100)}：生活 ${Math.round((1-r)*100)}）。設定で変えられます</div>
+  </div>`;
+}
+function planItem(p, isToday, idx){
+  const tags = [gradeTag(p.score), `<span class="tag ${p.cat}">${p.kind === 'routine' ? '家事' : CAT[p.cat]}</span>`, `<span class="tag ${p.score >= 8 ? 'hot' : 'plain'}">${esc(p.why)}</span>`];
+  if (p.partial) tags.push(`<span class="tag plain">一部だけ進める</span>`);
+  const times = S.settings.showTimes;
+  const first = !times && idx === 0;
+  const left = times
+    ? `<div class="time"><span>${clock(p.s)}</span><span>${clock(p.e)}</span></div>`
+    : `<div class="ord${first ? ' first' : ''}"><span class="sr">${idx + 1}番目</span><span aria-hidden="true">${idx + 1}</span></div>`;
+  return `<article class="item${times ? '' : ' ordered'}${first ? ' is-next' : ''}">
+    ${left}
+    <div class="body">${first ? `<div class="nextlabel">${isToday ? '次はこれ' : 'あしたの最初はこれ'}</div>` : ''}<div class="title">${esc(p.title)}</div>
+      <div class="meta">${tags.join('')}<span class="num">${dur(p.min)}</span>${isToday ? `<button type="button" class="link" data-act="later" data-kind="${p.kind}" data-id="${p.id}">後回し</button>` : ''}</div>
+    </div>
+    ${isToday ? `<button type="button" class="check ${p.cat}" data-act="done" data-kind="${p.kind}" data-id="${p.id}" data-min="${p.min}" aria-label="${esc(p.title)}を記録する"></button>` : gradeTag(p.score, true)}
+  </article>`;
+}
+function emptyPlan(P, isToday){
+  if (P.freeTotal < 15) return `<div class="empty"><span>${isToday ? '今日はもう空き時間がありません。' : 'あしたは空き時間がありません。'}</span>${isToday ? '<button type="button" class="btn small" data-act="day" data-v="tomorrow">あしたの段取りを見る</button>' : ''}</div>`;
+  if (!S.tasks.some(t => !t.done) && !S.routines.length) return `<div class="empty">やることがまだありません。上の欄に「レポート あした 60分」のように書くと追加できます。</div>`;
+  return `<div class="empty">空き時間に入る作業はありません。のんびりしましょう。</div>`;
+}
+function doneToday(today){
+  const l = S.log.filter(x => x.d === today);
+  if (!l.length) return '';
+  const total = l.reduce((a, x) => a + (x.act || 0), 0);
+  return `<details class="done"><summary>今日終わったこと（${l.length}件・${dur(total)}）</summary>${l.map(x => `<div class="drow"><span>${esc(x.title)}</span><span class="num">${dur(x.act)}</span></div>`).join('')}</details>`;
+}
+function adder(){
+  return `<form class="adder" data-form="quick" autocomplete="off">
+    <label class="sr" for="quick-in">やることを追加</label>
+    <div class="adder-row"><input id="quick-in" name="q" type="text" placeholder="${esc(courseNames().length ? `例：${courseNames()[0]} 課題 60分` : '例：民法レポート あさって 90分')}" enterkeyhint="done"><button class="btn primary" type="submit">追加</button></div>
+    <div class="adder-opts">${sampleFn ? `<label class="tog"><input id="ai-toggle" type="checkbox" ${UI.ai ? 'checked' : ''}>AIで読み取る</label>` : `<span class="hint">文章から締切・時間・種類を読み取ります</span>`}<button type="button" class="link" data-act="new-task">項目ごとに入力</button></div>
+  </form>`;
+}
+function tasksView(){
+  const today = todayStr(), risky = riskSet();
+  let list = S.tasks.filter(t => !t.done).map(t => { const d = t.deadline ? daysBetween(today, t.deadline) : null; return {t, d, score:taskScore(t, d)}; }).sort((a, b) => b.score - a.score);
+  if (UI.filter !== 'all') list = list.filter(x => x.t.cat === UI.filter);
+  const done = S.tasks.filter(t => t.done).sort((a, b) => String(b.doneAt || '').localeCompare(String(a.doneAt || ''))).slice(0, 15);
+  return `<h1 class="h1">やること</h1>
+  ${adder()}
+  <div class="seg" role="group" aria-label="種類で絞り込む">${[['all','すべて'],['study','学業'],['life','生活'],['other','その他']].map(([k, l]) => segBtn('filter', k, l, UI.filter === k)).join('')}</div>
+  <p class="note">優先度の高い順です。左のマークが優先度で、SS（今すぐ）からE（いつでもよい）までの7段階です。締切までの日数、かかる時間、重要度から計算しています。</p>
+  <details class="done"><summary>優先度の見方</summary>${GRADES.map(x => `<div class="drow"><span class="grade g-${x.g}">${x.g}</span><span class="gdesc">${x.desc}</span></div>`).join('')}<p class="note gnote">重要度を「高い」にすると1段階ほど上がり、「低い」にすると下がります。</p></details>
+  ${list.length ? `<div class="tlist">${list.map(x => taskRow(x, risky)).join('')}</div>` : `<div class="empty">ここにはまだありません。上の欄に「レポート あした 60分」のように書くと追加できます。</div>`}
+  ${done.length ? `<details class="done"><summary>終わったこと（${done.length}件）</summary>${done.map(t => `<div class="drow"><span>${esc(t.title)}</span><span class="num">${t.actual ? dur(t.actual) : ''}</span></div>`).join('')}</details>` : ''}
+  ${calendarPanel()}`;
+}
+
+/* ---------- 締切をスマホのカレンダーへ（通知の代わり・試験中） ---------- */
+const TZ = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Tokyo'; } catch (e) { return 'Asia/Tokyo'; } })();
+const upcomingDeadlines = () => { const today = todayStr(); return S.tasks.filter(t => !t.done && t.deadline && t.deadline >= today).sort((a, b) => (a.deadline + (a.dueTime || '99')).localeCompare(b.deadline + (b.dueTime || '99'))); };
+const ymdC = s => s.replace(/-/g, '');
+const hm = m => `${pad(Math.floor(m / 60))}${pad(m % 60)}00`;
+function gcalUrl(t){
+  let dates;
+  if (t.dueTime){ const s = toMin(t.dueTime), e = Math.min(s + 15, 23*60 + 59); dates = `${ymdC(t.deadline)}T${hm(s)}/${ymdC(t.deadline)}T${hm(e)}`; }
+  else dates = `${ymdC(t.deadline)}/${ymdC(addDays(t.deadline, 1))}`;
+  const p = new URLSearchParams({action:'TEMPLATE', text:`【締切】${t.title}`, dates, details:`作業時間の目安：${dur(effMin(t))}（ダンドリから登録）`, ctz:TZ});
+  return `https://calendar.google.com/calendar/render?${p.toString()}`;
+}
+const icsEsc = s => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+function icsFold(line){
+  const enc = new TextEncoder(), out = []; let cur = '', bytes = 0;
+  for (const ch of line){ const b = enc.encode(ch).length; if (bytes + b > 73){ out.push(cur); cur = ' ' + ch; bytes = 1 + b; } else { cur += ch; bytes += b; } }
+  out.push(cur); return out.join('\r\n');
+}
+function gcalMorningUrl(){
+  const m = toMin(S.settings.morningTime || '07:30'), today = todayStr();
+  const start = nowMin() < m ? today : addDays(today, 1);
+  const p = new URLSearchParams({action:'TEMPLATE', text:'今日の段取りを見る（ダンドリ）', dates:`${ymdC(start)}T${hm(m)}/${ymdC(start)}T${hm(Math.min(m + 5, 23*60 + 59))}`, details:'ダンドリを開いて、今日やることを確認', recur:'RRULE:FREQ=DAILY', ctz:TZ});
+  return `https://calendar.google.com/calendar/render?${p.toString()}`;
+}
+function buildIcs(list, morning){
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Dandori//Prototype//JA', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:ダンドリの締切'];
+  for (const t of list){
+    const d = ymdC(t.deadline), sum = icsEsc(`【締切】${t.title}`);
+    L.push('BEGIN:VEVENT', `UID:${t.id}-${d}@dandori`, `DTSTAMP:${stamp}`);
+    let alarms;
+    if (t.dueTime){ const s = toMin(t.dueTime), e = Math.min(s + 15, 23*60 + 59); L.push(`DTSTART:${d}T${hm(s)}`, `DTEND:${d}T${hm(e)}`); alarms = ['-P1D', '-PT3H']; }
+    else { L.push(`DTSTART;VALUE=DATE:${d}`, `DTEND;VALUE=DATE:${ymdC(addDays(t.deadline, 1))}`); alarms = ['-PT4H', 'PT8H']; }
+    L.push(`SUMMARY:${sum}`, `DESCRIPTION:${icsEsc(`作業時間の目安：${dur(effMin(t))}${t.course ? `\n授業：${t.course}` : ''}\nダンドリから登録`)}`);
+    for (const a of alarms) L.push('BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${sum}`, `TRIGGER:${a}`, 'END:VALARM');
+    L.push('END:VEVENT');
+  }
+  if (morning){
+    const m = toMin(S.settings.morningTime || '07:30'), today = todayStr();
+    const start = nowMin() < m ? today : addDays(today, 1), title = icsEsc('今日の段取りを見る（ダンドリ）');
+    L.push('BEGIN:VEVENT', 'UID:morning-check@dandori', `DTSTAMP:${stamp}`, `DTSTART:${ymdC(start)}T${hm(m)}`, `DTEND:${ymdC(start)}T${hm(Math.min(m + 5, 23*60 + 59))}`, 'RRULE:FREQ=DAILY',
+      `SUMMARY:${title}`, `DESCRIPTION:${icsEsc('ダンドリを開いて、今日やることを確認')}`, 'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${title}`, 'TRIGGER:PT0S', 'END:VALARM', 'END:VEVENT');
+  }
+  L.push('END:VCALENDAR');
+  return L.map(icsFold).join('\r\n') + '\r\n';
+}
+/* .ics はそのまま保存できない形式なので、無圧縮のZIPに1つだけ入れて渡す */
+function crc32(bytes){
+  let crc = 0xFFFFFFFF;
+  for (let n = 0; n < bytes.length; n++){ let c = (crc ^ bytes[n]) & 0xFF; for (let k = 0; k < 8; k++) c = c & 1 ? (c >>> 1) ^ 0xEDB88320 : c >>> 1; crc = (crc >>> 8) ^ c; }
+  return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+/* ---------- 引き継ぎコード（データを文字列にして、別の端末へ運ぶ） ----------
+   形式：DD<圧縮の有無>.<CRC32 8桁>.<base64url>。CRCで写し間違い・欠けを見つける */
+const CODE_RE = /DD([01])\.([0-9a-f]{8})\.([A-Za-z0-9_-]+)/;
+const CAN_ZIP = typeof CompressionStream === 'function' && typeof DecompressionStream === 'function';
+const hex8 = n => n.toString(16).padStart(8, '0');
+function b64uEncode(bytes){
+  let s = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function b64uDecode(str){
+  const s = str.replace(/-/g, '+').replace(/_/g, '/');
+  const bin = atob(s + '==='.slice((s.length + 3) % 4));
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+async function pipeBytes(bytes, stream){
+  return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer());
+}
+async function makeCode(){
+  const data = JSON.parse(JSON.stringify(S)); delete data.sid;
+  const raw = new TextEncoder().encode(JSON.stringify({app:'dandori', v:1, at:new Date().toISOString(), data}));
+  let bytes = raw, ver = '0';
+  if (CAN_ZIP){ try { bytes = await pipeBytes(raw, new CompressionStream('deflate-raw')); ver = '1'; } catch (e) { bytes = raw; ver = '0'; } }
+  return `DD${ver}.${hex8(crc32(bytes))}.${b64uEncode(bytes)}`;
+}
+async function readCode(text){
+  const m = String(text || '').replace(/\s+/g, '').match(CODE_RE);
+  if (!m) throw new Error('format');
+  let bytes;
+  try { bytes = b64uDecode(m[3]); } catch (e) { throw new Error('broken'); }
+  if (hex8(crc32(bytes)) !== m[2]) throw new Error('broken');
+  if (m[1] === '1'){
+    if (!CAN_ZIP) throw new Error('nozip');
+    bytes = await pipeBytes(bytes, new DecompressionStream('deflate-raw'));
+  }
+  const p = JSON.parse(new TextDecoder().decode(bytes));
+  if (!p || p.app !== 'dandori' || !p.data || typeof p.data !== 'object') throw new Error('format');
+  return p;
+}
+function keepTrInput(){ const el = formEl.querySelector('#tr-in'); if (el && UI.sheet) UI.sheet.input = el.value; }
+function markBackup(){ S.backupAt = todayStr(); S.nagUntil = null; commit(); }
+async function trMake(){
+  const sh = UI.sheet; if (!sh || sh.type !== 'transfer') return;
+  keepTrInput();
+  sh.copied = false;
+  // Safariは「押した直後」にしかコピーを許さないので、コードができる前にコピーの予約をしておく
+  const codeP = makeCode();
+  let clipP = null;
+  try {
+    if (navigator.clipboard && navigator.clipboard.write && typeof ClipboardItem === 'function')
+      clipP = navigator.clipboard.write([new ClipboardItem({'text/plain': codeP.then(c => new Blob([c], {type:'text/plain'}))})]).then(() => true, () => false);
+  } catch (e) { clipP = null; }
+  sh.code = await codeP;
+  if (clipP) sh.copied = await clipP;
+  renderSheet();
+  const out = formEl.querySelector('#tr-out');
+  if (!sh.copied){ try { if (navigator.clipboard && navigator.clipboard.writeText){ await navigator.clipboard.writeText(sh.code); sh.copied = true; } } catch (e) {} }
+  if (!sh.copied && out){ try { out.focus(); out.select(); sh.copied = document.execCommand('copy'); } catch (e) {} }
+  markBackup();
+  if (UI.sheet === sh){ renderSheet(); const o = formEl.querySelector('#tr-out'); if (o && !sh.copied){ o.focus(); o.select(); } }
+  toast(sh.copied ? 'コピーしました。LINEのKeepなどに貼っておきましょう' : 'コードを作りました。枠の中を全部選んでコピーしてください');
+}
+async function trFile(){
+  if (!dlFn){ toast('この画面ではファイルを保存できません'); return; }
+  keepTrInput();
+  const today = todayStr(), code = await makeCode();
+  const text = `ダンドリ 引き継ぎコード（${md(today)}作成）\n新しい端末のダンドリで「設定」→「引き継ぎコード」→「ファイルから読み込む」を選ぶと戻せます。\n予定がそのまま入っているので、ほかの人には渡さないでください。\n\n${code}\n`;
+  try {
+    const r = await dlFn.save({filename:`dandori-hikitsugi-${today}.txt`, data:text});
+    if (r && r.status === 'saved'){ markBackup(); if (UI.sheet && UI.sheet.type === 'transfer') renderSheet(); toast('保存しました'); }
+  } catch (e) {
+    const c = e && e.code;
+    if (c === 'declined') return;
+    if (c === 'rate_limited') toast('少し待ってから、もう一度押してください');
+    else if (['unavailable','not_granted','capability_disabled','capability_removed','extension_not_enabled'].includes(c)){ dlFn = null; if (UI.sheet) renderSheet(); toast('この画面ではファイルを保存できません。「コードを作ってコピー」を使ってください'); }
+    else toast('保存できませんでした');
+  }
+}
+async function trRead(text){
+  const sh = UI.sheet; if (!sh || sh.type !== 'transfer') return;
+  if (text == null){ const el = formEl.querySelector('#tr-in'); text = el ? el.value : ''; }
+  sh.input = String(text).slice(0, 300000); sh.preview = null; sh.payload = null;
+  if (!sh.input.trim()){ renderSheet(); toast('コードを貼り付けてください'); return; }
+  try {
+    const p = await readCode(sh.input), d = merge(p.data), at = new Date(p.at);
+    sh.payload = p.data; sh.atDay = isNaN(at) ? null : ymd(at);
+    sh.preview = {when:isNaN(at) ? '日時不明' : `${at.getMonth()+1}/${at.getDate()} ${at.getHours()}:${pad(at.getMinutes())}`,
+      tasks:d.tasks.filter(t => !t.done).length, routines:d.routines.length, cells:Object.keys(d.timetable).length, jobs:d.jobs.length};
+  } catch (e) {
+    const msg = {format:'引き継ぎコードが見つかりません。「DD」から最後まで、まるごと貼り付けてください',
+      broken:'コードの一部が欠けているか、余分な文字が入っています。もう一度コピーし直してください',
+      nozip:'このブラウザでは読み込めません。新しいバージョンのSafariやChromeで開いてください'}[e && e.message] || 'コードを読み込めませんでした。もう一度コピーし直してください';
+    renderSheet(); toast(msg); return;
+  }
+  renderSheet();
+  const pv = formEl.querySelector('[data-act="tr-apply"]'); if (pv) pv.scrollIntoView({block:'nearest'});
+}
+function trApply(){
+  const sh = UI.sheet; if (!sh || !sh.payload) return;
+  UI.undo = JSON.stringify(S);
+  const prevRev = S.rev || 0;
+  S = merge(sh.payload);
+  S.rev = Math.max(prevRev, S.rev || 0);
+  // 貼ったコードが手元にある＝控えはその日に作ってある
+  if (sh.atDay && (!S.backupAt || sh.atDay > S.backupAt)) S.backupAt = sh.atDay;
+  closeSheet(); UI.view = 'today'; commit(); window.scrollTo(0, 0);
+  toast('データを引き継ぎました', true);
+}
+function zipOne(name, data){
+  const nameB = new TextEncoder().encode(name), crc = crc32(data), size = data.length, d = new Date();
+  const time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+  const date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+  const lh = new DataView(new ArrayBuffer(30));
+  [[0,0x04034b50,4],[4,20,2],[6,0,2],[8,0,2],[10,time,2],[12,date,2],[14,crc,4],[18,size,4],[22,size,4],[26,nameB.length,2],[28,0,2]].forEach(([o,v,w]) => w === 4 ? lh.setUint32(o, v, true) : lh.setUint16(o, v, true));
+  const ch = new DataView(new ArrayBuffer(46));
+  [[0,0x02014b50,4],[4,20,2],[6,20,2],[8,0,2],[10,0,2],[12,time,2],[14,date,2],[16,crc,4],[20,size,4],[24,size,4],[28,nameB.length,2],[30,0,2],[32,0,2],[34,0,2],[36,0,2],[38,0,4],[42,0,4]].forEach(([o,v,w]) => w === 4 ? ch.setUint32(o, v, true) : ch.setUint16(o, v, true));
+  const eo = new DataView(new ArrayBuffer(22));
+  [[0,0x06054b50,4],[4,0,2],[6,0,2],[8,1,2],[10,1,2],[12,46 + nameB.length,4],[16,30 + nameB.length + size,4],[20,0,2]].forEach(([o,v,w]) => w === 4 ? eo.setUint32(o, v, true) : eo.setUint16(o, v, true));
+  return new Blob([lh, nameB, data, ch, nameB, eo]);
+}
+async function exportIcs(){
+  const list = upcomingDeadlines(), morning = !!S.settings.morningOn;
+  if (!list.length && !morning){ toast('カレンダーに入れるものがありません'); return; }
+  if (!dlFn){ toast('この画面ではファイルを保存できません'); return; }
+  const ics = buildIcs(list, morning);
+  try {
+    const r = IS_WEB
+      ? await dlFn.save({filename:'dandori-shimekiri.ics', data:new Blob([ics], {type:'text/calendar'})})
+      : await dlFn.save({filename:'dandori-shimekiri.zip', data:zipOne('dandori-shimekiri.ics', new TextEncoder().encode(ics))});
+    if (r && r.status === 'saved') toast(IS_WEB ? '保存しました。ダウンロードした .ics を開くと、カレンダーに追加できます' : '保存しました。「ファイル」アプリでZIPを開いてください');
+  } catch (e) {
+    const code = e && e.code;
+    if (code === 'declined') return;
+    if (code === 'rate_limited') toast('少し待ってから、もう一度押してください');
+    else if (['unavailable','not_granted','capability_disabled','capability_removed','extension_not_enabled'].includes(code)){ dlFn = null; render(); toast('この画面ではファイルを保存できません。ブラウザでclaude.aiを開いて試してください'); }
+    else toast('保存できませんでした');
+  }
+}
+function calendarPanel(){
+  const list = upcomingDeadlines(), st = S.settings;
+  const parts = [list.length ? `締切${list.length}件` : '', st.morningOn ? '毎朝の通知' : ''].filter(Boolean).join('＋');
+  return `<section class="sect"><h2 class="h2">カレンダーで通知を受け取る<span class="h2-sub">試験中</span></h2>
+  <p class="note">スマホのカレンダーに入れておくと、カレンダーの通知で知らせてくれます。</p>
+  <div class="rowcard">
+    <label class="tog" for="m-on"><input id="m-on" type="checkbox" ${st.morningOn ? 'checked' : ''}>毎朝、段取りを見る時間に通知する</label>
+    <div class="f"><label for="m-time">通知する時刻</label><input id="m-time" type="time" value="${esc(st.morningTime || '07:30')}"></div>
+    ${st.morningOn ? `<a class="link" href="${esc(gcalMorningUrl())}" target="_blank" rel="noopener">毎朝の通知をGoogleカレンダーに追加</a>` : ''}
+  </div>
+  <p class="note">締切の通知は、時刻つきなら前日の同じ時刻と3時間前、日付だけなら前日20時と当日8時です。</p>
+  ${list.length ? `<div class="callist">${list.map(t => `<div class="crow"><span class="title">${esc(t.title)}</span><span class="meta"><span>${esc(dueText(t))}</span><a class="link" href="${esc(gcalUrl(t))}" target="_blank" rel="noopener">Googleカレンダーに追加</a></span></div>`).join('')}</div>` : '<div class="empty">締切のあるやることは、まだありません。</div>'}
+  ${dlFn && parts ? `<div><button type="button" class="btn" data-act="ics">iPhoneのカレンダー用にまとめて保存（${parts}）</button></div>
+  <details class="done"><summary>iPhoneのカレンダーへの入れ方</summary><ol class="howto">${IS_WEB ? '<li>上のボタンを押して、dandori-shimekiri.ics をダウンロードする</li><li>ダウンロード一覧（または「ファイル」アプリ）でその .ics を開く</li><li>「すべて追加」でカレンダーに入れる</li>' : '<li>上のボタンを押し、保存先で「"ファイル"に保存」を選ぶ</li><li>「ファイル」アプリで dandori-shimekiri.zip を開くと、dandori-shimekiri.ics ができる</li><li>その .ics を開き、カレンダーに追加する</li>'}</ol><p class="note gnote">やることを増やしたら、もう一度保存して追加してください。同じ予定が2つ入ったときは、古いほうを消してください。</p></details>` : ''}
+  </section>`;
+}
+function taskRow({t, d, score}, risky){
+  const due = t.deadline ? `${dueText(t)}・${d < 0 ? `${-d}日過ぎ` : d === 0 ? '今日' : `あと${d}日`}` : '締切なし';
+  let sug = '';
+  if (!t.deadline){
+    const c = t.course || matchCourse(t.title), cd = c ? courseDue(c) : null;
+    if (cd) sug = `<button type="button" class="link" data-act="auto-due" data-id="${t.id}">締切を次の「${esc(c)}」の授業（${md(cd.deadline)}${cd.dueTime ? ' ' + cd.dueTime : ''}）にする</button>`;
+  }
+  const eff = effMin(t);
+  return `<article class="trow">
+    ${gradeTag(score, true)}
+    <div class="body"><div class="title">${esc(t.title)}</div>
+      <div class="meta"><span class="tag ${t.cat}">${CAT[t.cat] || 'その他'}</span>${t.weekly ? '<span class="tag wk">毎週</span>' : ''}${risky.has(t.id) ? '<span class="tag hot">間に合わないおそれ</span>' : ''}<span>${esc(due)}</span><span>作業時間の目安 あと${dur(t.remaining)}${eff !== t.remaining ? `（これまでの記録から約${dur(eff)}）` : ''}</span><span>重要度${'★'.repeat(t.imp || 2)}${'☆'.repeat(3 - (t.imp || 2))}</span>${sug}</div>
+    </div>
+    <button type="button" class="btn small" data-act="edit-task" data-id="${t.id}">編集</button>
+  </article>`;
+}
+function routinesView(){
+  const today = todayStr();
+  return `<h1 class="h1">家事</h1>
+  <p class="note">一度登録すると、決まった曜日や間隔で「今日の段取り」に自動で入ります。かかった時間を記録すると、目安の時間も自動で直ります。</p>
+  <div class="presets"><span class="presets-label">よくある家事</span>${PRESETS.map((p, i) => `<button type="button" class="chip" data-act="preset" data-i="${i}">${esc(p.title)}</button>`).join('')}</div>
+  ${S.routines.length ? `<div class="tlist">${S.routines.map(r => routineRow(r, today)).join('')}</div>` : `<div class="empty">家事がまだありません。上の「よくある家事」から選ぶと、すぐに登録できます。</div>`}
+  <div><button type="button" class="btn" data-act="new-routine">家事を追加</button></div>`;
+}
+function schedLabel(r){
+  if (r.type === 'weekly') return `毎週 ${(r.days || []).slice().sort((a, b) => ((a+6)%7) - ((b+6)%7)).map(d => WD[d]).join('・') || '曜日未設定'}`;
+  return `${r.every}日ごと`;
+}
+function routineRow(r, today){
+  const due = routineDue(r, today);
+  let status;
+  if (due) status = due.weekly ? '<span class="tag hot">今日</span>' : due.overdue > 0 ? `<span class="tag hot">${due.overdue}日おくれ</span>` : '<span class="tag life">今日が目安</span>';
+  else {
+    let nx = '';
+    for (let i = 1; i <= 31; i++){ if (routineDue({...r, snooze:null}, addDays(today, i))){ nx = i === 1 ? '次はあした' : `次は${i}日後`; break; } }
+    status = `<span class="tag plain">${nx || '予定なし'}</span>`;
+  }
+  return `<article class="trow two"><div class="body"><div class="title">${esc(r.title)}</div>
+    <div class="meta">${status}<span>${schedLabel(r)}</span><span>約${dur(r.est)}</span>${r.last ? `<span>前回 ${md(r.last)}</span>` : ''}</div></div>
+    <button type="button" class="btn small" data-act="edit-routine" data-id="${r.id}">編集</button></article>`;
+}
+function weeklySection(){
+  const list = S.weekly || [], has = courseNames().length > 0;
+  return `<section class="sect"><h2 class="h2">毎週の課題<span class="h2-sub">授業が終わると自動で追加</span></h2>
+  <p class="note">毎週出る課題を登録しておくと、授業が終わったときに「次の授業まで」の課題として、やることに入ります。休講の週は、入った課題を削除してください。</p>
+  ${list.length ? `<div class="tlist">${list.map(w => `<article class="trow two"><div class="body"><div class="title">${esc(w.title)}</div><div class="meta"><span class="tag ${w.on && courseNames().includes(w.course) ? 'study' : 'plain'}">${esc(w.course)}</span><span>${dur(w.min)}</span><span>${esc(weeklyStatus(w))}</span></div></div><button type="button" class="btn small" data-act="weekly-edit" data-id="${w.id}">編集</button></article>`).join('')}</div>` : `<div class="empty">${has ? 'まだありません。例：毎週の「ライリス」の課題、毎回の予習など。' : 'まず上の時間割に授業を入れてください。'}</div>`}
+  ${has ? '<div><button type="button" class="btn" data-act="weekly-new">毎週の課題を追加</button></div>' : ''}</section>`;
+}
+/* 曜日ごとの授業と予定。重なっているものに印を付ける */
+function weekItems(){
+  const by = {0:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[]};
+  for (const [k, name] of Object.entries(S.timetable)){
+    if (!name) continue;
+    const [wd, p] = k.split('-').map(Number), per = S.periods[p - 1];
+    if (!per || wd < 1 || wd > 6) continue;
+    by[wd].push({type:'cls', k, period:p, label:name, s:toMin(per[0]), e:toMin(per[1]), start:per[0], end:per[1]});
+  }
+  for (const j of S.jobs){
+    if (!by[j.wd]) continue;
+    const kind = jobKind(j);
+    by[j.wd].push({type:kind, id:j.id, label:j.label || JOB_KIND[kind], s:toMin(j.start), e:toMin(j.end), start:j.start, end:j.end});
+  }
+  const warns = [];
+  for (const wd of Object.keys(by)){
+    const list = by[wd].sort((a, b) => a.s - b.s || b.e - a.e);
+    list.forEach(it => { it.lane = 0; it.ovl = false; });
+    for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++){
+      const a = list[i], b = list[j], o = Math.min(a.e, b.e) - Math.max(a.s, b.s);
+      if (o > 0){ a.ovl = b.ovl = true; b.lane = Math.max(b.lane, a.lane + 1); warns.push({wd:Number(wd), a, b, min:o}); }
+    }
+  }
+  return {by, warns};
+}
+const PENCIL = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.21a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>';
+/* その週（月〜日）に締切がある課題 */
+function weekDeadlines(mon){
+  const sun = addDays(mon, 6);
+  return S.tasks.filter(t => t.deadline && t.deadline >= mon && t.deadline <= sun)
+    .sort((a, b) => (a.deadline + (a.dueTime || '99')).localeCompare(b.deadline + (b.dueTime || '99')));
+}
+const dueUrgent = t => daysBetween(todayStr(), t.deadline) <= 1;
+function weekGrid(editing, mon){
+  const {by, warns} = weekItems();
+  const today = todayStr(), now = nowMin();
+  const days = [1, 2, 3, 4, 5, 6, 0], dates = {};
+  days.forEach((d, i) => { dates[d] = addDays(mon, i); });
+  const dls = editing ? [] : weekDeadlines(mon).filter(t => !t.done);
+  const timed = dls.filter(t => t.dueTime);
+  // その週のシフト。授業・毎週の予定・ほかのシフトと重なれば印を付ける
+  const shiftItems = {}, swarns = [];
+  days.forEach(d => {
+    const list = editing ? [] : shiftsOn(dates[d]).map(x => ({type:'shift', id:x.id, label:x.place || 'バイト', s:toMin(x.start), e:toMin(x.end), start:x.start, end:x.end, lane:0, ovl:false}));
+    list.forEach((it, i) => {
+      for (const o of by[d].concat(list.slice(0, i))){
+        const m = Math.min(o.e, it.e) - Math.max(o.s, it.s);
+        if (m > 0){ it.ovl = o.ovl = true; it.lane = Math.max(it.lane, (o.lane || 0) + 1); swarns.push({date:dates[d], a:o, b:it, min:m}); }
+      }
+    });
+    shiftItems[d] = list;
+  });
+  const all = Object.values(by).flat().concat(Object.values(shiftItems).flat());
+  const st = Math.min(8 * 60, ...all.map(x => x.s), ...S.periods.map(p => toMin(p[0])), ...timed.map(t => toMin(t.dueTime)));
+  const en = Math.max(22 * 60, ...all.map(x => x.e), ...S.periods.map(p => toMin(p[1])), ...timed.map(t => toMin(t.dueTime) + 30));
+  const H0 = Math.floor(st / 60), H1 = Math.min(24, Math.ceil(en / 60)), PX = 36;
+  const y = m => (m - H0 * 60) / 60 * PX;
+  let axis = '', lines = '';
+  for (let h = H0; h <= H1; h++){ axis += `<span class="h" style="top:${y(h * 60)}px">${h}</span>`; lines += `<div class="wk-hl" style="top:${y(h * 60)}px"></div>`; }
+  const bands = S.periods.map((p, i) => {
+    const a = y(toMin(p[0])), b = y(toMin(p[1]));
+    axis += `<span class="pn" style="top:${(a + b) / 2}px" aria-hidden="true">${i + 1}</span>`;
+    return `<div class="wk-band" style="top:${a}px;height:${b - a}px"></div>`;
+  }).join('');
+  const head = days.map(d => {
+    const ds = dates[d], c = dls.filter(t => t.deadline === ds), u = c.some(dueUrgent);
+    const cls = `wk-d${d === 0 ? ' sun' : ''}${!editing && ds === today ? ' today' : ''}${!editing && ds < today ? ' past' : ''}`;
+    return `<span class="${cls}"><span class="w">${WD[d]}</span>${editing ? '' : `<span class="n">${parseYmd(ds).getDate()}</span><span class="cnt${u ? ' u' : ''}${c.length ? '' : ' none'}">${c.length}</span>`}</span>`;
+  }).join('');
+  const cols = days.map(d => {
+    let html = '';
+    if (editing && d >= 1) S.periods.forEach((p, i) => {
+      const k = `${d}-${i + 1}`; if (S.timetable[k]) return;
+      const a = y(toMin(p[0])), b = y(toMin(p[1]));
+      html += `<button type="button" class="wk-slot" style="top:${a + 1}px;height:${b - a - 2}px" data-act="cell" data-k="${k}" aria-label="${WD[d]}曜${i + 1}限に授業を入れる">＋</button>`;
+    });
+    for (const it of by[d].concat(shiftItems[d])){
+      const a = y(it.s), h = Math.max(16, y(it.e) - a), lane = Math.min(it.lane, 3);
+      const wk = it.type === 'cls' && S.weekly.some(w => w.on && w.course === it.label);
+      const ref = it.type === 'cls' ? `data-k="${it.k}"` : `data-id="${it.id}"`;
+      const act = it.type === 'shift' ? `data-act="tt-shift" ${ref}` : editing ? (it.type === 'cls' ? `data-act="cell" ${ref}` : `data-act="edit-job" ${ref}`) : `data-act="tt-info" data-wd="${d}" data-type="${it.type}" ${ref}`;
+      const name = it.type === 'cls' ? `${WD[d]}曜${it.period}限 ${it.label}` : it.type === 'shift' ? `${md(dates[d])} ${it.start}から${it.end} ${it.label}のシフト` : `${WD[d]}曜 ${it.start}から${it.end} ${it.label}`;
+      html += `<button type="button" class="wk-blk ${it.type}${it.ovl ? ' ovl' : ''}" style="top:${a}px;height:${h}px;${lane ? `left:${2 + lane * 6}px;` : ''}" ${act} aria-label="${esc(name)}${it.ovl ? '（ほかの予定と重なっています）' : ''}${editing ? '（押すと直せます）' : ''}">${esc(it.label)}${it.type !== 'cls' ? `<span class="tm">${esc(it.start)}<br>〜${esc(it.end)}</span>` : ''}${wk ? '<i class="wkdot" aria-hidden="true"></i>' : ''}${it.ovl ? '<span class="ov" aria-hidden="true">!</span>' : ''}</button>`;
+    }
+    for (const t of timed.filter(x => x.deadline === dates[d]))
+      html += `<button type="button" class="wk-dl${dueUrgent(t) ? ' u' : ''}" style="top:${y(toMin(t.dueTime)) - 8}px" data-act="tt-dl" data-id="${t.id}" aria-label="締切 ${esc(t.title)} ${md(t.deadline)} ${esc(t.dueTime)}"></button>`;
+    if (!editing && dates[d] === today && now >= H0 * 60 && now <= H1 * 60) html += `<div class="wk-now" style="top:${y(now)}px" aria-hidden="true"></div>`;
+    return `<div class="wk-col">${html}</div>`;
+  }).join('');
+  const kinds = new Set(all.map(x => x.type));
+  const sw = (bg, c) => `<i style="background:var(${bg});box-shadow:inset 3px 0 0 var(${c})"></i>`;
+  const legend = `<div class="wk-legend" aria-hidden="true"><span>${sw('--study-soft', '--study')}授業</span>${kinds.has('cir') ? `<span>${sw('--life-soft', '--life')}サークル</span>` : ''}${kinds.has('job') ? `<span>${sw('--other-soft', '--other')}バイト${kinds.has('shift') ? '（毎週）' : ''}</span>` : ''}${kinds.has('shift') ? '<span><i class="shift-i"></i>シフト</span>' : ''}${kinds.has('etc') ? `<span>${sw('--etc-soft', '--etc')}その他</span>` : ''}${editing ? `<span><i style="background:var(--band);box-shadow:inset 0 0 0 1px var(--grid)"></i>1〜${S.periods.length}限</span>` : '<span><span class="flg"></span>締切（赤＝あしたまで）</span><span><span class="nowk"></span>今の時刻</span>'}</div>`;
+  return {html:`<div class="wk-card${editing ? ' editing' : ''}"><div class="wk-head"><span></span>${head}</div>
+    <div class="wk-body" id="wk-body" style="height:${(H1 - H0) * PX}px">${bands}${lines}<div class="wk-axis">${axis}</div>${cols}</div></div>${legend}`, warns, swarns};
+}
+function weekDeadlineList(mon, off){
+  const list = weekDeadlines(mon), today = todayStr(), doneN = list.filter(t => t.done).length;
+  const rows = list.map(t => {
+    const d = daysBetween(today, t.deadline), dd = parseYmd(t.deadline);
+    const left = t.done ? '終わりました' : d < 0 ? `${-d}日過ぎています` : d === 0 ? '今日' : d === 1 ? 'あした' : `あと${d}日`;
+    return `<button type="button" class="wk-drow${t.done ? ' done' : ''}" data-act="edit-task" data-id="${t.id}"><span class="when"><b>${WD[dd.getDay()]} ${dd.getMonth() + 1}/${dd.getDate()}</b>${t.dueTime ? esc(t.dueTime) : '日付だけ'}</span><span class="ttl">${esc(t.title)}<small>${left}${!t.done && t.course && t.dueTime ? `・${esc(t.course)}の前` : ''}</small></span>${t.done ? '<span class="chk" aria-label="済み">✓</span>' : gradeTag(taskScore(t, d))}</button>`;
+  }).join('');
+  return `<section class="sect"><h2 class="h2">${off === 0 ? '今週の締切' : 'この週の締切'}<span class="h2-sub">${list.length ? `${list.length}件${doneN ? `（済み${doneN}件）` : ''}` : ''}</span></h2>
+  ${list.length ? `<div class="wk-dlist">${rows}</div>` : '<div class="empty">この週の締切はありません。</div>'}</section>`;
+}
+const weekIsEmpty = () => !Object.values(S.timetable).some(Boolean) && !S.jobs.length;
+/* 見るモードで授業・予定を押したとき：くわしい時刻を吹き出しで出すだけ */
+function showTtInfo(b){
+  hideTtInfo();
+  const body = document.getElementById('wk-body'); if (!body) return;
+  const wd = Number(b.dataset.wd);
+  let html = '';
+  if (b.dataset.type === 'cls'){
+    const k = b.dataset.k, name = S.timetable[k]; if (!name) return;
+    const pi = Number(k.split('-')[1]), per = S.periods[pi - 1] || ['', ''];
+    const ws = S.weekly.filter(w => w.on && w.course === name);
+    html = `<b>${esc(name)}</b><br>${WD[wd]}曜 ${pi}限 ${esc(per[0])}〜${esc(per[1])}${ws.length ? `<br>毎週の課題：${ws.map(w => esc(w.title)).join('、')}` : ''}`;
+  } else {
+    const j = S.jobs.find(x => x.id === b.dataset.id); if (!j) return;
+    html = `<b>${esc(j.label || JOB_KIND[jobKind(j)])}</b><br>毎週${WD[j.wd]}曜 ${esc(j.start)}〜${esc(j.end)}`;
+  }
+  if (b.classList.contains('ovl')) html += '<br><span class="warnline">ほかの予定と重なっています</span>';
+  html += '<br><span class="sub">直すときは「編集」から</span>';
+  placePop(b, html);
+}
+function showDlInfo(b){
+  hideTtInfo();
+  const t = S.tasks.find(x => x.id === b.dataset.id); if (!t) return;
+  const d = daysBetween(todayStr(), t.deadline);
+  const left = d < 0 ? `${-d}日過ぎています` : d === 0 ? '今日' : d === 1 ? 'あした' : `あと${d}日`;
+  placePop(b, `<b>${esc(t.title)}</b><br>締切 ${md(t.deadline)} ${esc(t.dueTime || '')}${t.course ? `<span class="sub">（${esc(t.course)}の前）</span>` : ''}
+    <div class="prow">${gradeTag(taskScore(t, d))}<span>${left}・作業の目安 ${dur(effMin(t))}</span></div>
+    <div class="pacts"><button type="button" data-act="open-done" data-kind="task" data-id="${t.id}">完了を記録</button><button type="button" class="g" data-act="edit-task" data-id="${t.id}">編集</button></div>`);
+}
+function showShiftInfo(b){
+  hideTtInfo();
+  const x = (S.shifts || []).find(z => z.id === b.dataset.id); if (!x) return;
+  placePop(b, `<b>${esc(x.place || 'バイト')}</b><span class="stag">シフト</span><br>${md(x.date)} ${esc(x.start)}〜${esc(x.end)}${b.classList.contains('ovl') ? '<br><span class="warnline">ほかの予定と重なっています</span>' : ''}
+    <div class="pacts"><button type="button" data-act="shift-edit" data-id="${x.id}">直す</button><button type="button" class="g" data-act="shift-del" data-id="${x.id}">消す</button></div>`);
+}
+function placePop(b, html){
+  const body = document.getElementById('wk-body'); if (!body) return;
+  const pop = document.createElement('div');
+  pop.className = 'wk-pop'; pop.id = 'wk-pop'; pop.setAttribute('role', 'status'); pop.innerHTML = html;
+  body.appendChild(pop);
+  const br = body.getBoundingClientRect(), r = b.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+  let left = r.right - br.left + 6;
+  if (left + pw > br.width) left = r.left - br.left - pw - 6;
+  if (left < 0) left = clamp(r.left - br.left, 0, Math.max(0, br.width - pw));
+  const top = clamp(r.top - br.top, 0, Math.max(0, br.height - ph));
+  pop.style.left = left + 'px'; pop.style.top = top + 'px';
+}
+function hideTtInfo(){ const p = document.getElementById('wk-pop'); if (p) p.remove(); }
+function weekView(){
+  const editing = !!UI.ttEdit, off = UI.weekOff || 0;
+  const mon = addDays(mondayOf(todayStr()), 7 * off), sun = addDays(mon, 6);
+  const g = weekGrid(editing, mon);
+  const jobs = S.jobs.slice().sort((a, b) => ((a.wd + 6) % 7) - ((b.wd + 6) % 7) || toMin(a.start) - toMin(b.start));
+  const kindTag = k => ({job:'other', cir:'life', etc:'etc'})[k];
+  const rel = off === 0 ? '今週' : off === 1 ? '来週' : off === -1 ? '先週' : off > 0 ? `${off}週間後` : `${-off}週間前`;
+  return `<div class="h1row"><h1 class="h1">時間割</h1>${editing ? '<button type="button" class="btn primary small" data-act="tt-done">完了</button>' : `<button type="button" class="btn small accent" data-act="shift-new">＋ シフト</button><button type="button" class="btn small" data-act="tt-edit">${PENCIL}編集</button>`}</div>
+  ${editing ? `<div class="wk-banner" role="status"><b>編集中</b><span>毎週の時間割です。点線の枠を押すと授業を入れられます。授業やバイトを押すと直せます。</span></div>`
+    : `<div class="wk-nav"><button type="button" class="wk-arr" data-act="wk-prev" aria-label="前の週">‹</button><div class="wk-range"><b>${md(mon)} 〜 ${md(sun)}</b>${off ? `<button type="button" class="link" data-act="wk-today">${rel}・今週に戻る</button>` : '<span>今週</span>'}</div><button type="button" class="wk-arr" data-act="wk-next" aria-label="次の週">›</button></div>`}
+  ${!editing && weekIsEmpty() ? '<div class="empty"><span>まだ何も入っていません。「編集」を押して、時間割とバイト・サークルを入れましょう。</span><button type="button" class="btn small" data-act="tt-edit">編集する</button></div>' : ''}
+  ${g.html}
+  ${g.warns.map(w => `<div class="wk-warn">${WD[w.wd]}曜：「${esc(w.a.label)}」（〜${esc(w.a.end)}）と「${esc(w.b.label)}」（${esc(w.b.start)}〜）が${dur(w.min)}重なっています</div>`).join('')}
+  ${g.swarns.map(w => `<div class="wk-warn">${md(w.date)}：「${esc(w.a.label)}${w.a.type === 'shift' ? 'のシフト' : ''}」（${esc(w.a.start)}〜${esc(w.a.end)}）と「${esc(w.b.label)}のシフト」（${esc(w.b.start)}〜${esc(w.b.end)}）が${dur(w.min)}重なっています</div>`).join('')}
+  ${editing ? `<div class="acts"><button type="button" class="btn" data-act="new-job">＋ バイト・サークルを追加</button><button type="button" class="btn" data-act="periods">時限の時刻を編集</button></div>
+  <section class="sect"><h2 class="h2">バイト・サークル（毎週の予定）</h2>
+  ${jobs.length ? `<div class="tlist">${jobs.map(j => { const k = jobKind(j); return `<article class="trow two"><div class="body"><div class="title">${esc(j.label || JOB_KIND[k])}</div><div class="meta"><span class="tag ${kindTag(k)}">${JOB_KIND[k]}</span><span>毎週${WD[j.wd]}曜</span><span class="num">${esc(j.start)}–${esc(j.end)}</span></div></div><button type="button" class="btn small" data-act="edit-job" data-id="${j.id}">編集</button></article>`; }).join('')}</div>` : '<div class="empty">まだありません。バイトやサークルなど、毎週決まった予定を入れてください。</div>'}
+  </section>` : weekDeadlineList(mon, off)}
+  <p class="note">授業とバイト・サークルの時間は、空き時間から自動で除かれます（前後${S.settings.buffer}分も空けます）。やることの名前に授業名を入れると（例：「ライリス 課題」）、次の授業を自動で締切にします。</p>
+  ${weeklySection()}`;
+}
+
+/* ---------- シート ---------- */
+function openSheet(obj){ hideTtInfo(); UI.sheet = obj; renderSheet(); }
+function closeSheet(){ if (UI.ctl){ try { UI.ctl.abort(); } catch (e) {} } UI.sheet = null; renderSheet(); }
+function renderSheet(){
+  if (!UI.sheet){ sheetEl.hidden = true; formEl.innerHTML = ''; return; }
+  formEl.innerHTML = sheetHTML(UI.sheet);
+  sheetEl.hidden = false;
+  const first = formEl.querySelector('input[type=text],input[type=number]');
+  if (first && !['thinking','shift','shift1'].includes(UI.sheet.type)) first.focus({preventScroll:true});
+}
+function taskFields(i, v){
+  return `<div class="f"><label for="title-${i}">やること</label><input id="title-${i}" name="title-${i}" type="text" maxlength="60" value="${esc(v.title)}"></div>
+  <div class="f"><span class="flabel">種類</span><div class="seg" role="radiogroup" aria-label="種類">${['study','life','other'].map(c => `<label class="segopt"><input type="radio" name="cat-${i}" value="${c}" ${v.cat === c ? 'checked' : ''}><span>${CAT[c]}</span></label>`).join('')}</div></div>
+  <div class="f2"><div class="f"><label for="deadline-${i}">締切</label><input id="deadline-${i}" name="deadline-${i}" type="date" value="${esc(v.deadline || '')}">${courseNames().length ? `<button type="button" class="link" data-act="auto-fill" data-i="${i}">時間割の授業から決める</button>` : ''}</div>
+  <div class="f"><label for="min-${i}">${v.editing ? '作業時間の目安・残り（分）' : '作業時間の目安（分）'}</label><input id="min-${i}" name="min-${i}" type="number" inputmode="numeric" min="5" max="600" step="5" value="${v.min}"></div></div>
+  <p class="note autonote" id="autonote-${i}"${v.note ? '' : ' hidden'}>${esc(v.note || '')}</p>
+  <div class="f"><span class="flabel">重要度</span><div class="seg" role="radiogroup" aria-label="重要度">${[1,2,3].map(n => `<label class="segopt"><input type="radio" name="imp-${i}" value="${n}" ${v.imp === n ? 'checked' : ''}><span>${['','低い','ふつう','高い'][n]}</span></label>`).join('')}</div></div>`;
+}
+function readTask(fd, i){
+  const title = String(fd.get(`title-${i}`) || '').trim().slice(0, 60);
+  if (!title) return null;
+  const dl = String(fd.get(`deadline-${i}`) || '');
+  const deadline = /^\d{4}-\d{2}-\d{2}$/.test(dl) ? dl : '';
+  // 時間割から決めた締切の「授業の開始時刻」は、日付を手で変えなかったときだけ引き継ぐ
+  const meta = ((UI.sheet && (UI.sheet.meta || UI.sheet.rows)) || [])[i] || {};
+  return {title, cat:['study','life','other'].includes(fd.get(`cat-${i}`)) ? fd.get(`cat-${i}`) : 'study',
+    deadline, dueTime:meta.dueTime && deadline && deadline === meta.deadline ? meta.dueTime : null,
+    course:meta.course || matchCourse(title) || null,
+    min:clamp(round5(fd.get(`min-${i}`)), 5, 600), imp:clamp(Number(fd.get(`imp-${i}`)) || 2, 1, 3)};
+}
+function routineFields(v){
+  const wdOrder = [1,2,3,4,5,6,0];
+  return `<div class="f"><label for="r-title">家事の名前</label><input id="r-title" name="r-title" type="text" maxlength="40" value="${esc(v.title)}"></div>
+  <div class="f"><span class="flabel">くり返し</span><div class="seg" role="radiogroup" aria-label="くり返し"><label class="segopt"><input type="radio" name="r-type" value="weekly" ${v.type === 'weekly' ? 'checked' : ''}><span>曜日で決める</span></label><label class="segopt"><input type="radio" name="r-type" value="interval" ${v.type !== 'weekly' ? 'checked' : ''}><span>何日ごと</span></label></div></div>
+  <div class="f"><span class="flabel">曜日（「曜日で決める」のとき）</span><div class="days">${wdOrder.map(d => `<label class="segopt"><input type="checkbox" name="r-day" value="${d}" ${(v.days || []).includes(d) ? 'checked' : ''}><span class="chip">${WD[d]}</span></label>`).join('')}</div></div>
+  <div class="f2"><div class="f"><label for="r-every">何日ごと（「何日ごと」のとき）</label><input id="r-every" name="r-every" type="number" min="1" max="60" value="${v.every || 7}"></div>
+  <div class="f"><label for="r-est">かかる時間（分）</label><input id="r-est" name="r-est" type="number" min="5" max="300" step="5" value="${v.est || 20}"></div></div>
+  <div class="f"><label for="r-last">前回やった日（分かれば）</label><input id="r-last" name="r-last" type="date" value="${esc(v.last || '')}"></div>
+  <div class="f"><span class="flabel">重要度</span><div class="seg" role="radiogroup" aria-label="重要度">${[1,2,3].map(n => `<label class="segopt"><input type="radio" name="r-imp" value="${n}" ${(v.imp || 2) === n ? 'checked' : ''}><span>${['','低い','ふつう','高い'][n]}</span></label>`).join('')}</div></div>`;
+}
+function sheetHTML(sh){
+  const cancel = `<button type="button" class="btn ghost" data-act="close">閉じる</button>`;
+  switch (sh.type){
+    case 'thinking':
+      return `<h2 class="sh-title">AIが読み取っています…</h2><p class="note">${esc(sh.q)}</p><div class="sh-acts"><button type="button" class="btn" data-act="stop-ai">やめて簡易読み取りにする</button></div>`;
+    case 'confirm':
+      return `<h2 class="sh-title">${sh.rows.length > 1 ? `${sh.rows.length}件のやること` : 'この内容で追加します'}</h2>
+      <p class="note">${esc(sh.note || (sh.via === 'ai' ? 'AIが読み取りました。' : '文章から読み取りました。'))}違うところは直してから追加してください。</p>
+      ${sh.rows.map((r, i) => `<div class="rowcard">${sh.rows.length > 1 ? `<label class="tog"><input type="checkbox" name="use-${i}" checked>追加する</label>` : ''}${taskFields(i, r)}</div>`).join('')}
+      <div class="sh-acts"><button type="submit" class="btn primary">追加する</button>${cancel}</div>`;
+    case 'task': {
+      const t = sh.id ? S.tasks.find(x => x.id === sh.id) : null;
+      const v = t ? {title:t.title, cat:t.cat, deadline:t.deadline, min:t.remaining, imp:t.imp, editing:true, note:t.dueTime ? `締切は ${dueText(t)} です（授業が始まる前まで）` : ''} : {title:'', cat:'study', deadline:'', min:60, imp:2};
+      const wc = t && !t.weekly ? (t.course && courseNames().includes(t.course) ? t.course : matchCourse(t.title)) : null;
+      return `<h2 class="sh-title">${t ? 'やることを編集' : 'やることを追加'}</h2>${taskFields(0, v)}
+      ${wc ? `<button type="button" class="link" data-act="weekly-from-task" data-id="${t.id}">毎週出る課題なら：「${esc(wc)}」の毎週の課題にする</button>` : ''}
+      ${t && t.weekly ? '<p class="note">この課題は「毎週の課題」から自動で入りました。設定は時間割の画面で変えられます。</p>' : ''}
+      <div class="sh-acts"><button type="submit" class="btn primary">保存</button>${t ? `<button type="button" class="btn" data-act="open-done" data-kind="task" data-id="${t.id}">完了を記録</button><button type="button" class="btn danger" data-act="del" data-what="task" data-id="${t.id}">削除</button>` : ''}${cancel}</div>`;
+    }
+    case 'done':
+      return `<h2 class="sh-title">${esc(sh.title)}</h2>
+      <p class="note">何分かかりましたか？ 記録すると、次から時間の見積もりが正確になります。</p>
+      <div class="f"><label for="act">かかった時間（分）</label><div class="stepper"><button type="button" class="btn small" data-act="adj" data-v="-15">−15</button><input id="act" name="act" type="number" inputmode="numeric" min="1" max="600" value="${sh.min}"><button type="button" class="btn small" data-act="adj" data-v="15">＋15</button><button type="button" class="btn small" data-act="adj" data-v="30">＋30</button></div></div>
+      <div class="sh-acts"><button type="submit" class="btn primary" name="how" value="finish">終わった</button>${sh.kind === 'task' ? '<button type="submit" class="btn" name="how" value="part">途中まで進んだ</button>' : ''}${cancel}</div>`;
+    case 'routine': {
+      const r = sh.id ? S.routines.find(x => x.id === sh.id) : null;
+      const v = r || sh.preset || {title:'', type:'interval', days:[], every:7, est:20, imp:2};
+      return `<h2 class="sh-title">${r ? '家事を編集' : '家事を登録'}</h2>${routineFields(v)}
+      <div class="sh-acts"><button type="submit" class="btn primary">保存</button>${r ? `<button type="button" class="btn danger" data-act="del" data-what="routine" data-id="${r.id}">削除</button>` : ''}${cancel}</div>`;
+    }
+    case 'cell': {
+      const [wd, pi] = sh.k.split('-').map(Number), p = S.periods[pi - 1] || ['', ''];
+      return `<h2 class="sh-title">${WD[wd]}曜 ${pi}限（${esc(p[0])}–${esc(p[1])}）</h2>
+      <div class="f"><label for="cname">授業名</label><input id="cname" name="cname" type="text" maxlength="30" value="${esc(S.timetable[sh.k] || '')}" placeholder="例：民法総則"></div>
+      ${S.timetable[sh.k] ? (() => { const c = S.timetable[sh.k], ws = S.weekly.filter(w => w.course === c);
+        return `<div class="rowcard"><div class="kv"><span>毎週の課題</span></div>${ws.map(w => `<div class="kv"><span>${esc(w.title)}・${dur(w.min)}${w.on ? '' : '（お休み中）'}</span><button type="button" class="link" data-act="weekly-edit" data-id="${w.id}">編集</button></div>`).join('')}<button type="button" class="link" data-act="weekly-new" data-course="${esc(c)}">${ws.length ? 'もう1つ追加する' : '「' + esc(c) + '」の毎週の課題を設定する'}</button></div>`; })() : ''}
+      <div class="sh-acts"><button type="submit" class="btn primary">保存</button>${S.timetable[sh.k] ? '<button type="submit" class="btn" name="how" value="clear">空きにする</button>' : ''}${cancel}</div>`;
+    }
+    case 'job': {
+      const j = sh.id ? S.jobs.find(x => x.id === sh.id) : null;
+      const v = j || {wd:3, start:'18:00', end:'22:00', label:'バイト'};
+      const kind = j ? jobKind(j) : 'job';
+      return `<h2 class="sh-title">${j ? '予定を編集' : '毎週の予定を追加'}</h2>
+      <div class="f"><span class="flabel">種類</span><div class="seg" role="radiogroup" aria-label="種類">${Object.entries(JOB_KIND).map(([k, l]) => `<label class="segopt"><input type="radio" name="j-kind" value="${k}" ${kind === k ? 'checked' : ''}><span>${l}</span></label>`).join('')}</div></div>
+      <div class="f"><label for="j-label">名前</label><input id="j-label" name="j-label" type="text" maxlength="30" value="${esc(v.label)}" placeholder="例：塾講師のバイト"></div>
+      <div class="f"><label for="j-wd">曜日</label><select id="j-wd" name="j-wd">${[1,2,3,4,5,6,0].map(d => `<option value="${d}" ${v.wd === d ? 'selected' : ''}>${WD[d]}曜日</option>`).join('')}</select></div>
+      <div class="f2"><div class="f"><label for="j-start">始まり</label><input id="j-start" name="j-start" type="time" value="${esc(v.start)}"></div><div class="f"><label for="j-end">終わり</label><input id="j-end" name="j-end" type="time" value="${esc(v.end)}"></div></div>
+      <div class="sh-acts"><button type="submit" class="btn primary">保存</button>${j ? `<button type="button" class="btn danger" data-act="del" data-what="job" data-id="${j.id}">削除</button>` : ''}${cancel}</div>`;
+    }
+    case 'periods': {
+      const ps = sh.periods;
+      return `<h2 class="sh-title">時限の時刻</h2>
+      <div class="f"><label for="pcount">1日の時限の数</label><select id="pcount" name="pcount">${[4,5,6,7].map(n => `<option value="${n}" ${ps.length === n ? 'selected' : ''}>${n}限まで</option>`).join('')}</select></div>
+      <div class="ptimes">${ps.map((p, i) => `<div class="prow"><span>${i+1}限</span><input aria-label="${i+1}限の始まり" name="ps-${i}" type="time" value="${esc(p[0])}"><span>–</span><input aria-label="${i+1}限の終わり" name="pe-${i}" type="time" value="${esc(p[1])}"></div>`).join('')}</div>
+      <div class="sh-acts"><button type="submit" class="btn primary">保存</button>${cancel}</div>`;
+    }
+    case 'settings': {
+      const st = S.settings, L = S.learn;
+      const lr = c => `${CAT[c]} ×${(L[c].r || 1).toFixed(2)}（記録${L[c].n || 0}件）`;
+      return `<h2 class="sh-title">設定</h2>
+      <div class="f2"><div class="f"><label for="s-start">1日の始まり</label><input id="s-start" name="s-start" type="time" value="${esc(st.dayStart)}"></div><div class="f"><label for="s-end">1日の終わり</label><input id="s-end" name="s-end" type="time" value="${esc(st.dayEnd)}"></div></div>
+      <div class="f"><label for="s-buf">授業・バイトの前後に空ける時間（分）</label><input id="s-buf" name="s-buf" type="number" min="0" max="60" step="5" value="${st.buffer}"></div>
+      <label class="tog" for="s-times"><input id="s-times" name="s-times" type="checkbox" ${st.showTimes ? 'checked' : ''}>今日の段取りに時刻も表示する（何時から何時にやるか）</label>
+      <div class="f"><label for="s-cdue">授業の課題の締切（やることの名前に授業名を入れたとき）</label><select id="s-cdue" name="s-cdue"><option value="before" ${st.courseDue !== 'daybefore' ? 'selected' : ''}>次の授業が始まる前まで</option><option value="daybefore" ${st.courseDue === 'daybefore' ? 'selected' : ''}>次の授業の前日まで</option></select></div>
+      <div class="f"><label for="s-ratio">学業と生活の配分の目安：学業 <output id="s-ratio-out">${Math.round(st.studyRatio*100)}</output>%</label><input id="s-ratio" name="s-ratio" type="range" min="50" max="90" step="5" value="${Math.round(st.studyRatio*100)}"></div>
+      <div class="rowcard"><div class="kv"><span>見積もりの補正（記録から自動）</span></div><div class="kv"><span>${lr('study')}</span></div><div class="kv"><span>${lr('life')}</span></div><div class="kv"><span>${lr('other')}</span></div><p class="note">×1.20 は「見積もりより2割多くかかりがち」という意味です。段取りはこの補正をかけた時間で組みます。</p></div>
+      <div class="rowcard"><div class="kv"><span>保存先</span><span>${store.mode === 'cloud' ? 'クラウド' : store.mode === 'local' ? 'この端末' : '準備中'}</span></div>
+      <p class="note">${store.mode === 'cloud' ? 'あなたのデータは、あなただけが見られる場所に保存されています。共有した友人にも、作成者にも見えません。' : 'このブラウザの中だけに保存されています。作成者にも見えません。別の端末では見られず、ブラウザのデータを消すと消えます。'}</p>
+      <button type="button" class="btn" data-act="transfer">引き継ぎコード（機種変更・別の端末へ）</button></div>
+      ${FEEDBACK_URL ? `<div class="rowcard"><div class="kv"><span>感想・要望</span></div><p class="note">使ってみた感想や「こんな機能がほしい」を教えてください。1分で終わります。名前やメールアドレスは聞きません。</p><a class="btn" href="${esc(FEEDBACK_URL)}" target="_blank" rel="noopener">感想を送る</a></div>` : ''}
+      <div class="sh-acts"><button type="submit" class="btn primary">保存</button><button type="button" class="btn danger" data-act="reset-all">すべてのデータを消す</button>${cancel}</div>`;
+    }
+    case 'shift': {
+      const today = todayStr(), places = S.places || [], adding = sh.adding || !places.length;
+      const days = Array.from({length:14}, (_, i) => addDays(sh.from, i));
+      const sel = sh.sel.slice().sort(), cur = `${sh.ps}-${sh.pe}`;
+      const prevFrom = addDays(sh.from, -7), prev = (S.shifts || []).filter(x => x.date >= prevFrom && x.date < sh.from);
+      const canBack = sh.from > mondayOf(today);
+      return `<h2 class="sh-title">シフトを入れる</h2>
+      <p class="note">確定したシフトを入れてください。その時間は、空き時間から自動で除きます。</p>
+      <div class="f"><span class="flabel">バイト先</span><div class="sf-chips">${places.map(p => `<button type="button" class="sf-chip${!adding && sh.place === p ? ' on' : ''}" data-act="sh-place" data-v="${esc(p)}">${esc(p)}</button>`).join('')}<button type="button" class="sf-chip add${adding ? ' on' : ''}" data-act="sh-place-add">＋ 追加</button></div>
+      ${adding ? `<input id="sh-newplace" type="text" maxlength="20" placeholder="例：塾講師、カフェ" value="${esc(sh.newPlace || '')}" aria-label="新しいバイト先の名前">` : ''}</div>
+      <div class="f"><span class="flabel">入る日（タップしてまとめて選べます）</span>
+      <div class="sf-cal"><div class="mh"><button type="button" class="wk-arr" data-act="sh-from" data-v="-14" aria-label="前の2週間" ${canBack ? '' : 'disabled'}>‹</button><span>${md(days[0])} 〜 ${md(days[13])}</span><button type="button" class="wk-arr" data-act="sh-from" data-v="14" aria-label="次の2週間">›</button></div>
+      <div class="mg">${['月','火','水','木','金','土','日'].map((w, i) => `<span class="mw${i === 6 ? ' sun' : ''}">${w}</span>`).join('')}${days.map(d => { const past = d < today, on = sh.sel.includes(d), has = shiftsOn(d).length > 0, dd = parseYmd(d); return `<button type="button" class="md${past ? ' past' : ''}${d === today ? ' today' : ''}${on ? ' on' : ''}${dd.getDay() === 0 ? ' sun' : ''}" data-act="sh-day" data-d="${d}" ${past ? 'disabled' : ''} aria-pressed="${on}" aria-label="${md(d)}${has ? '（シフトあり）' : ''}">${dd.getDate()}${has ? '<i aria-hidden="true"></i>' : ''}</button>`; }).join('')}</div>
+      <p class="note">点（・）＝シフトが入っている日</p></div></div>
+      <div class="f"><span class="flabel">時間（選んだ日すべてに入ります）</span><div class="sf-chips">${shiftPresets().map(k => { const [a, b] = k.split('-'); return `<button type="button" class="sf-chip mono${k === cur ? ' on' : ''}" data-act="sh-preset" data-v="${k}">${a}〜${b}</button>`; }).join('')}</div>
+      <div class="sf-range"><input id="sh-ps" type="time" value="${esc(sh.ps)}" aria-label="始まり"><span>〜</span><input id="sh-pe" type="time" value="${esc(sh.pe)}" aria-label="終わり"></div></div>
+      ${sel.length ? `<div class="f"><span class="flabel">選んだ日（${sel.length}件）</span><div class="sf-picked">${sel.map(d => { const t = sh.times[d] || [sh.ps, sh.pe], dd = parseYmd(d); const ov = t[0] && t[1] ? busyLabelsOn(d, toMin(t[0]), toMin(t[1])) : []; return `<div class="sf-row${ov.length ? ' ov' : ''}"><span class="d">${WD[dd.getDay()]} ${dd.getMonth() + 1}/${dd.getDate()}</span><span class="t"><input type="time" name="ts-${d}" value="${esc(t[0])}" aria-label="${md(d)}の始まり">〜<input type="time" name="te-${d}" value="${esc(t[1])}" aria-label="${md(d)}の終わり"></span><button type="button" class="x" data-act="sh-day" data-d="${d}" aria-label="${md(d)}を外す">×</button>${ov.length ? `<span class="w">${esc(ov.join('、'))}と重なっています</span>` : ''}</div>`; }).join('')}</div></div>` : ''}
+      ${prev.length ? `<button type="button" class="link" data-act="sh-copy">先週（${md(prevFrom)}〜）のシフト${prev.length}件を、${md(sh.from)}からの週にコピーする</button>` : ''}
+      <div class="sh-acts"><button type="submit" class="btn primary"${sel.length ? '' : ' disabled'}>${sel.length ? `${sel.length}件のシフトを保存` : '入る日を選んでください'}</button>${cancel}</div>`;
+    }
+    case 'shift1': {
+      const x = (S.shifts || []).find(z => z.id === sh.id); if (!x) return cancel;
+      const ov = busyLabelsOn(x.date, toMin(x.start), toMin(x.end), x.id);
+      return `<h2 class="sh-title">シフトを直す</h2>
+      <div class="f"><label for="s1-place">バイト先</label><input id="s1-place" name="s1-place" type="text" maxlength="20" value="${esc(x.place || '')}"></div>
+      <div class="f"><label for="s1-date">日付</label><input id="s1-date" name="s1-date" type="date" value="${esc(x.date)}"></div>
+      <div class="f2"><div class="f"><label for="s1-start">始まり</label><input id="s1-start" name="s1-start" type="time" value="${esc(x.start)}"></div><div class="f"><label for="s1-end">終わり</label><input id="s1-end" name="s1-end" type="time" value="${esc(x.end)}"></div></div>
+      ${ov.length ? `<p class="note warnnote">${esc(ov.join('、'))}と重なっています</p>` : ''}
+      <div class="sh-acts"><button type="submit" class="btn primary">保存</button><button type="button" class="btn danger" data-act="shift-del" data-id="${x.id}">このシフトを消す</button>${cancel}</div>`;
+    }
+    case 'weekly': {
+      const w = sh.id ? S.weekly.find(x => x.id === sh.id) : null;
+      const names = courseNames();
+      const v = w || {course:sh.course && names.includes(sh.course) ? sh.course : names[0] || '', title:sh.title || '', min:sh.min || 60, imp:sh.imp || 2, per:'class', on:true};
+      if (!v.title) v.title = v.course ? `${v.course} 課題` : '';
+      return `<h2 class="sh-title">${w ? '毎週の課題を編集' : '毎週の課題を追加'}</h2>
+      <p class="note">授業が終わると、次の授業までが締切の課題として、やることに自動で入ります。</p>
+      <div class="f"><label for="wk-course">授業</label><select id="wk-course" name="wk-course" data-prev="${esc(v.course)}">${names.map(c => `<option value="${esc(c)}" ${c === v.course ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></div>
+      <div class="f"><label for="wk-title">課題の名前</label><input id="wk-title" name="wk-title" type="text" maxlength="40" value="${esc(v.title)}"></div>
+      <div class="f2"><div class="f"><label for="wk-min">作業時間の目安（分）</label><input id="wk-min" name="wk-min" type="number" inputmode="numeric" min="5" max="600" step="5" value="${v.min}"></div>
+      <div class="f"><label for="wk-per">授業が週2回以上あるとき</label><select id="wk-per" name="wk-per"><option value="class" ${v.per !== 'week' ? 'selected' : ''}>授業のたびに追加</option><option value="week" ${v.per === 'week' ? 'selected' : ''}>週1回（最初の授業のあと）</option></select></div></div>
+      <div class="f"><span class="flabel">重要度</span><div class="seg" role="radiogroup" aria-label="重要度">${[1,2,3].map(n => `<label class="segopt"><input type="radio" name="wk-imp" value="${n}" ${(v.imp || 2) === n ? 'checked' : ''}><span>${['','低い','ふつう','高い'][n]}</span></label>`).join('')}</div></div>
+      <label class="tog" for="wk-on"><input id="wk-on" name="wk-on" type="checkbox" ${v.on ? 'checked' : ''}>自動で追加する（夏休みなどは外しておく）</label>
+      ${!w && !sh.fromTask ? '<label class="tog" for="wk-now"><input id="wk-now" name="wk-now" type="checkbox" checked>今週の分もすぐ追加する（前回の授業で出た課題）</label>' : ''}
+      ${sh.fromTask ? '<p class="note">いま編集していた課題を、今週の分として扱います。</p>' : ''}
+      <p class="note">締切は「設定」の「授業の課題の締切」に合わせます（今は：${S.settings.courseDue === 'daybefore' ? '次の授業の前日まで' : '次の授業が始まる前まで'}）。</p>
+      <div class="sh-acts"><button type="submit" class="btn primary">保存</button>${w ? `<button type="button" class="btn danger" data-act="del" data-what="weekly" data-id="${w.id}">削除</button>` : ''}${cancel}</div>`;
+    }
+    case 'transfer': {
+      const p = sh.preview, here = S.tasks.filter(t => !t.done).length;
+      return `<h2 class="sh-title">引き継ぎコード</h2>
+      <p class="note">機種変更のときや、スマホからPCへデータを移すときに使います。いまの端末でコードを作って、新しい端末で貼り付けるだけです。</p>
+      <div class="rowcard">
+        <h3 class="h3">① この端末のデータをコードにする</h3>
+        <div class="sh-acts"><button type="button" class="btn primary" data-act="tr-make">コードを作ってコピー</button>${dlFn ? '<button type="button" class="btn" data-act="tr-file">ファイルで保存</button>' : ''}</div>
+        ${sh.code ? `<textarea class="code" id="tr-out" readonly aria-label="引き継ぎコード">${esc(sh.code)}</textarea>
+        <p class="note">${sh.copied ? 'コピーしました。' : 'コピーできていないときは、枠の中を長押しして「すべてを選択」→「コピー」してください。'}LINEの自分だけのトーク（Keep）やメモに貼っておくと、新しい端末ですぐ使えます。</p>` : ''}
+        <p class="note">コードには予定やタスクがそのまま入っています。ほかの人には送らないでください。${S.backupAt ? `（前回作った日：${md(S.backupAt)}）` : ''}</p>
+      </div>
+      <div class="rowcard">
+        <h3 class="h3">② コードからデータを戻す</h3>
+        <textarea class="code" id="tr-in" aria-label="引き継ぎコードを貼り付け" placeholder="DD1. から始まるコードを、まるごと貼り付け">${esc(sh.input || '')}</textarea>
+        <div class="sh-acts"><button type="button" class="btn" data-act="tr-read">読み込む</button><button type="button" class="btn ghost" data-act="tr-pick">ファイルから読み込む</button><input type="file" id="tr-filein" accept=".txt,text/plain" hidden></div>
+        ${p ? `<div class="preview"><b>このコードの中身（${esc(p.when)} に作成）</b><span>やること ${p.tasks}件・家事 ${p.routines}件・時間割 ${p.cells}コマ・毎週の予定 ${p.jobs}件</span></div>
+        <p class="note${hasData(S) ? ' warnnote' : ''}">${hasData(S) ? `いまこの端末にあるデータ（やること ${here}件など）は、この内容に置き換わります。` : 'この端末はまだ空なので、そのまま入ります。'}</p>
+        <div class="sh-acts"><button type="button" class="btn primary" data-act="tr-apply">${hasData(S) ? 'この内容に置き換える' : 'この内容を入れる'}</button></div>` : ''}
+      </div>
+      <div class="sh-acts">${cancel}</div>`;
+    }
+  }
+  return '';
+}
+async function sheetSubmit(submitter){
+  const sh = UI.sheet; if (!sh) return;
+  const fd = new FormData(formEl);
+  const how = submitter && submitter.value;
+  switch (sh.type){
+    case 'confirm': {
+      const add = [];
+      sh.rows.forEach((_, i) => { if (sh.rows.length > 1 && !fd.get(`use-${i}`)) return; const r = readTask(fd, i); if (r) add.push(makeTask(r)); });
+      if (!add.length){ toast('追加するやることがありません'); return; }
+      S.tasks.push(...add);
+      closeSheet(); commit(); toast(add.length > 1 ? `${add.length}件追加しました` : `「${add[0].title}」を追加しました`);
+      return;
+    }
+    case 'task': {
+      let r = readTask(fd, 0); if (!r){ toast('やることの名前を入れてください'); return; }
+      if (!sh.id && !r.deadline) r = withCourse(r);
+      if (sh.id){
+        const t = S.tasks.find(x => x.id === sh.id); if (!t) return;
+        Object.assign(t, {title:r.title, cat:r.cat, deadline:r.deadline || null, dueTime:r.dueTime || null, course:r.course || null, remaining:r.min, imp:r.imp});
+        if (!t.actual) t.est = r.min;
+      } else S.tasks.push(makeTask(r));
+      closeSheet(); commit(); return;
+    }
+    case 'done': recordDone(sh.kind, sh.id, fd.get('act'), how === 'part' ? 'part' : 'finish'); return;
+    case 'routine': {
+      const title = String(fd.get('r-title') || '').trim().slice(0, 40);
+      if (!title){ toast('家事の名前を入れてください'); return; }
+      const type = fd.get('r-type') === 'weekly' ? 'weekly' : 'interval';
+      const days = fd.getAll('r-day').map(Number);
+      if (type === 'weekly' && !days.length){ toast('曜日を1つ以上選んでください'); return; }
+      const last = String(fd.get('r-last') || '');
+      const v = {title, type, days, every:clamp(Math.round(Number(fd.get('r-every')) || 7), 1, 60), est:clamp(round5(fd.get('r-est')), 5, 300), imp:clamp(Number(fd.get('r-imp')) || 2, 1, 3), last:/^\d{4}-\d{2}-\d{2}$/.test(last) ? last : null};
+      if (sh.id){ const r = S.routines.find(x => x.id === sh.id); if (r) Object.assign(r, v); }
+      else S.routines.push({id:newId(), ...v});
+      closeSheet(); commit(); toast(`「${title}」を登録しました`); return;
+    }
+    case 'cell': {
+      const name = String(fd.get('cname') || '').trim().slice(0, 30);
+      if (how === 'clear' || !name) delete S.timetable[sh.k]; else S.timetable[sh.k] = name;
+      closeSheet(); commit(); return;
+    }
+    case 'job': {
+      const start = String(fd.get('j-start') || ''), end = String(fd.get('j-end') || '');
+      if (!start || !end || toMin(end) <= toMin(start)){ toast('終わりの時刻は、始まりより後にしてください'); return; }
+      const kind = JOB_KIND[fd.get('j-kind')] ? fd.get('j-kind') : 'job';
+      const v = {wd:Number(fd.get('j-wd')), start, end, kind, label:String(fd.get('j-label') || '').trim().slice(0, 30) || JOB_KIND[kind]};
+      if (sh.id){ const j = S.jobs.find(x => x.id === sh.id); if (j) Object.assign(j, v); } else S.jobs.push({id:newId(), ...v});
+      closeSheet(); commit(); return;
+    }
+    case 'periods': {
+      const ps = sh.periods.map((p, i) => [String(fd.get(`ps-${i}`) || p[0]), String(fd.get(`pe-${i}`) || p[1])]);
+      if (ps.some(p => toMin(p[1]) <= toMin(p[0]))){ toast('各時限の終わりは、始まりより後にしてください'); return; }
+      S.periods = ps;
+      for (const k of Object.keys(S.timetable)) if (Number(k.split('-')[1]) > ps.length) delete S.timetable[k];
+      closeSheet(); commit(); return;
+    }
+    case 'shift': {
+      keepShiftInputs();
+      const places = S.places || [];
+      const place = ((sh.adding || !places.length) ? String(sh.newPlace || '').trim() : sh.place).slice(0, 20) || 'バイト';
+      const sel = sh.sel.slice().sort();
+      if (!sel.length){ toast('入る日を選んでください'); return; }
+      for (const d of sel){
+        const t = sh.times[d] || [sh.ps, sh.pe];
+        if (!t[0] || !t[1] || toMin(t[1]) <= toMin(t[0])){ toast(`${md(d)}：終わりの時刻は、始まりより後にしてください（日をまたぐときは 23:59 までで入れてください）`); return; }
+      }
+      UI.undo = JSON.stringify(S);
+      for (const d of sel){ const t = sh.times[d] || [sh.ps, sh.pe]; S.shifts.push({id:newId(), date:d, start:t[0], end:t[1], place}); }
+      S.places = [place, ...places.filter(x => x !== place)].slice(0, 6);
+      closeSheet(); commit(); toast(`${place}のシフトを${sel.length}件入れました`, true);
+      return;
+    }
+    case 'shift1': {
+      const x = (S.shifts || []).find(z => z.id === sh.id); if (!x) return;
+      const date = String(fd.get('s1-date') || ''), st = String(fd.get('s1-start') || ''), en = String(fd.get('s1-end') || '');
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)){ toast('日付を入れてください'); return; }
+      if (!st || !en || toMin(en) <= toMin(st)){ toast('終わりの時刻は、始まりより後にしてください'); return; }
+      const place = String(fd.get('s1-place') || '').trim().slice(0, 20) || 'バイト';
+      Object.assign(x, {date, start:st, end:en, place});
+      S.places = [place, ...(S.places || []).filter(p => p !== place)].slice(0, 6);
+      closeSheet(); commit(); toast('シフトを直しました'); return;
+    }
+    case 'weekly': {
+      const course = String(fd.get('wk-course') || '');
+      if (!courseNames().includes(course)){ toast('授業を選んでください'); return; }
+      const title = String(fd.get('wk-title') || '').trim().slice(0, 40) || `${course} 課題`;
+      const v = {course, title, min:clamp(round5(fd.get('wk-min')), 5, 600), imp:clamp(Number(fd.get('wk-imp')) || 2, 1, 3), per:fd.get('wk-per') === 'week' ? 'week' : 'class', on:fd.get('wk-on') === 'on'};
+      let w;
+      if (sh.id){
+        w = S.weekly.find(x => x.id === sh.id); if (!w) return;
+        const moved = w.course !== v.course || w.per !== v.per;
+        Object.assign(w, v);
+        // 授業を変えたときは、すでに終わった回の分をさかのぼって入れない
+        if (moved){ const o = lastEndedClass(w, todayStr(), nowMin()); w.lastKey = o ? o.key : null; }
+      } else {
+        w = {id:newId(), ...v, lastKey:null};
+        S.weekly.push(w);
+        const o = lastEndedClass(w, todayStr(), nowMin());
+        if (sh.fromTask){
+          const t = S.tasks.find(x => x.id === sh.fromTask);
+          if (t){ t.weekly = w.id; t.occ = o ? o.key : null; t.course = course; }
+          w.lastKey = o ? o.key : null;
+        } else if (fd.get('wk-now') !== 'on') w.lastKey = o ? o.key : null;
+      }
+      const made = runWeekly().made;
+      closeSheet(); commit();
+      if (made.length) toastWeekly(made);
+      else { const st = weeklyStatus(w); toast(`「${title}」を毎週の課題にしました${st && w.on ? '。' + st : ''}`); }
+      return;
+    }
+    case 'settings': {
+      const a = String(fd.get('s-start') || S.settings.dayStart), b = String(fd.get('s-end') || S.settings.dayEnd);
+      if (toMin(b) <= toMin(a)){ toast('1日の終わりは、始まりより後にしてください'); return; }
+      S.settings = {...S.settings, dayStart:a, dayEnd:b, buffer:clamp(Math.round(Number(fd.get('s-buf')) || 0), 0, 60), studyRatio:clamp(Number(fd.get('s-ratio')) / 100 || 0.75, 0.5, 0.9), courseDue:fd.get('s-cdue') === 'daybefore' ? 'daybefore' : 'before', showTimes:fd.get('s-times') === 'on'};
+      closeSheet(); commit(); toast('設定を保存しました'); return;
+    }
+  }
+}
+
+/* ---------- 通知（トースト） ---------- */
+function toast(msg, undo){
+  toastEl.innerHTML = `<span>${esc(msg)}</span>${undo ? '<button type="button" class="link inv" data-act="undo">元に戻す</button>' : ''}`;
+  toastEl.hidden = false;
+  clearTimeout(UI.tt);
+  UI.tt = setTimeout(() => { toastEl.hidden = true; }, undo ? 6000 : 3500);
+}
+
+/* ---------- 操作 ---------- */
+document.addEventListener('click', e => {
+  if (!e.target.closest('.wk-pop') && !e.target.closest('[data-act="tt-info"],[data-act="tt-dl"],[data-act="tt-shift"]')) hideTtInfo();
+  try { onClick(e); } catch (err) { console.error(err); toast('うまく操作できませんでした。ページを開き直してから、もう一度試してください'); }
+});
+function onClick(e){
+  if (e.target === sheetEl){ closeSheet(); return; }
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const a = b.dataset.act, today = todayStr();
+  if (store.mode === 'loading' && !['tab','day','filter','close','tt-info','tt-dl','tt-shift','wk-prev','wk-next','wk-today'].includes(a)){ toast('保存先を準備しています。少し待ってから操作してください'); return; }
+  switch (a){
+    case 'tab':
+      UI.view = b.dataset.v;
+      // 別のタブに移ったら編集モードは終わり。時間割が空のときだけ、最初から編集モードで開く
+      UI.ttEdit = UI.view === 'week' && weekIsEmpty();
+      UI.weekOff = 0; try { localStorage.setItem(LS_VIEW, UI.view); } catch (err) {}
+      render(); window.scrollTo(0, 0); break;
+    case 'day': UI.day = b.dataset.v; render(); break;
+    case 'filter': UI.filter = b.dataset.v; render(); break;
+    case 'cond': S.cond[b.dataset.date] = b.dataset.v; commit(); break;
+    case 'later': {
+      UI.undo = JSON.stringify(S);
+      const list = b.dataset.kind === 'routine' ? S.routines : S.tasks;
+      const x = list.find(y => y.id === b.dataset.id);
+      if (x){ x.snooze = addDays(today, 1); commit(); toast(`「${x.title}」をあしたに回しました`, true); }
+      break;
+    }
+    case 'done': case 'open-done': {
+      const list = b.dataset.kind === 'routine' ? S.routines : S.tasks;
+      const x = list.find(y => y.id === b.dataset.id); if (!x) break;
+      const min = Number(b.dataset.min) || (b.dataset.kind === 'routine' ? round5(x.est) : effMin(x));
+      openSheet({type:'done', kind:b.dataset.kind, id:x.id, title:x.title, min});
+      break;
+    }
+    case 'adj': { const i = formEl.querySelector('#act'); if (i) i.value = clamp((Number(i.value) || 0) + Number(b.dataset.v), 1, 600); break; }
+    case 'new-task': openSheet({type:'task'}); break;
+    case 'edit-task': {
+      const t = S.tasks.find(x => x.id === b.dataset.id);
+      openSheet({type:'task', id:b.dataset.id, meta:t ? [{deadline:t.deadline, dueTime:t.dueTime, course:t.course}] : []});
+      break;
+    }
+    case 'auto-fill': {
+      const i = Number(b.dataset.i);
+      const ti = formEl.querySelector(`#title-${i}`), di = formEl.querySelector(`#deadline-${i}`), note = formEl.querySelector(`#autonote-${i}`);
+      const course = matchCourse(ti ? ti.value : '');
+      if (!course){ toast('やることの名前に、時間割の授業名を入れてください（例：「ライリス 課題」）'); break; }
+      const cd = courseDue(course);
+      if (!cd){ toast(`「${course}」の次の授業が、時間割の2週間先までに見つかりません`); break; }
+      if (di) di.value = cd.deadline;
+      const meta = UI.sheet.meta || UI.sheet.rows || (UI.sheet.meta = []);
+      meta[i] = {...(meta[i] || {}), deadline:cd.deadline, dueTime:cd.dueTime, course};
+      if (note){ note.textContent = cd.note; note.hidden = false; }
+      const study = formEl.querySelector(`input[name="cat-${i}"][value="study"]`); if (study) study.checked = true;
+      break;
+    }
+    case 'auto-due': {
+      const t = S.tasks.find(x => x.id === b.dataset.id); if (!t) break;
+      const course = t.course || matchCourse(t.title), cd = course ? courseDue(course) : null;
+      if (!cd){ toast('次の授業が時間割に見つかりません'); break; }
+      UI.undo = JSON.stringify(S);
+      Object.assign(t, {deadline:cd.deadline, dueTime:cd.dueTime, course, cat:'study'});
+      commit(); toast(cd.note, true); break;
+    }
+    case 'preset': openSheet({type:'routine', preset:{...PRESETS[Number(b.dataset.i)]}}); break;
+    case 'new-routine': openSheet({type:'routine'}); break;
+    case 'edit-routine': openSheet({type:'routine', id:b.dataset.id}); break;
+    case 'cell': openSheet({type:'cell', k:b.dataset.k}); break;
+    case 'new-job': openSheet({type:'job'}); break;
+    case 'edit-job': openSheet({type:'job', id:b.dataset.id}); break;
+    case 'periods': openSheet({type:'periods', periods:S.periods.map(p => p.slice())}); break;
+    case 'settings': openSheet({type:'settings'}); break;
+    case 'close': closeSheet(); break;
+    case 'stop-ai': if (UI.ctl){ try { UI.ctl.abort(); } catch (err) {} } break;
+    case 'load-sample': loadSample(); toast('サンプルを入れました。上の帯から、いつでも消せます'); break;
+    case 'clear-sample': S = defaults(); UI.view = 'week'; commit(); toast('サンプルを消しました。まず時間割を入れましょう'); break;
+    case 'del': {
+      if (!b.dataset.armed){ b.dataset.armed = '1'; b.textContent = 'もう一度押すと削除'; break; }
+      UI.undo = JSON.stringify(S);
+      const what = b.dataset.what, id = b.dataset.id;
+      if (what === 'task') S.tasks = S.tasks.filter(x => x.id !== id);
+      if (what === 'routine') S.routines = S.routines.filter(x => x.id !== id);
+      if (what === 'job') S.jobs = S.jobs.filter(x => x.id !== id);
+      if (what === 'weekly'){ S.weekly = S.weekly.filter(x => x.id !== id); S.tasks.forEach(t => { if (t.weekly === id) delete t.weekly; }); }
+      closeSheet(); commit(); toast('削除しました', true); break;
+    }
+    case 'reset-all': {
+      if (!b.dataset.armed){ b.dataset.armed = '1'; b.textContent = 'もう一度押すと、すべて消えます'; break; }
+      UI.undo = JSON.stringify(S);
+      S = defaults(); UI.view = 'today'; closeSheet(); commit(); toast('すべてのデータを消しました', true); break;
+    }
+    case 'ics': exportIcs(); break;
+    case 'transfer': openSheet({type:'transfer'}); break;
+    case 'tt-edit': UI.ttEdit = true; render(); break;
+    case 'tt-done': UI.ttEdit = false; render(); toast('変更は保存されています'); break;
+    case 'tt-info': showTtInfo(b); break;
+    case 'tt-dl': showDlInfo(b); break;
+    case 'tt-shift': showShiftInfo(b); break;
+    case 'shift-new': openShiftSheet(); break;
+    case 'shift-edit': openSheet({type:'shift1', id:b.dataset.id}); break;
+    case 'shift-del': {
+      const x = (S.shifts || []).find(z => z.id === b.dataset.id); if (!x) break;
+      UI.undo = JSON.stringify(S);
+      S.shifts = S.shifts.filter(z => z.id !== x.id);
+      hideTtInfo(); if (UI.sheet) closeSheet(); commit(); toast(`${md(x.date)}の${x.place}のシフトを消しました`, true); break;
+    }
+    case 'sh-place': { keepShiftInputs(); UI.sheet.place = b.dataset.v; UI.sheet.adding = false; renderSheet(); break; }
+    case 'sh-place-add': { keepShiftInputs(); UI.sheet.adding = true; renderSheet(); const n = formEl.querySelector('#sh-newplace'); if (n) n.focus(); break; }
+    case 'sh-day': {
+      keepShiftInputs();
+      const sh = UI.sheet, d = b.dataset.d;
+      if (sh.sel.includes(d)){ sh.sel = sh.sel.filter(x => x !== d); delete sh.times[d]; delete sh.edited[d]; }
+      else { sh.sel.push(d); sh.times[d] = [sh.ps, sh.pe]; }
+      renderSheet(); break;
+    }
+    case 'sh-from': {
+      keepShiftInputs();
+      const sh = UI.sheet, thisMon = mondayOf(today), nf = addDays(sh.from, Number(b.dataset.v));
+      sh.from = nf < thisMon ? thisMon : nf; renderSheet(); break;
+    }
+    case 'sh-preset': {
+      keepShiftInputs();
+      const sh = UI.sheet, [ps, pe] = b.dataset.v.split('-');
+      sh.ps = ps; sh.pe = pe; sh.sel.forEach(d => { sh.times[d] = [ps, pe]; }); sh.edited = {};
+      renderSheet(); break;
+    }
+    case 'sh-copy': {
+      const sh = UI.sheet, prevFrom = addDays(sh.from, -7);
+      const prev = (S.shifts || []).filter(x => x.date >= prevFrom && x.date < sh.from);
+      UI.undo = JSON.stringify(S);
+      let n = 0;
+      for (const x of prev){
+        const d = addDays(x.date, 7);
+        if (d < today || S.shifts.some(z => z.date === d && z.start === x.start && z.place === x.place)) continue;
+        S.shifts.push({id:newId(), date:d, start:x.start, end:x.end, place:x.place}); n++;
+      }
+      closeSheet(); commit(); toast(n ? `先週のシフトを${n}件コピーしました` : 'コピーできるシフトはありませんでした（もう入っているか、過ぎた日です）', n > 0); break;
+    }
+    case 'wk-prev': UI.weekOff = (UI.weekOff || 0) - 1; render(); break;
+    case 'wk-next': UI.weekOff = (UI.weekOff || 0) + 1; render(); break;
+    case 'wk-today': UI.weekOff = 0; render(); break;
+    case 'weekly-new': openSheet({type:'weekly', course:b.dataset.course || null}); break;
+    case 'weekly-edit': openSheet({type:'weekly', id:b.dataset.id}); break;
+    case 'weekly-from-task': {
+      const t = S.tasks.find(x => x.id === b.dataset.id); if (!t) break;
+      const course = t.course && courseNames().includes(t.course) ? t.course : matchCourse(t.title);
+      if (!course){ toast('時間割の授業が見つかりません'); break; }
+      openSheet({type:'weekly', course, title:t.title.replace(/（\d+\/\d+の回）$/, ''), min:t.est || 60, imp:t.imp || 2, fromTask:t.id});
+      break;
+    }
+    case 'tr-make': trMake().catch(err => { console.error(err); toast('コードを作れませんでした'); }); break;
+    case 'tr-file': trFile().catch(err => { console.error(err); toast('保存できませんでした'); }); break;
+    case 'tr-read': trRead().catch(err => { console.error(err); toast('コードを読み込めませんでした'); }); break;
+    case 'tr-pick': { keepTrInput(); const f = formEl.querySelector('#tr-filein'); if (f) f.click(); break; }
+    case 'tr-apply': trApply(); break;
+    case 'nag-later': S.nagUntil = addDays(today, 7); commit(); toast('1週間後にまたお知らせします'); break;
+    case 'inapp-hide': UI.inappHidden = true; render(); break;
+    case 'a2hs-hide': UI.a2hsHidden = true; try { localStorage.setItem('dandori.a2hs', 'off'); } catch (err) {} render(); break;
+    case 'undo':
+      if (UI.undo){ const prev = merge(JSON.parse(UI.undo)); UI.undo = null; S = prev; commit(); toastEl.hidden = true; }
+      break;
+  }
+}
+document.addEventListener('submit', e => {
+  e.preventDefault();
+  if (store.mode === 'loading'){ toast('保存先を準備しています。少し待ってから操作してください'); return; }
+  const job = e.target === formEl ? sheetSubmit(e.submitter) : e.target.dataset.form === 'quick' ? quickAdd(e.target) : null;
+  Promise.resolve(job).catch(err => { console.error(err); toast('保存できませんでした。ページを開き直してから、もう一度試してください'); });
+});
+document.addEventListener('change', e => {
+  if (e.target.id === 'ai-toggle') UI.ai = e.target.checked;
+  if (UI.sheet && UI.sheet.type === 'shift' && e.target.closest('#sheet-form')){
+    const sh = UI.sheet;
+    if (e.target.id === 'sh-ps' || e.target.id === 'sh-pe'){
+      const ps = formEl.querySelector('#sh-ps').value, pe = formEl.querySelector('#sh-pe').value;
+      // 個別に直していない日だけ、まとめて時間を変える
+      keepShiftInputs();
+      sh.ps = ps || sh.ps; sh.pe = pe || sh.pe;
+      sh.sel.forEach(d => { if (!sh.edited[d]) sh.times[d] = [sh.ps, sh.pe]; });
+      renderSheet();
+    } else if (/^t[se]-/.test(e.target.name || '')){
+      keepShiftInputs(); sh.edited[e.target.name.slice(3)] = true; renderSheet();
+    }
+  }
+  if (e.target.name === 'j-kind'){
+    const li = formEl.querySelector('#j-label');
+    if (li && (!li.value.trim() || Object.values(JOB_KIND).includes(li.value.trim()))) li.value = JOB_KIND[e.target.value] || '';
+  }
+  if (e.target.id === 'wk-course'){
+    const ti = formEl.querySelector('#wk-title'), prev = e.target.dataset.prev || '';
+    if (ti && (!ti.value.trim() || ti.value === `${prev} 課題`)) ti.value = `${e.target.value} 課題`;
+    e.target.dataset.prev = e.target.value;
+  }
+  if (e.target.id === 'tr-filein' && e.target.files && e.target.files[0]){
+    const file = e.target.files[0];
+    if (file.size > 2e6){ toast('ファイルが大きすぎます。引き継ぎコードのファイルを選んでください'); return; }
+    file.text().then(t => trRead(t)).catch(err => { console.error(err); toast('ファイルを読み込めませんでした'); });
+  }
+  if (e.target.id === 'm-on'){ S.settings.morningOn = e.target.checked; commit(); }
+  if (e.target.id === 'm-time' && /^\d{2}:\d{2}$/.test(e.target.value)){ S.settings.morningTime = e.target.value; commit(); }
+  if (e.target.id === 'pcount' && UI.sheet && UI.sheet.type === 'periods'){
+    const fd = new FormData(formEl);
+    const cur = UI.sheet.periods.map((p, i) => [String(fd.get(`ps-${i}`) || p[0]), String(fd.get(`pe-${i}`) || p[1])]);
+    const n = Number(e.target.value), base = defaults().periods.concat(EXTRA_PERIODS);
+    UI.sheet.periods = Array.from({length:n}, (_, i) => cur[i] || base[i] || ['20:00','21:30']);
+    renderSheet();
+  }
+});
+document.addEventListener('input', e => {
+  if (e.target.id === 's-ratio'){ const o = document.getElementById('s-ratio-out'); if (o) o.textContent = e.target.value; }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && UI.sheet) closeSheet(); });
+setInterval(() => { if (checkWeekly()) return; if (UI.sheet) return; if ((UI.view === 'today' && document.activeElement?.id !== 'quick-in') || (UI.view === 'week' && !UI.ttEdit && !document.getElementById('wk-pop'))) render(); }, 60000);
+
+boot();
+})();
+</script>
+
+<script>
+// オフラインでも開けるように（ホーム画面から起動したときも速くなる）
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}
+</script>
+</body>
+</html>
