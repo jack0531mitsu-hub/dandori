@@ -1,5 +1,5 @@
-// ダンドリ：オフライン用のキャッシュ（版 76221fc2）
-const CACHE = 'dandori-76221fc2';
+// ダンドリ：オフライン用のキャッシュ（版 d098348d）
+const CACHE = 'dandori-d098348d';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));

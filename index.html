@@ -295,6 +295,42 @@ details.done summary{cursor:pointer;padding:10px 0;font-size:14px;font-weight:50
 .wk-drow.done .ttl{text-decoration:line-through}
 .wk-drow .chk{color:var(--ink-3);font-size:14px;padding:0 8px}
 .wk-pop .prow{display:flex;align-items:center;gap:6px;margin-top:4px}
+.datebtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:4px 10px 4px 8px;font:inherit;font-size:20px;font-weight:700;color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums}
+.datebtn svg{width:18px;height:18px;color:var(--ink-2);flex:none}
+.datebtn .car{font-size:11px;color:var(--ink-2)}
+.wk-range .rbtn{border:0;background:transparent;font:inherit;font-size:15px;font-weight:700;color:var(--ink);display:inline-flex;align-items:center;gap:5px;cursor:pointer;padding:2px 4px}
+.wk-range .rbtn svg{width:15px;height:15px;color:var(--ink-2)}
+.mc{display:grid;gap:12px}
+.mc-h{display:flex;align-items:center;gap:8px}
+.mc-h b{flex:1;font-size:18px}
+.mc-g{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
+.mc-w{font-size:11px;font-weight:700;color:var(--ink-2);text-align:center;padding-bottom:4px}
+.mc-w.sun{color:var(--warn)}
+.mc-d{height:58px;border:0;border-radius:10px;background:transparent;font:inherit;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 2px;cursor:pointer;min-width:0}
+.mc-d .n{font-family:var(--font-mono);font-size:14px;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.mc-d.out .n{color:var(--ink-3);opacity:.6}
+.mc-d.past .n{color:var(--ink-3)}
+.mc-d.sun .n{color:var(--warn)}
+.mc-d.today .n{box-shadow:inset 0 0 0 2px var(--ink)}
+.mc-d.sel{background:var(--sunk)}
+.mc-d.sel .n{background:var(--ink);color:var(--paper)}
+.mc-d .cnt{display:inline-flex;align-items:center;gap:2px;height:14px;padding:0 4px;border-radius:7px;font-size:9.5px;font-family:var(--font-mono);font-weight:700;background:var(--ink);color:var(--paper)}
+.mc-d .cnt.u{background:var(--warn)}
+.mc-d .cnt::before{content:"";width:4px;height:6px;background:currentColor;clip-path:polygon(0 0,100% 50%,0 100%)}
+.mc-d .sh{display:block;width:22px;height:4px;border-radius:2px;background:repeating-linear-gradient(135deg,var(--other) 0 3px,var(--stripe) 3px 5px)}
+.mc-d.past .sh,.mc-d.out .sh{opacity:.45}
+.mc-legend{display:flex;gap:6px 12px;flex-wrap:wrap;font-size:11px;color:var(--ink-2);align-items:center}
+.mc-legend i{display:inline-block;vertical-align:-1px;margin-right:4px}
+.mc-day{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px}
+.mc-day h3{margin:0;font-size:16px}
+.mc-sec{display:grid;gap:4px}
+.mc-sec .lab{font-size:12px;font-weight:700;color:var(--ink-2)}
+.mrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;text-align:left;font:inherit;font-size:14px;color:var(--ink);padding:7px 10px;border-radius:8px;background:var(--paper);border:0}
+button.mrow{cursor:pointer}
+.mrow .tm{font-family:var(--font-mono);font-size:12px;color:var(--ink-2);min-width:44px}
+.mrow .k{width:4px;align-self:stretch;border-radius:2px}
+.mrow.done{opacity:.55}
+.mrow.done .t{text-decoration:line-through}
 .wk-pop .pacts{display:flex;gap:6px;margin-top:8px}
 .wk-pop .stag{display:inline-block;font-size:10px;font-weight:700;background:var(--other-soft);color:var(--other);border-radius:4px;padding:0 5px;margin-left:5px;vertical-align:1px}
 .btn.accent{background:var(--other-soft);border-color:var(--other);color:var(--other);font-weight:700}
@@ -411,7 +447,11 @@ details.done summary{cursor:pointer;padding:10px 0;font-size:14px;font-weight:50
 .slabel{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--ink-3)}
 .ssub{font-size:12px;color:var(--ink-3)}
 .autonote{padding:8px 10px;border-radius:8px;background:var(--study-soft);color:var(--study)}
-.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.f2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.f2 input{min-width:0;max-width:100%}
+/* iPhoneの日付・時刻の欄が、中身の幅に引っぱられて横にはみ出すのを防ぐ */
+input[type=time],input[type=date]{-webkit-appearance:none;appearance:none;min-width:0}
+input::-webkit-date-and-time-value{text-align:left}
 .rowcard{display:grid;gap:10px;padding:12px;border:1px solid var(--line);border-radius:10px}
 .stepper{display:flex;gap:6px;align-items:center}
 .stepper input{width:6em;flex:none;text-align:center}
@@ -1250,7 +1290,7 @@ function todayView(){
   const lifeMin = P.plan.filter(p => p.cat === 'life').reduce((a, p) => a + p.min, 0);
   return `
   <section class="daybar">
-    <h1 class="date">${md(date)}</h1>
+    <h1 class="date"><button type="button" class="datebtn" data-act="mcal" data-d="${date}" aria-label="${md(date)}。押すと月のカレンダーを開きます">${CAL_ICON}${md(date)}<span class="car" aria-hidden="true">▼</span></button></h1>
     <div class="seg" role="group" aria-label="表示する日">${segBtn('day','today','今日',isToday)}${segBtn('day','tomorrow','あした',!isToday)}</div>
   </section>
   ${isToday ? morningCard(P) : ''}
@@ -1748,6 +1788,45 @@ function showDlInfo(b){
     <div class="prow">${gradeTag(taskScore(t, d))}<span>${left}・作業の目安 ${dur(effMin(t))}</span></div>
     <div class="pacts"><button type="button" data-act="open-done" data-kind="task" data-id="${t.id}">完了を記録</button><button type="button" class="g" data-act="edit-task" data-id="${t.id}">編集</button></div>`);
 }
+/* ---------- 月のカレンダー（日付を押すと開く。見るだけ） ---------- */
+const CAL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>';
+function openMonthCal(d){
+  const sel = /^\d{4}-\d{2}-\d{2}$/.test(d || '') ? d : todayStr();
+  openSheet({type:'mcal', month:sel.slice(0, 8) + '01', sel});
+}
+/* その日の授業・毎週の予定・シフト（時刻順） */
+function dayItems(date){
+  const wd = parseYmd(date).getDay(), out = [];
+  if (wd >= 1 && wd <= 6) S.periods.forEach((p, i) => { const n = S.timetable[`${wd}-${i + 1}`]; if (n) out.push({s:p[0], e:p[1], label:`${i + 1}限 ${n}`, c:'var(--study)'}); });
+  S.jobs.filter(j => j.wd === wd).forEach(j => { const k = jobKind(j); out.push({s:j.start, e:j.end, label:j.label || JOB_KIND[k], c:k === 'cir' ? 'var(--life)' : k === 'etc' ? 'var(--etc)' : 'var(--other)'}); });
+  shiftsOn(date).forEach(x => out.push({s:x.start, e:x.end, label:`${x.place || 'バイト'}（シフト）`, c:'var(--other)'}));
+  return out.sort((a, b) => toMin(a.s) - toMin(b.s));
+}
+function monthCalHTML(sh){
+  const today = todayStr(), first = parseYmd(sh.month), m = first.getMonth();
+  const start = mondayOf(sh.month), last = new Date(first.getFullYear(), m + 1, 0);
+  const end = addDays(mondayOf(ymd(last)), 6), n = daysBetween(start, end) + 1;
+  let cells = '';
+  for (let i = 0; i < n; i++){
+    const ds = addDays(start, i), dd = parseYmd(ds);
+    const dl = S.tasks.filter(t => t.deadline === ds && !t.done), urg = dl.some(dueUrgent), sh2 = shiftsOn(ds).length > 0;
+    cells += `<button type="button" class="mc-d${dd.getMonth() !== m ? ' out' : ''}${ds < today ? ' past' : ''}${ds === today ? ' today' : ''}${ds === sh.sel ? ' sel' : ''}${dd.getDay() === 0 ? ' sun' : ''}" data-act="mcal-day" data-d="${ds}" aria-pressed="${ds === sh.sel}" aria-label="${md(ds)}${dl.length ? `、締切${dl.length}件` : ''}${sh2 ? '、シフトあり' : ''}"><span class="n">${dd.getDate()}</span>${sh2 ? '<i class="sh" aria-hidden="true"></i>' : ''}${dl.length ? `<span class="cnt${urg ? ' u' : ''}" aria-hidden="true">${dl.length}</span>` : ''}</button>`;
+  }
+  const d = sh.sel, dls = S.tasks.filter(t => t.deadline === d).sort((a, b) => (a.dueTime || '99').localeCompare(b.dueTime || '99'));
+  const items = dayItems(d);
+  const dlRows = dls.map(t => { const k = daysBetween(today, t.deadline); return `<button type="button" class="mrow${t.done ? ' done' : ''}" data-act="edit-task" data-id="${t.id}"><span class="tm">${t.dueTime ? esc(t.dueTime) : '日付だけ'}</span><span class="t">${esc(t.title)}</span>${t.done ? '<span class="tm">済み</span>' : gradeTag(taskScore(t, k))}</button>`; }).join('');
+  const itRows = items.map(x => `<div class="mrow"><span class="tm">${esc(x.s)}</span><span class="t">${esc(x.label)}</span><i class="k" style="background:${x.c}" aria-hidden="true"></i></div>`).join('');
+  return `<div class="mc">
+    <div class="mc-h"><button type="button" class="wk-arr" data-act="mcal-month" data-v="-1" aria-label="前の月">‹</button><b>${first.getFullYear()}年${m + 1}月</b><button type="button" class="btn small" data-act="mcal-today">今日</button><button type="button" class="wk-arr" data-act="mcal-month" data-v="1" aria-label="次の月">›</button></div>
+    <div class="mc-g">${['月','火','水','木','金','土','日'].map((w, i) => `<span class="mc-w${i === 6 ? ' sun' : ''}">${w}</span>`).join('')}${cells}</div>
+    <div class="mc-legend" aria-hidden="true"><span><i style="width:8px;height:10px;background:var(--warn);clip-path:polygon(0 0,100% 50%,0 100%)"></i>締切の数（赤＝あしたまで）</span><span><i style="width:16px;height:4px;border-radius:2px;background:repeating-linear-gradient(135deg,var(--other) 0 3px,var(--stripe) 3px 5px)"></i>シフト</span><span><i style="width:12px;height:12px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--ink)"></i>今日</span></div>
+    <div class="mc-day"><h3>${md(d)}</h3>
+      ${dls.length ? `<div class="mc-sec"><span class="lab">締切（${dls.length}件）</span>${dlRows}</div>` : ''}
+      ${items.length ? `<div class="mc-sec"><span class="lab">授業・予定</span>${itRows}</div>` : ''}
+      ${!dls.length && !items.length ? '<p class="note">この日は、締切も予定もありません。</p>' : ''}
+      <div class="sh-acts"><button type="button" class="btn small" data-act="mcal-week" data-d="${d}">この週の時間割を見る</button><button type="button" class="btn small" data-act="mcal-add" data-d="${d}">＋ この日が締切の課題を追加</button><button type="button" class="btn small ghost" data-act="close">閉じる</button></div>
+    </div></div>`;
+}
 function showShiftInfo(b){
   hideTtInfo();
   const x = (S.shifts || []).find(z => z.id === b.dataset.id); if (!x) return;
@@ -1776,7 +1855,7 @@ function weekView(){
   const rel = off === 0 ? '今週' : off === 1 ? '来週' : off === -1 ? '先週' : off > 0 ? `${off}週間後` : `${-off}週間前`;
   return `<div class="h1row"><h1 class="h1">時間割</h1>${editing ? '<button type="button" class="btn primary small" data-act="tt-done">完了</button>' : `<button type="button" class="btn small accent" data-act="shift-new">＋ シフト</button><button type="button" class="btn small" data-act="tt-edit">${PENCIL}編集</button>`}</div>
   ${editing ? `<div class="wk-banner" role="status"><b>編集中</b><span>毎週の時間割です。点線の枠を押すと授業を入れられます。授業やバイトを押すと直せます。</span></div>`
-    : `<div class="wk-nav"><button type="button" class="wk-arr" data-act="wk-prev" aria-label="前の週">‹</button><div class="wk-range"><b>${md(mon)} 〜 ${md(sun)}</b>${off ? `<button type="button" class="link" data-act="wk-today">${rel}・今週に戻る</button>` : '<span>今週</span>'}</div><button type="button" class="wk-arr" data-act="wk-next" aria-label="次の週">›</button></div>`}
+    : `<div class="wk-nav"><button type="button" class="wk-arr" data-act="wk-prev" aria-label="前の週">‹</button><div class="wk-range"><button type="button" class="rbtn" data-act="mcal" data-d="${off ? mon : todayStr()}" aria-label="${md(mon)}から${md(sun)}。押すと月のカレンダーを開きます">${CAL_ICON}${md(mon)} 〜 ${md(sun)}</button>${off ? `<button type="button" class="link" data-act="wk-today">${rel}・今週に戻る</button>` : '<span>今週</span>'}</div><button type="button" class="wk-arr" data-act="wk-next" aria-label="次の週">›</button></div>`}
   ${!editing && weekIsEmpty() ? '<div class="empty"><span>まだ何も入っていません。「編集」を押して、時間割とバイト・サークルを入れましょう。</span><button type="button" class="btn small" data-act="tt-edit">編集する</button></div>' : ''}
   ${g.html}
   ${g.warns.map(w => `<div class="wk-warn">${WD[w.wd]}曜：「${esc(w.a.label)}」（〜${esc(w.a.end)}）と「${esc(w.b.label)}」（${esc(w.b.start)}〜）が${dur(w.min)}重なっています</div>`).join('')}
@@ -1796,8 +1875,10 @@ function renderSheet(){
   if (!UI.sheet){ sheetEl.hidden = true; formEl.innerHTML = ''; return; }
   formEl.innerHTML = sheetHTML(UI.sheet);
   sheetEl.hidden = false;
-  const first = formEl.querySelector('input[type=text],input[type=number]');
-  if (first && !['thinking','shift','shift1'].includes(UI.sheet.type)) first.focus({preventScroll:true});
+  // 開いただけでキーボードが出ると邪魔なので、文字を打つのが目的の画面だけ自動で入力欄を選ぶ
+  const sh = UI.sheet, typing = (sh.type === 'task' && !sh.id) || sh.type === 'cell';
+  const first = typing ? formEl.querySelector('input[type=text]') : null;
+  if (first) first.focus({preventScroll:true});
 }
 function taskFields(i, v){
   return `<div class="f"><label for="title-${i}">やること</label><input id="title-${i}" name="title-${i}" type="text" maxlength="60" value="${esc(v.title)}"></div>
@@ -1841,7 +1922,7 @@ function sheetHTML(sh){
       <div class="sh-acts"><button type="submit" class="btn primary">追加する</button>${cancel}</div>`;
     case 'task': {
       const t = sh.id ? S.tasks.find(x => x.id === sh.id) : null;
-      const v = t ? {title:t.title, cat:t.cat, deadline:t.deadline, min:t.remaining, imp:t.imp, editing:true, note:t.dueTime ? `締切は ${dueText(t)} です（授業が始まる前まで）` : ''} : {title:'', cat:'study', deadline:'', min:60, imp:2};
+      const v = t ? {title:t.title, cat:t.cat, deadline:t.deadline, min:t.remaining, imp:t.imp, editing:true, note:t.dueTime ? `締切は ${dueText(t)} です（授業が始まる前まで）` : ''} : {title:'', cat:'study', deadline:sh.deadline || '', min:60, imp:2};
       const wc = t && !t.weekly ? (t.course && courseNames().includes(t.course) ? t.course : matchCourse(t.title)) : null;
       return `<h2 class="sh-title">${t ? 'やることを編集' : 'やることを追加'}</h2>${taskFields(0, v)}
       ${wc ? `<button type="button" class="link" data-act="weekly-from-task" data-id="${t.id}">毎週出る課題なら：「${esc(wc)}」の毎週の課題にする</button>` : ''}
@@ -1901,6 +1982,7 @@ function sheetHTML(sh){
       ${FEEDBACK_URL ? `<div class="rowcard"><div class="kv"><span>感想・要望</span></div><p class="note">使ってみた感想や「こんな機能がほしい」を教えてください。1分で終わります。名前やメールアドレスは聞きません。</p><a class="btn" href="${esc(FEEDBACK_URL)}" target="_blank" rel="noopener">感想を送る</a></div>` : ''}
       <div class="sh-acts"><button type="submit" class="btn primary">保存</button><button type="button" class="btn danger" data-act="reset-all">すべてのデータを消す</button>${cancel}</div>`;
     }
+    case 'mcal': return monthCalHTML(sh);
     case 'shift': {
       const today = todayStr(), places = S.places || [], adding = sh.adding || !places.length;
       const days = Array.from({length:14}, (_, i) => addDays(sh.from, i));
@@ -2109,7 +2191,7 @@ function onClick(e){
   if (e.target === sheetEl){ closeSheet(); return; }
   const b = e.target.closest('[data-act]'); if (!b) return;
   const a = b.dataset.act, today = todayStr();
-  if (store.mode === 'loading' && !['tab','day','filter','close','tt-info','tt-dl','tt-shift','wk-prev','wk-next','wk-today'].includes(a)){ toast('保存先を準備しています。少し待ってから操作してください'); return; }
+  if (store.mode === 'loading' && !['tab','day','filter','close','tt-info','tt-dl','tt-shift','wk-prev','wk-next','wk-today','mcal','mcal-day','mcal-month','mcal-today'].includes(a)){ toast('保存先を準備しています。少し待ってから操作してください'); return; }
   switch (a){
     case 'tab':
       UI.view = b.dataset.v;
@@ -2197,6 +2279,23 @@ function onClick(e){
     case 'tt-info': showTtInfo(b); break;
     case 'tt-dl': showDlInfo(b); break;
     case 'tt-shift': showShiftInfo(b); break;
+    case 'mcal': openMonthCal(b.dataset.d); break;
+    case 'mcal-day': UI.sheet.sel = b.dataset.d; renderSheet(); break;
+    case 'mcal-month': {
+      const f = parseYmd(UI.sheet.month); f.setMonth(f.getMonth() + Number(b.dataset.v));
+      UI.sheet.month = ymd(f).slice(0, 8) + '01';
+      const t = todayStr(); UI.sheet.sel = t.slice(0, 7) === UI.sheet.month.slice(0, 7) ? t : UI.sheet.month;
+      renderSheet(); break;
+    }
+    case 'mcal-today': UI.sheet.month = today.slice(0, 8) + '01'; UI.sheet.sel = today; renderSheet(); break;
+    case 'mcal-week': {
+      const d = b.dataset.d; closeSheet();
+      UI.view = 'week'; UI.ttEdit = false;
+      UI.weekOff = Math.round(daysBetween(mondayOf(today), mondayOf(d)) / 7);
+      try { localStorage.setItem(LS_VIEW, 'week'); } catch (err) {}
+      render(); window.scrollTo(0, 0); break;
+    }
+    case 'mcal-add': { const d = b.dataset.d; openSheet({type:'task', deadline:d}); break; }
     case 'shift-new': openShiftSheet(); break;
     case 'shift-edit': openSheet({type:'shift1', id:b.dataset.id}); break;
     case 'shift-del': {
