@@ -14,13 +14,15 @@ self.addEventListener('fetch', e => {
   // 画面本体：まずネットから最新を取り、つながらなければ保存しておいたものを出す
   if (req.mode === 'navigate') {
     const isApp = /\/(index\.html)?$/.test(url.pathname);
-    e.respondWith(fetch(req).then(res => { const copy = res.clone(); caches.open(CACHE).then(c => c.put(isApp ? './index.html' : req, copy)); return res; })
+    // GitHub Pages は10分間ブラウザに覚えさせるので、毎回「新しいのがあるか」を聞きに行く
+    // （画面を開くリクエストには直接オプションを付けられないので、同じアドレスで作り直す）
+    e.respondWith(fetch(new Request(req.url, {cache: 'no-cache', credentials: 'same-origin'})).then(res => { const copy = res.clone(); caches.open(CACHE).then(c => c.put(isApp ? './index.html' : req, copy)); return res; })
       .catch(() => isApp ? caches.match('./index.html') : caches.match(req).then(r => r || caches.match('./index.html'))));
     return;
   }
   // 設定ファイル：書きかえたらすぐ反映されるように、ネットを先に見る
   if (url.origin === location.origin && url.pathname.endsWith('/config.js')) {
-    e.respondWith(fetch(req).then(res => { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); return res; }).catch(() => caches.match(req)));
+    e.respondWith(fetch(req, {cache: 'no-cache'}).then(res => { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); return res; }).catch(() => caches.match(req)));
     return;
   }
   // 文字（Google Fonts）とアイコンなど：保存しておいたものをすぐ出し、裏で新しくする
