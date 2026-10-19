@@ -38,6 +38,7 @@
   --scrim:rgba(40,20,40,.42);
   --edit:#FFF8D6; --edit-line:#E3C445; --edit-ink:#8A6D00;
   --etc:#2F93D8; --etc-soft:#E0F1FF; --band:rgba(124,108,242,.05); --stripe:#FBD6C0;
+  --goal:#A06A00; --goal-soft:#FFF1C9;
   --accent:#FF77AE; --accent-ink:#FFFFFF; --accent-deep:#E45A93; --accent-soft:#FFD9E8; --accent-text:#C73E78;
   --shadow:0 2px 0 rgba(200,90,140,.05),0 8px 22px rgba(200,90,140,.09);
   --bg:linear-gradient(180deg,#FFF3F7 0%,#F6F1FF 100%);
@@ -61,6 +62,7 @@
     --scrim:rgba(0,0,0,.6);
     --edit:#28220F; --edit-line:#7A6B22; --edit-ink:#E8CF5A;
     --etc:#86CBF7; --etc-soft:#1B2C3B; --band:rgba(173,162,255,.06); --stripe:#4A3626;
+    --goal:#F2C86B; --goal-soft:#3A2F17;
     --accent:#FF77AE; --accent-ink:#FFFFFF; --accent-deep:#C94A80; --accent-soft:#4A2238; --accent-text:#FF9CC5;
     --shadow:0 1px 0 rgba(0,0,0,.25),0 8px 20px rgba(0,0,0,.28);
     --bg:#18131F;
@@ -81,6 +83,7 @@
   --scrim:rgba(0,0,0,.6);
   --edit:#28220F; --edit-line:#7A6B22; --edit-ink:#E8CF5A;
   --etc:#86CBF7; --etc-soft:#1B2C3B; --band:rgba(173,162,255,.06); --stripe:#4A3626;
+  --goal:#F2C86B; --goal-soft:#3A2F17;
   --accent:#FF77AE; --accent-ink:#FFFFFF; --accent-deep:#C94A80; --accent-soft:#4A2238; --accent-text:#FF9CC5;
   --shadow:0 1px 0 rgba(0,0,0,.25),0 8px 20px rgba(0,0,0,.28);
   --bg:#18131F;
@@ -512,6 +515,29 @@ input::-webkit-date-and-time-value{text-align:left}
 .toast .tmsg{flex:1;min-width:0}
 .trow .meta .one{color:var(--ink-2);font-size:13px}
 .intro-sp svg{width:150px;height:150px;display:block;margin:-10px auto -14px}
+
+/* ===== コツコツ目標 ===== */
+.tag.goal{background:var(--goal-soft);color:var(--goal)}
+.gbar{height:7px;border-radius:4px;background:var(--sunk);overflow:hidden;margin-top:6px}
+.gbar i{display:block;height:100%;border-radius:4px;background:var(--study)}
+.gbar.late i{background:var(--other)}
+.gbar.ahead i{background:var(--etc)}
+.gbar.done i{background:var(--life)}
+.gtop{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.gst{font-size:12px;font-weight:700;border-radius:999px;padding:1px 10px;white-space:nowrap}
+.gst.ok{background:var(--life-soft);color:var(--life)}
+.gst.late{background:var(--other-soft);color:var(--other)}
+.gst.ahead{background:var(--etc-soft);color:var(--etc)}
+.gst.done{background:var(--accent-soft);color:var(--accent-text)}
+.gmeta{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--ink-2);margin-top:4px}
+.gtoday{font-size:13px;margin-top:2px}
+.gtoday b{color:var(--study)}
+.gcount{display:flex;align-items:baseline;justify-content:center;flex-wrap:wrap;gap:6px;background:var(--ink);color:var(--paper);border-radius:16px;padding:10px 14px;font-size:14px}
+.gcount b{font-family:var(--font-display);font-weight:400;font-size:24px;color:var(--marker)}
+.gprev{border-radius:14px;background:var(--study-soft);padding:12px 14px;display:grid;gap:2px}
+.gprev .big{font-family:var(--font-display);font-weight:400;font-size:24px;color:var(--study)}
+.gprev .s{font-size:12.5px;color:var(--ink-2)}
+.item .gbar{max-width:220px}
 @media (max-width:380px){.f2{grid-template-columns:1fr}.sq-row{grid-template-columns:64px 1fr}.sq-row .sq svg{width:68px;height:96px}}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -580,7 +606,7 @@ function defaults(){
     settings:{dayStart:'09:00', dayEnd:'23:30', buffer:10, studyRatio:0.75, courseDue:'before', showTimes:false, morningOn:true, morningTime:'07:30'},
     doneDays:{}, best:0,
     backupAt:null, nagUntil:null,
-    weekly:[], shifts:[], places:[],
+    weekly:[], shifts:[], places:[], goals:[],
     cond:{},
     learn:{study:{r:1,n:0}, life:{r:1,n:0}, other:{r:1,n:0}},
     log:[]
@@ -605,6 +631,7 @@ function merge(d){
     weekly:Array.isArray(d.weekly) ? d.weekly : [],
     shifts:Array.isArray(d.shifts) ? d.shifts : [],
     places:Array.isArray(d.places) ? d.places : [],
+    goals:Array.isArray(d.goals) ? d.goals : [],
     periods:Array.isArray(d.periods) && d.periods.length ? d.periods : b.periods,
     timetable:d.timetable && typeof d.timetable === 'object' ? d.timetable : {},
     cond:d.cond && typeof d.cond === 'object' ? d.cond : {},
@@ -614,7 +641,7 @@ function merge(d){
     best:Number(d.best) || 0
   };
 }
-const hasData = s => !!s && ((s.tasks || []).length > 0 || (s.routines || []).length > 0 || Object.keys(s.timetable || {}).length > 0 || (s.jobs || []).length > 0);
+const hasData = s => !!s && ((s.tasks || []).length > 0 || (s.routines || []).length > 0 || (s.goals || []).length > 0 || Object.keys(s.timetable || {}).length > 0 || (s.jobs || []).length > 0);
 
 let S = defaults();
 const UI = {view:'today', day:'today', filter:'all', sheet:null, ai:true, undo:null, ctl:null, tt:null, ttEdit:false, weekOff:0};
@@ -661,6 +688,7 @@ function prune(){
   for (const k of Object.keys(S.cond)) if (daysBetween(k, today) > 14) delete S.cond[k];
   for (const k of Object.keys(S.doneDays)) if (daysBetween(k, today) > 150) delete S.doneDays[k];
   S.shifts = (S.shifts || []).filter(x => x && x.date && daysBetween(x.date, today) <= 60);
+  S.goals = (S.goals || []).filter(g => g && (!g.doneAt || daysBetween(g.doneAt, today) <= 30));
 }
 async function boot(){
   render();
@@ -937,6 +965,63 @@ function routineScore(r, due){
   const base = due.weekly ? 9 : Math.min(12, 2.5 + 1.5 * due.overdue);
   return base * IMP[r.imp || 2];
 }
+
+/* ---------- コツコツ目標：締切までの量を、空き時間に合わせて毎日に割る ---------- */
+const GOAL_UNITS = ['ページ', '題', '語', '回'];
+const goalRest = g => Array.isArray(g.rest) ? g.rest : [0];
+const isGoalDay = (g, d) => !goalRest(g).includes(parseYmd(d).getDay());
+const goalTodayN = (g, d) => g.today && g.today.d === d ? (Number(g.today.n) || 0) : 0;
+function goalDays(g, from){
+  const out = []; if (!g.deadline) return out;
+  for (let d = from; d <= g.deadline && out.length < 400; d = addDays(d, 1)) if (isGoalDay(g, d)) out.push(d);
+  return out;
+}
+// 忙しい日ほど小さく、空いている日ほど大きく（「少なめにする」がオフなら毎日同じ）
+const goalWeight = (g, d) => g.lighter === false ? 1 : Math.max(45, sumFree(freeFor(d, null)));
+// 予定より何日ぶん遅れているか（+は遅れ、−は先）
+function goalPace(g){
+  const today = todayStr();
+  const all = goalDays(g, g.start || today);
+  const left = (Number(g.total) || 0) - (Number(g.startDone) || 0);
+  if (!all.length || left <= 0) return 0;
+  const ws = all.map(d => goalWeight(g, d)), sum = ws.reduce((a, b) => a + b, 0) || 1;
+  let before = 0; all.forEach((d, i) => { if (d < today) before += ws[i]; });
+  const expected = (Number(g.startDone) || 0) + left * before / sum;
+  const actual = g.done - goalTodayN(g, today);
+  return (expected - actual) / (left / all.length);
+}
+// その日にやる量。q はまだやっていない量
+function goalPlan(g, date){
+  if (!g.deadline || g.done >= g.total) return null;
+  if (g.snooze && g.snooze > date) return null;
+  const today = todayStr(), doneToday = date === today ? goalTodayN(g, today) : 0;
+  const rem = g.total - g.done + doneToday;
+  if (date > g.deadline) return {q:rem - doneToday, share:rem, w:1, avg:1, over:true};
+  if (!isGoalDay(g, date)) return null;
+  const days = goalDays(g, date);
+  const ws = days.map(d => goalWeight(g, d)), sum = ws.reduce((a, b) => a + b, 0) || 1;
+  const share = Math.min(rem, Math.max(1, Math.ceil(rem * ws[0] / sum)));
+  const q = share - doneToday;
+  return q > 0 ? {q, share, w:ws[0], avg:sum / ws.length, over:false} : null;
+}
+function goalScore(g, p, date){
+  if (p.over) return 12 * IMP[g.imp || 2];
+  const pace = goalPace(g), left = daysBetween(date, g.deadline);
+  let base = pace >= 1 ? Math.min(7.5, 4.5 + Math.floor(pace)) : pace <= -1 ? 0.9 : 3.2;
+  if (left <= 2 && pace > -1) base = Math.max(base, 8);
+  return base * IMP[g.imp || 2];
+}
+function goalWhy(g, p){
+  if (p.over) return '締切を過ぎています';
+  const pace = goalPace(g);
+  if (pace >= 1) return `${Math.floor(pace)}日遅れ`;
+  if (pace <= -1) return `${Math.floor(-pace)}日先・休んでもOK`;
+  if (g.lighter !== false && p.w < p.avg * 0.85) return '忙しい日なので少なめ';
+  return `${md(g.deadline)}まで`;
+}
+const goalRange = (g, a, b) => g.unit === 'ページ' ? `p.${a}〜${b}` : g.unit === '回' ? (a === b ? `${a}回目` : `${a}〜${b}回目`) : `No.${a}〜${b}`;
+const goalTitle = (g, q) => `${g.title} ${goalRange(g, g.done + 1, g.done + q)}（${q}${g.unit}）`;
+const goalMin = (g, q) => Math.max(5, round5(q * (Number(g.per) || 1)));
 /* 優先度の7段階（SS〜E）。スコアは締切までの日数・かかる時間・重要度から計算 */
 const GRADES = [
   {g:'SS', min:12, desc:'今すぐ。締切を過ぎた、または今日が締切で時間がかかる'},
@@ -962,6 +1047,10 @@ function itemsFor(date){
     if (!due) continue;
     items.push({kind:'routine', ref:r, id:r.id, title:r.title, cat:'life', min:round5(r.est), score:routineScore(r, due),
       why: due.weekly ? '今日の家事' : due.overdue > 0 ? `${due.overdue}日おくれ` : '今日が目安の日'});
+  }
+  for (const g of S.goals || []){
+    const p = goalPlan(g, date); if (!p) continue;
+    items.push({kind:'goal', ref:g, id:g.id, title:goalTitle(g, p.q), cat:'study', min:goalMin(g, p.q), q:p.q, score:goalScore(g, p, date), why:goalWhy(g, p)});
   }
   return items.sort((a, b) => b.score - a.score);
 }
@@ -1058,6 +1147,11 @@ function alerts(){
     const due = routineDue(r, today);
     if (due && due.overdue >= 2) out.push({lv:1, label:'たまっている', html:`${esc(r.title)}が${due.overdue}日おくれています`});
   }
+  for (const g of S.goals || []){
+    if (g.done >= g.total || !g.deadline || today > g.deadline) continue;
+    const pc = goalPace(g);
+    if (pc >= 3) out.push({lv:1, label:'たまっている', html:`${esc(g.title)}｜${Math.floor(pc)}日分おくれ（残りの日で割り直し中）`});
+  }
   return out.sort((a, b) => b.lv - a.lv).slice(0, 3);
 }
 
@@ -1090,18 +1184,30 @@ function streakInfo(){
   }
   return {n, todayDone, restLeft, best:Math.max(S.best || 0, n)};
 }
-function recordDone(kind, id, act, how){
+function recordDone(kind, id, act, how, amount){
   const today = todayStr();
   UI.undo = JSON.stringify(S);
   act = clamp(Math.round(Number(act) || 0), 1, 600);
   const firstToday = !((S.doneDays || {})[today] > 0);
-  let msg;
+  let msg, goalDone = '', gLeft = 0;
   if (kind === 'routine'){
     const r = S.routines.find(x => x.id === id); if (!r) return;
     r.last = today; r.snooze = null;
     r.est = round5(r.est * 0.6 + act * 0.4);
     S.log.push({d:today, title:r.title, cat:'life', act});
     msg = 'えらい。';
+  } else if (kind === 'goal'){
+    const g = (S.goals || []).find(x => x.id === id); if (!g) return;
+    const amt = clamp(Math.round(Number(amount) || 0), 0, Math.max(0, g.total - g.done));
+    if (!amt){ toast('進んだ量を入れてください'); return; }
+    g.done += amt;
+    g.today = {d:today, n:goalTodayN(g, today) + amt};
+    if (amt > 0) g.per = Math.round(clamp((Number(g.per) || act / amt) * 0.7 + (act / amt) * 0.3, 0.2, 120) * 10) / 10;
+    g.snooze = null;
+    S.log.push({d:today, title:`${g.title}（${amt}${g.unit}）`, cat:'study', act});
+    if (g.done >= g.total){ g.doneAt = today; goalDone = g.title; }
+    const gp = goalDone ? null : goalPlan(g, today); gLeft = gp ? gp.q : 0;
+    msg = gLeft ? `${amt}${g.unit}すすんだ。今日の残りは${gLeft}${g.unit}。` : 'えらい。';
   } else {
     const t = S.tasks.find(x => x.id === id); if (!t) return;
     t.actual = (t.actual || 0) + act;
@@ -1119,12 +1225,13 @@ function recordDone(kind, id, act, how){
   S.doneDays[today] = (S.doneDays[today] || 0) + 1;
   const st = streakInfo();
   S.best = Math.max(S.best || 0, st.n);
-  if (firstToday) msg = st.n >= 2 ? `今日の1つ目。やった記録 ${st.n}日目。` : '今日の1つ目。記録スタート。';
+  if (firstToday) msg = (st.n >= 2 ? `今日の1つ目。やった記録 ${st.n}日目。` : '今日の1つ目。記録スタート。') + (gLeft ? msg : '');
+  if (goalDone) msg = `ゴール！「${goalDone}」ぜんぶ終わり。`;
   // 今日の段取りの残りを、先輩がひとことで
   let face = 'happy';
   try {
     const left = buildPlan(today, true).plan.length;
-    if (how !== 'finish' && kind !== 'routine') face = 'normal';
+    if ((how !== 'finish' && kind !== 'routine') || gLeft) face = 'normal';
     else msg += left ? `あと${left}件。` : 'ぜんぶ終わり。おやすみ…';
     if (!left && how === 'finish') face = 'sleep';
   } catch (err) {}
@@ -1238,6 +1345,7 @@ function loadSample(){
     {id:newId(), title:'掃除機をかける', type:'interval', days:[], every:7, est:20, imp:2, last:addDays(t,-9)},
     {id:newId(), title:'食料の買い出し', type:'interval', days:[], every:7, est:40, imp:2, last:addDays(t,-5)}
   ];
+  S.goals = [{id:newId(), title:'TOEIC 金のフレーズ', unit:'語', total:1000, done:300, deadline:addDays(t, 40), per:2, rest:[0], lighter:true, imp:2, start:t, startDone:300, created:t}];
   UI.view = 'today'; UI.day = 'today';
   commit();
 }
@@ -1423,8 +1531,10 @@ function todayView(){
   ${isToday ? doneToday(today) : ''}`;
 }
 function planItem(p, isToday, idx){
-  const tags = [gradeTag(p.score), `<span class="tag ${p.cat}">${p.kind === 'routine' ? '家事' : CAT[p.cat]}</span>`, `<span class="tag ${p.score >= 8 ? 'hot' : 'plain'}">${esc(p.why)}</span>`];
-  if (p.partial) tags.push(`<span class="tag plain">一部だけ進める</span>`);
+  // コツコツ目標が時間内に入りきらないときは、入る量だけにする
+  if (p.kind === 'goal' && p.partial){ const q = Math.max(1, Math.floor(p.min / (Number(p.ref.per) || 1))); p = {...p, q, title:goalTitle(p.ref, q)}; }
+  const tags = [gradeTag(p.score), `<span class="tag ${p.kind === 'goal' ? 'goal' : p.cat}">${p.kind === 'routine' ? '家事' : p.kind === 'goal' ? 'コツコツ' : CAT[p.cat]}</span>`, `<span class="tag ${p.score >= 8 ? 'hot' : 'plain'}">${esc(p.why)}</span>`];
+  if (p.partial && p.kind !== 'goal') tags.push(`<span class="tag plain">一部だけ進める</span>`);
   const times = S.settings.showTimes;
   const first = !times && idx === 0;
   const left = times
@@ -1434,14 +1544,15 @@ function planItem(p, isToday, idx){
     ${left}
     <div class="body">${first ? `<div class="nextlabel">${isToday ? '次はこれ' : 'あしたの最初はこれ'}</div>` : ''}<div class="title">${esc(p.title)}</div>
       <div class="meta">${tags.join('')}<span class="num">${dur(p.min)}</span>${isToday ? `<button type="button" class="link" data-act="later" data-kind="${p.kind}" data-id="${p.id}">後回し</button>` : ''}</div>
+      ${p.kind === 'goal' ? `<div class="gbar"><i style="width:${Math.round(p.ref.done / Math.max(1, p.ref.total) * 100)}%"></i></div>` : ''}
     </div>
-    ${isToday ? `<button type="button" class="check ${p.cat}" data-act="done" data-kind="${p.kind}" data-id="${p.id}" data-min="${p.min}" aria-label="${esc(p.title)}を記録する"></button>` : gradeTag(p.score, true)}
+    ${isToday ? `<button type="button" class="check ${p.cat}" data-act="done" data-kind="${p.kind}" data-id="${p.id}" data-min="${p.min}"${p.kind === 'goal' ? ` data-q="${p.q}"` : ''} aria-label="${esc(p.title)}を記録する"></button>` : gradeTag(p.score, true)}
   </article>`;
 }
 function emptyPlan(P, isToday){
   if (isToday && ((S.doneDays || {})[todayStr()] || 0) > 0 && !P.overflow.length) return `<div class="empty"><span>今日の段取りは、ぜんぶ終わり。</span><button type="button" class="btn small" data-act="day" data-v="tomorrow">あしたの段取りを見る</button></div>`;
   if (P.freeTotal < 15) return `<div class="empty"><span>${isToday ? '今日はもう空き時間がありません。' : 'あしたは空き時間がありません。'}</span>${isToday ? '<button type="button" class="btn small" data-act="day" data-v="tomorrow">あしたの段取りを見る</button>' : ''}</div>`;
-  if (!S.tasks.some(t => !t.done) && !S.routines.length) return `<div class="empty">やることがまだありません。上の欄に「レポート あした 60分」のように書くと追加できます。</div>`;
+  if (!S.tasks.some(t => !t.done) && !S.routines.length && !(S.goals || []).some(g => g.done < g.total)) return `<div class="empty">やることがまだありません。上の欄に「レポート あした 60分」のように書くと追加できます。</div>`;
   return `<div class="empty">空き時間に入る作業はありません。のんびりしましょう。</div>`;
 }
 function doneToday(today){
@@ -1466,6 +1577,7 @@ function tasksView(){
   ${adder()}
   <div class="seg" role="group" aria-label="種類で絞り込む">${[['all','すべて'],['study','学業'],['life','生活'],['other','その他']].map(([k, l]) => segBtn('filter', k, l, UI.filter === k)).join('')}</div>
   ${list.length ? `<div class="tlist">${list.map(x => taskRow(x, risky)).join('')}</div>` : `<div class="empty">ここにはまだありません。上の欄に「レポート あした 60分」のように書くと追加できます。</div>`}
+  ${goalsSection()}
   ${done.length ? `<details class="done"><summary>終わったこと（${done.length}件）</summary>${done.map(t => `<div class="drow"><span>${esc(t.title)}</span><span class="num">${t.actual ? dur(t.actual) : ''}</span></div>`).join('')}</details>` : ''}
   ${calendarPanel()}`;
 }
@@ -1691,6 +1803,57 @@ function taskRow({t, d, score}, risky){
     </div>
     <button type="button" class="btn small" data-act="edit-task" data-id="${t.id}">編集</button>
   </article>`;
+}
+
+function goalsSection(){
+  const today = todayStr();
+  const list = (S.goals || []).slice().sort((a, b) => ((a.done >= a.total) - (b.done >= b.total)) || String(a.deadline).localeCompare(String(b.deadline)));
+  const near = list.find(g => g.done < g.total && g.deadline >= today);
+  return `<section class="sect"><h2 class="h2">コツコツ目標<button type="button" class="qm" data-act="help" data-k="goal" aria-label="コツコツ目標の説明">?</button></h2>
+  ${near ? `<div class="gcount">${esc(near.title)}の締切まで あと<b>${daysBetween(today, near.deadline)}</b>日</div>` : ''}
+  ${list.length ? `<div class="tlist">${list.map(g => goalRow(g, today)).join('')}</div>` : '<div class="empty">資格・期末テスト・課題図書など、「いつまでに、どれだけ」がある目標を入れると、毎日の量に割って今日の段取りに入れます。</div>'}
+  <div><button type="button" class="btn" data-act="new-goal">コツコツ目標を追加</button></div></section>`;
+}
+function goalRow(g, today){
+  const pct = Math.round(g.done / Math.max(1, g.total) * 100);
+  let st, cls;
+  if (g.done >= g.total){ st = 'ゴール！'; cls = 'done'; }
+  else if (today > g.deadline){ st = '締切すぎ'; cls = 'late'; }
+  else { const pc = goalPace(g); if (pc >= 1){ st = `${Math.floor(pc)}日遅れ`; cls = 'late'; } else if (pc <= -1){ st = `${Math.floor(-pc)}日先`; cls = 'ahead'; } else { st = '順調'; cls = 'ok'; } }
+  const p = goalPlan(g, today), td = goalTodayN(g, today), u = esc(g.unit);
+  const line = g.done >= g.total ? 'おつかれさま！'
+    : p ? `今日は <b>${p.q}${u}</b>${td ? `（${td}${u}済み）` : ''}${cls === 'ahead' ? '・お休みでもOK' : ''}`
+    : td ? `今日のぶんは終わり（${td}${u}）` : g.snooze && g.snooze > today ? 'あしたに回しました' : !isGoalDay(g, today) ? '今日は休む日' : '';
+  return `<article class="trow two"><div class="body">
+    <div class="gtop"><span class="title">${esc(g.title)}</span><span class="gst ${cls}">${st}</span></div>
+    <div class="gbar ${cls}"><i style="width:${pct}%"></i></div>
+    <div class="gmeta"><span class="num">${g.done} / ${g.total}${u}</span><span>${g.deadline ? `${md(g.deadline)}まで` : ''}</span></div>
+    ${line ? `<div class="gtoday">${line}</div>` : ''}</div>
+    <button type="button" class="btn small" data-act="edit-goal" data-id="${g.id}">編集</button></article>`;
+}
+function goalPreviewHTML(v){
+  const total = Number(v.total) || 0, done = Number(v.done) || 0, per = Number(v.per) || 0, u = esc(v.unit);
+  if (!total || !v.deadline) return '<div class="gprev"><span class="s">全部の量と「いつまでに」を入れると、1日の量がここに出ます</span></div>';
+  if (done >= total) return '<div class="gprev"><span class="s">もう全部終わっています</span></div>';
+  const days = goalDays(v, todayStr());
+  if (!days.length) return '<div class="gprev"><span class="s">締切までに進められる日がありません。日付か休む曜日を見直してください</span></div>';
+  const left = total - done, avg = Math.ceil(left / days.length);
+  let range = '';
+  if (v.lighter !== false){
+    const ws = days.map(d => goalWeight(v, d)), sum = ws.reduce((a, b) => a + b, 0) || 1;
+    const qs = ws.map(w => Math.max(1, Math.round(left * w / sum)));
+    const lo = Math.min(...qs), hi = Math.max(...qs);
+    if (hi > lo) range = `<span class="s">忙しい日は${lo}${u}、空いている日は${hi}${u}くらい</span>`;
+  }
+  return `<div class="gprev"><span class="s">${md(v.deadline)}まで、休む曜日をのぞいて${days.length}日</span>
+    <div><span class="big">1日 ${v.lighter !== false ? '平均' : ''}${avg}${u}</span>${per ? `<span style="font-size:13px;margin-left:6px">（約${dur(Math.max(5, round5(avg * per)))}）</span>` : ''}</div>${range}</div>`;
+}
+function readGoalForm(fd){
+  const dl = String(fd.get('g-deadline') || ''), unit = String(fd.get('g-unit') || '');
+  return {title:String(fd.get('g-title') || '').trim().slice(0, 40), unit:GOAL_UNITS.includes(unit) ? unit : 'ページ',
+    total:clamp(Math.round(Number(fd.get('g-total')) || 0), 0, 100000), done:clamp(Math.round(Number(fd.get('g-done')) || 0), 0, 100000),
+    deadline:/^\d{4}-\d{2}-\d{2}$/.test(dl) ? dl : '', per:clamp(Number(fd.get('g-per')) || 0, 0, 120),
+    rest:fd.getAll('g-rest').map(Number), lighter:!!fd.get('g-lighter'), imp:2};
 }
 function routinesView(){
   const today = todayStr();
@@ -1981,6 +2144,7 @@ function routineFields(v){
   <div class="f"><span class="flabel">重要度</span><div class="seg" role="radiogroup" aria-label="重要度">${[1,2,3].map(n => `<label class="segopt"><input type="radio" name="r-imp" value="${n}" ${(v.imp || 2) === n ? 'checked' : ''}><span>${['','低い','ふつう','高い'][n]}</span></label>`).join('')}</div></div>`;
 }
 const HELP = {
+  goal:{t:'コツコツ目標って？', b:['資格・期末テスト・課題図書など、「いつまでに、どれだけ」がある目標を、毎日の量に割って「今日の段取り」に入れます。', '授業・バイト・サークルの多い日は少なめ、空いている日は多めに配ります（オフにすると毎日同じ量）。', 'できなかった日があっても大丈夫。ひらいた日から、残りの日数で自動で割り直します。', '予定より遅れると優先度が上がり、先に進んでいると「休んでもOK」になります。']},
   plan:{t:'今日の段取りって？', b:['授業・バイト・シフトのない空き時間に、締切が近くて大事なものから順に入れています。', '上から順に進めるのがおすすめ。順番どおりにできなくても、開くたびに「今から」の時間で組み直します。', '入りきらないものは、あした以降に回ります。「元気／ふつう／お疲れ」で、その日にやる量が変わります。']},
   prio:{t:'並び順の見方', b:['優先度の高い順です。左のマークが優先度で、SS（今すぐ）からE（いつでもよい）までの7段階。締切までの日数・かかる時間・重要度から計算しています。'], grades:true},
   cal:{t:'カレンダーで通知', b:['スマホのカレンダーに入れておくと、カレンダーの通知で知らせてくれます。', '締切の通知は、時刻つきなら前日の同じ時刻と3時間前、日付だけなら前日20時と当日8時です。', 'まだ試している機能です。']}
@@ -2009,6 +2173,32 @@ function sheetHTML(sh){
       ${wc ? `<button type="button" class="link" data-act="weekly-from-task" data-id="${t.id}">毎週出る課題なら：「${esc(wc)}」の毎週の課題にする</button>` : ''}
       ${t && t.weekly ? '<p class="note">この課題は「毎週の課題」から自動で入りました。設定は時間割の画面で変えられます。</p>' : ''}
       <div class="sh-acts"><button type="submit" class="btn primary">保存</button>${t ? `<button type="button" class="btn" data-act="open-done" data-kind="task" data-id="${t.id}">完了を記録</button><button type="button" class="btn danger" data-act="del" data-what="task" data-id="${t.id}">削除</button>` : ''}${cancel}</div>`;
+    }
+    case 'goal': {
+      const g = sh.id ? (S.goals || []).find(x => x.id === sh.id) : null;
+      const v = sh.draft || (g ? {...g} : {title:'', unit:'ページ', total:'', done:0, deadline:'', per:3, rest:[0], lighter:true});
+      return `<h2 class="sh-title">${g ? 'コツコツ目標を編集' : 'コツコツ目標を追加'}</h2>
+      <p class="note">資格・期末テスト・課題図書など、「いつまでに、どれだけ」を入れると、毎日の量に割って今日の段取りに入れます。</p>
+      <div class="f"><label for="g-title">目標</label><input id="g-title" name="g-title" type="text" maxlength="40" placeholder="例：TOEIC 金のフレーズ" value="${esc(v.title)}"></div>
+      <div class="f"><span class="flabel">数える単位</span><div class="seg" role="radiogroup" aria-label="数える単位">${GOAL_UNITS.map(u => `<label class="segopt"><input type="radio" name="g-unit" value="${u}" ${v.unit === u ? 'checked' : ''}><span>${u}</span></label>`).join('')}</div></div>
+      <div class="f2"><div class="f"><label for="g-total">全部の量</label><input id="g-total" name="g-total" type="number" inputmode="numeric" min="1" max="100000" value="${v.total || ''}"></div>
+        <div class="f"><label for="g-done">もう終わった量</label><input id="g-done" name="g-done" type="number" inputmode="numeric" min="0" max="100000" value="${v.done || 0}"></div></div>
+      <div class="f2"><div class="f"><label for="g-deadline">いつまでに</label><input id="g-deadline" name="g-deadline" type="date" value="${esc(v.deadline || '')}"></div>
+        <div class="f"><label for="g-per">1つあたり（分）</label><input id="g-per" name="g-per" type="number" inputmode="decimal" min="0" max="120" step="0.5" value="${v.per || ''}"></div></div>
+      <div class="f"><span class="flabel">休む曜日</span><div class="days">${[1,2,3,4,5,6,0].map(d => `<label class="segopt"><input type="checkbox" name="g-rest" value="${d}" ${(v.rest || []).includes(d) ? 'checked' : ''}><span class="chip">${WD[d]}</span></label>`).join('')}</div></div>
+      <label class="tog"><input type="checkbox" name="g-lighter" ${v.lighter !== false ? 'checked' : ''}>授業・バイト・サークルの多い日は少なめにする</label>
+      <div id="g-prev">${goalPreviewHTML(v)}</div>
+      <div class="sh-acts"><button type="submit" class="btn primary">${g ? '保存' : '追加する'}</button>${g ? `<button type="button" class="btn danger" data-act="del" data-what="goal" data-id="${g.id}">削除</button>` : ''}${cancel}</div>`;
+    }
+    case 'gdone': {
+      const g = (S.goals || []).find(x => x.id === sh.id);
+      const u = esc(g ? g.unit : '');
+      return `<h2 class="sh-title">${esc(g ? g.title : '')}</h2>
+      <p class="note">今日はどこまで進みましたか？</p>
+      <div class="f2"><div class="f"><label for="g-amt">進んだ量（${u}）</label><input id="g-amt" name="amt" type="number" inputmode="numeric" min="0" max="100000" value="${sh.q}"></div>
+        <div class="f"><label for="act">かかった時間（分）</label><input id="act" name="act" type="number" inputmode="numeric" min="1" max="600" value="${sh.min}"></div></div>
+      <p class="note">予定より少なくても大丈夫。残りは、あしたからの日に割り直します。</p>
+      <div class="sh-acts"><button type="submit" class="btn primary">記録する</button>${cancel}</div>`;
     }
     case 'done':
       return `<h2 class="sh-title">${esc(sh.title)}</h2>
@@ -2160,6 +2350,28 @@ async function sheetSubmit(submitter){
       closeSheet(); commit(); return;
     }
     case 'done': recordDone(sh.kind, sh.id, fd.get('act'), how === 'part' ? 'part' : 'finish'); return;
+    case 'gdone': recordDone('goal', sh.id, fd.get('act'), 'finish', fd.get('amt')); return;
+    case 'goal': {
+      const v = readGoalForm(fd);
+      if (!v.title){ toast('目標の名前を入れてください'); return; }
+      if (!(v.total > 0)){ toast('全部の量を入れてください'); return; }
+      if (!v.deadline){ toast('「いつまでに」を入れてください'); return; }
+      if (!sh.id && v.deadline < todayStr()){ toast('「いつまでに」は今日より後の日にしてください'); return; }
+      if (v.rest.length >= 7){ toast('休む曜日が多すぎます'); return; }
+      v.done = Math.min(v.done, v.total);
+      if (!v.per) v.per = 1;
+      S.goals = S.goals || [];
+      const today = todayStr();
+      if (sh.id){
+        const g = S.goals.find(x => x.id === sh.id); if (!g) return;
+        const moved = g.total !== v.total || g.deadline !== v.deadline || g.done !== v.done || String(goalRest(g)) !== String(v.rest) || g.lighter !== v.lighter;
+        Object.assign(g, v);
+        if (moved){ g.start = today; g.startDone = g.done - goalTodayN(g, today); }
+        if (g.done < g.total) delete g.doneAt; else if (!g.doneAt) g.doneAt = today;
+      } else S.goals.push({id:newId(), ...v, start:today, startDone:v.done, created:today});
+      closeSheet(); commit(); toast(sh.id ? '保存しました' : `「${v.title}」を追加しました。今日の分から段取りに入ります`);
+      return;
+    }
     case 'routine': {
       const title = String(fd.get('r-title') || '').trim().slice(0, 40);
       if (!title){ toast('家事の名前を入れてください'); return; }
@@ -2285,12 +2497,18 @@ function onClick(e){
     case 'cond': S.cond[b.dataset.date] = b.dataset.v; commit(); break;
     case 'later': {
       UI.undo = JSON.stringify(S);
-      const list = b.dataset.kind === 'routine' ? S.routines : S.tasks;
+      const list = b.dataset.kind === 'routine' ? S.routines : b.dataset.kind === 'goal' ? (S.goals || []) : S.tasks;
       const x = list.find(y => y.id === b.dataset.id);
       if (x){ x.snooze = addDays(today, 1); commit(); toast(`「${x.title}」をあしたに回しました`, true); }
       break;
     }
     case 'done': case 'open-done': {
+      if (b.dataset.kind === 'goal'){
+        const g = (S.goals || []).find(y => y.id === b.dataset.id); if (!g) break;
+        const p = goalPlan(g, today), q = Number(b.dataset.q) || (p ? p.q : 1);
+        openSheet({type:'gdone', id:g.id, q, min:Number(b.dataset.min) || goalMin(g, q)});
+        break;
+      }
       const list = b.dataset.kind === 'routine' ? S.routines : S.tasks;
       const x = list.find(y => y.id === b.dataset.id); if (!x) break;
       const min = Number(b.dataset.min) || (b.dataset.kind === 'routine' ? round5(x.est) : effMin(x));
@@ -2299,6 +2517,8 @@ function onClick(e){
     }
     case 'adj': { const i = formEl.querySelector('#act'); if (i) i.value = clamp((Number(i.value) || 0) + Number(b.dataset.v), 1, 600); break; }
     case 'new-task': openSheet({type:'task'}); break;
+    case 'new-goal': openSheet({type:'goal'}); break;
+    case 'edit-goal': openSheet({type:'goal', id:b.dataset.id}); break;
     case 'help': openSheet({type:'help', k:b.dataset.k}); break;
     case 'edit-task': {
       const t = S.tasks.find(x => x.id === b.dataset.id);
@@ -2345,6 +2565,7 @@ function onClick(e){
       const what = b.dataset.what, id = b.dataset.id;
       if (what === 'task') S.tasks = S.tasks.filter(x => x.id !== id);
       if (what === 'routine') S.routines = S.routines.filter(x => x.id !== id);
+      if (what === 'goal') S.goals = (S.goals || []).filter(x => x.id !== id);
       if (what === 'job') S.jobs = S.jobs.filter(x => x.id !== id);
       if (what === 'weekly'){ S.weekly = S.weekly.filter(x => x.id !== id); S.tasks.forEach(t => { if (t.weekly === id) delete t.weekly; }); }
       closeSheet(); commit(); toast('削除しました', true); break;
@@ -2450,6 +2671,7 @@ document.addEventListener('submit', e => {
   Promise.resolve(job).catch(err => { console.error(err); toast('保存できませんでした。ページを開き直してから、もう一度試してください'); });
 });
 document.addEventListener('change', e => {
+  goalLive(e);
   if (e.target.id === 'ai-toggle') UI.ai = e.target.checked;
   if (UI.sheet && UI.sheet.type === 'shift' && e.target.closest('#sheet-form')){
     const sh = UI.sheet;
@@ -2488,7 +2710,13 @@ document.addEventListener('change', e => {
     renderSheet();
   }
 });
+function goalLive(e){
+  if (!UI.sheet || UI.sheet.type !== 'goal' || !e.target.closest('#sheet-form')) return;
+  UI.sheet.draft = readGoalForm(new FormData(formEl));
+  const box = document.getElementById('g-prev'); if (box) box.innerHTML = goalPreviewHTML(UI.sheet.draft);
+}
 document.addEventListener('input', e => {
+  goalLive(e);
   if (e.target.id === 's-ratio'){ const o = document.getElementById('s-ratio-out'); if (o) o.textContent = e.target.value; }
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && UI.sheet) closeSheet(); });
