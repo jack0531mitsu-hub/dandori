@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>プライバシーポリシー｜ダンドリ</title>
+<meta name="description" content="大学生のための段取りアプリ「ダンドリ」のプライバシーポリシー（Googleカレンダー連携の扱いを含む）。">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<link rel="stylesheet" href="page.css">
+</head>
+<body>
+<div class="wrap">
+<div class="top"><a class="logo" href="./">ダンドリ</a><nav><a href="about.html">ダンドリについて</a><a href="#en">English</a></nav></div>
+
+<h1>プライバシーポリシー</h1>
+<p class="lead">ダンドリ（以下「本アプリ」）は、ダンドリ開発者（以下「開発者」）が提供する、大学生のための段取りアプリです。このページでは、本アプリが扱う情報と、その扱い方を説明します。</p>
+<p class="note">対象：Web版（https://jack0531mitsu-hub.github.io/dandori/）　制定日：2026年10月19日</p>
+
+<h2>1. いちばん大事なこと</h2>
+<div class="card">
+<ul>
+<li>入力した予定・課題・時間割などは、<b>使っている端末のブラウザの中だけ</b>に保存されます。</li>
+<li>本アプリには、利用者のデータを受け取るサーバーがありません。<b>開発者を含め、だれにも見えません</b>。</li>
+<li>Googleカレンダー連携は<b>使う人が自分で選んだときだけ</b>動き、<b>予定を読むだけ</b>です。Googleの予定を書きかえたり、消したりはしません。</li>
+<li>広告、行動の追跡（アクセス解析）、データの販売はしません。</li>
+</ul>
+</div>
+
+<h2>2. 本アプリが扱う情報と保存場所</h2>
+<table>
+<tr><th>情報</th><th>どこに保存されるか</th></tr>
+<tr><td>利用者が入力した情報（課題・締切・時間割・バイトのシフト・家事・コツコツ目標・終わった記録・設定など）</td><td>端末のブラウザの保存領域（localStorage）。開発者には送られません。</td></tr>
+<tr><td>Googleカレンダーから読み込んだ予定（3章）</td><td>同上。開発者には送られません。</td></tr>
+<tr><td>引き継ぎコード</td><td>利用者が「作る」を押したときだけ、その場で文字列として作られます。どこにも送られません。Googleカレンダーの予定は含まれません。</td></tr>
+</table>
+<p>ブラウザのデータを消す、または本アプリの「すべてのデータを消す」を押すと、端末に保存された情報は消えます。</p>
+
+<h2 id="google">3. Googleカレンダー連携で扱う情報（Googleユーザーデータ）</h2>
+<div class="card g">
+<h3>3-1. 何をするための機能か</h3>
+<p>Googleカレンダーにある予定の時間を読み込み、本アプリが「空き時間」を計算して「今日の段取り」を作るとき、その時間を避けるために使います。読み込んだ予定は、本アプリの時間割と月のカレンダーにも表示します。</p>
+
+<h3>3-2. お願いする権限</h3>
+<table>
+<tr><th>権限（スコープ）</th><th>使い道</th></tr>
+<tr><td>カレンダーの予定を表示する<br><span class="note">calendar.events.readonly</span></td><td>これから4週間の予定を読み込み、空き時間の計算と画面表示に使います。</td></tr>
+<tr><td>登録しているカレンダーの一覧を表示する<br><span class="note">calendar.calendarlist.readonly</span></td><td>どのカレンダー（例：個人用・サークル用）を読み込むかを、利用者が選べるようにするために使います。</td></tr>
+</table>
+<p>どちらも「読むだけ」の権限です。予定の作成・変更・削除はしません。</p>
+
+<h3>3-3. 読み込む情報と、保存するもの</h3>
+<ul>
+<li><b>保存するもの</b>：予定のタイトル、日付、開始・終了時刻、終日かどうか、予定に「空き時間」と設定されているかどうか、予定とカレンダーの識別子、カレンダーの名前。</li>
+<li><b>読むが保存しないもの</b>：予定の説明文（本アプリが登録した締切の予定を見分けるためだけに読みます）、出欠の返事（「欠席」と返事した予定を除くためだけに読みます）。</li>
+<li><b>読まないもの</b>：場所、参加者の名前・メールアドレス、添付ファイル、メール、連絡先など、上に書いたもの以外。</li>
+<li>読み込む範囲は、今日から4週間後までです。前日より古い予定は、自動で端末から消えます。</li>
+<li>Googleへのアクセスに使う「アクセストークン」は、画面を開いているあいだだけメモリに置き、保存しません。</li>
+</ul>
+
+<h3>3-4. 共有と、使わない目的</h3>
+<ul>
+<li>Googleから受け取った情報を、開発者や第三者のサーバーに送ることはありません。開発者が読むこともありません。</li>
+<li>広告、AI（機械学習）モデルの学習、信用度の判断、データの販売や転売には使いません。</li>
+<li>本アプリによる、Google APIから受け取った情報の使用と他のアプリへの転送は、<a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Google API サービスのユーザーデータに関するポリシー</a>（限定使用の要件を含む）に従います。</li>
+</ul>
+
+<h3>3-5. 連携をやめる・消す</h3>
+<ul>
+<li>本アプリの「設定」→「Googleカレンダー連携」→「連携をやめる」を押すと、端末から読み込んだ予定を消し、可能な場合はGoogleへのアクセス権も取り消します。</li>
+<li>Googleアカウントの<a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">サードパーティ製のアプリとサービス</a>のページからも、いつでも取り消せます。</li>
+</ul>
+</div>
+
+<h2>4. 外部のサービス</h2>
+<p>本アプリは次のサービスを使います。これらのサービスは、通信のしくみ上、利用者のIPアドレスなどを受け取ることがあります。扱いは各社のプライバシーポリシーによります。</p>
+<ul>
+<li><b>GitHub Pages</b>（本アプリのページの配信）：<a href="https://docs.github.com/ja/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHubのプライバシーステートメント</a></li>
+<li><b>Google Fonts</b>（文字の表示）、<b>Google Identity Services</b> と <b>Google Calendar API</b>（連携を使うときだけ）：<a href="https://policies.google.com/privacy?hl=ja" target="_blank" rel="noopener">Googleのプライバシーポリシー</a></li>
+<li><b>Googleフォーム</b>（感想を送るときだけ）：名前やメールアドレスは聞きません。</li>
+</ul>
+
+<h2>5. このポリシーの変更</h2>
+<p>内容を変えるときは、このページで知らせます。Googleユーザーデータの使い方を変えるときは、本アプリの中で知らせ、あらためて同意をいただいてから新しい使い方を始めます。</p>
+
+<h2>6. お問い合わせ</h2>
+<p>このポリシーや本アプリについてのお問い合わせは、<a href="https://forms.gle/vNWosybxXnKr1gSEA" target="_blank" rel="noopener">お問い合わせフォーム</a>からお送りください。</p>
+
+<section class="en" id="en" lang="en">
+<h1>Privacy Policy</h1>
+<p class="lead">Dandori (the "App") is a planning app for university students provided by the Dandori developer (the "Developer"). This page explains what information the App handles and how.</p>
+<p class="note">Applies to: the web version (https://jack0531mitsu-hub.github.io/dandori/). Effective date: October 19, 2026</p>
+
+<h2>1. Summary</h2>
+<ul>
+<li>Everything you enter is stored <b>only in your own browser on your device</b>.</li>
+<li>The App has no server that receives user data. <b>No one, including the Developer, can see your data.</b></li>
+<li>Google Calendar integration runs <b>only when you choose to connect it</b>, and it is <b>read-only</b>. The App never creates, changes or deletes your Google Calendar events.</li>
+<li>No ads, no tracking or analytics, and no sale of data.</li>
+</ul>
+
+<h2>2. Data you enter</h2>
+<p>Tasks, deadlines, timetable, part-time shifts, chores, goals, completion records and settings are stored in your browser's local storage and are never sent to the Developer. A transfer code is generated on your device only when you request it; it is not sent anywhere and does not contain Google Calendar data.</p>
+
+<h2>3. Google user data (Google Calendar integration)</h2>
+<h3>Purpose</h3>
+<p>The App reads the times of your Google Calendar events so that, when it calculates your free time and builds your daily plan, it can avoid times when you are busy. Imported events are also shown in the App's weekly and monthly calendar views.</p>
+<h3>Scopes requested</h3>
+<ul>
+<li><b>calendar.events.readonly</b>: to read your events for the next 4 weeks for free-time calculation and display.</li>
+<li><b>calendar.calendarlist.readonly</b>: to let you choose which of your calendars (e.g. personal, club) to import.</li>
+</ul>
+<h3>What is stored</h3>
+<p>Stored on your device only: event title, date, start and end time, whether the event is all-day, whether it is marked as "free", event and calendar identifiers, and calendar names. Read but not stored: event descriptions (used only to recognize deadline events that the App itself created) and your own RSVP status (used only to skip events you declined). Not read: locations, attendees' names or email addresses, attachments, email, contacts, or anything else. The App reads events from today to 4 weeks ahead, and events older than yesterday are deleted from your device automatically. The access token is kept in memory only while the page is open and is never saved.</p>
+<h3>Sharing and prohibited uses</h3>
+<p>Data received from Google is never sent to the Developer or to any third party, and no human reads it. It is not used for advertising, for training AI or machine-learning models, for creditworthiness or lending decisions, and it is never sold. Dandori's use and transfer to any other app of information received from Google APIs will adhere to the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+<h3>Disconnecting and deletion</h3>
+<p>In the App, open Settings → Google Calendar → "連携をやめる" (Disconnect) to delete imported events from your device and, where possible, revoke the App's access. You can also revoke access at any time from your Google Account's <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">Third-party apps &amp; services</a> page.</p>
+
+<h2>4. Third-party services</h2>
+<p>The App is served by GitHub Pages and loads Google Fonts. Google Identity Services and the Google Calendar API are used only when you connect Google Calendar. Feedback is collected with Google Forms only if you choose to send it (no name or email is requested). These services may receive technical information such as your IP address, under their own privacy policies.</p>
+
+<h2>5. Changes</h2>
+<p>We will announce changes on this page. Before using Google user data in a new way, we will notify you in the App and ask for your consent again.</p>
+
+<h2>6. Contact</h2>
+<p>For questions about this policy or the App, please contact us via the <a href="https://forms.gle/vNWosybxXnKr1gSEA" target="_blank" rel="noopener">contact form</a>.</p>
+</section>
+
+<footer><a href="./">ダンドリを開く</a><a href="about.html">ダンドリについて</a><span>© ダンドリ開発者</span></footer>
+</div>
+</body>
+</html>

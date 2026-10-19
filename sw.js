@@ -1,5 +1,5 @@
-// ダンドリ：オフライン用のキャッシュ（版 5b51e2c6）
-const CACHE = 'dandori-5b51e2c6';
+// ダンドリ：オフライン用のキャッシュ（版 3ae95c3e）
+const CACHE = 'dandori-3ae95c3e';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
@@ -13,8 +13,14 @@ self.addEventListener('fetch', e => {
   const url = new URL(req.url);
   // 画面本体：まずネットから最新を取り、つながらなければ保存しておいたものを出す
   if (req.mode === 'navigate') {
-    e.respondWith(fetch(req).then(res => { const copy = res.clone(); caches.open(CACHE).then(c => c.put('./index.html', copy)); return res; })
-      .catch(() => caches.match('./index.html')));
+    const isApp = /\/(index\.html)?$/.test(url.pathname);
+    e.respondWith(fetch(req).then(res => { const copy = res.clone(); caches.open(CACHE).then(c => c.put(isApp ? './index.html' : req, copy)); return res; })
+      .catch(() => isApp ? caches.match('./index.html') : caches.match(req).then(r => r || caches.match('./index.html'))));
+    return;
+  }
+  // 設定ファイル：書きかえたらすぐ反映されるように、ネットを先に見る
+  if (url.origin === location.origin && url.pathname.endsWith('/config.js')) {
+    e.respondWith(fetch(req).then(res => { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); return res; }).catch(() => caches.match(req)));
     return;
   }
   // 文字（Google Fonts）とアイコンなど：保存しておいたものをすぐ出し、裏で新しくする

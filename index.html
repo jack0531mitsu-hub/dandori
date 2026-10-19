@@ -19,6 +19,7 @@
 <meta property="og:description" content="授業名を書くだけで締切が決まり、空き時間から「今日やる順番」を出す、大学生のための段取りアプリ。課題・家事・バイトのシフトをまとめて管理。">
 <meta property="og:image" content="og-image.png">
 <meta name="twitter:card" content="summary_large_image">
+<script src="config.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500;700&display=swap">
@@ -37,7 +38,7 @@
   --focus:#7C6CF2;
   --scrim:rgba(40,20,40,.42);
   --edit:#FFF8D6; --edit-line:#E3C445; --edit-ink:#8A6D00;
-  --etc:#2F93D8; --etc-soft:#E0F1FF; --band:rgba(124,108,242,.05); --stripe:#FBD6C0;
+  --etc:#2F93D8; --etc-soft:#E0F1FF; --gc:#3D6BE0; --gc-soft:#E6ECFF; --band:rgba(124,108,242,.05); --stripe:#FBD6C0;
   --goal:#A06A00; --goal-soft:#FFF1C9;
   --accent:#FF77AE; --accent-ink:#FFFFFF; --accent-deep:#E45A93; --accent-soft:#FFD9E8; --accent-text:#C73E78;
   --shadow:0 2px 0 rgba(200,90,140,.05),0 8px 22px rgba(200,90,140,.09);
@@ -61,7 +62,7 @@
     --focus:#ADA2FF;
     --scrim:rgba(0,0,0,.6);
     --edit:#28220F; --edit-line:#7A6B22; --edit-ink:#E8CF5A;
-    --etc:#86CBF7; --etc-soft:#1B2C3B; --band:rgba(173,162,255,.06); --stripe:#4A3626;
+    --etc:#86CBF7; --etc-soft:#1B2C3B; --gc:#A3B9FF; --gc-soft:#222B45; --band:rgba(173,162,255,.06); --stripe:#4A3626;
     --goal:#F2C86B; --goal-soft:#3A2F17;
     --accent:#FF77AE; --accent-ink:#FFFFFF; --accent-deep:#C94A80; --accent-soft:#4A2238; --accent-text:#FF9CC5;
     --shadow:0 1px 0 rgba(0,0,0,.25),0 8px 20px rgba(0,0,0,.28);
@@ -82,7 +83,7 @@
   --focus:#ADA2FF;
   --scrim:rgba(0,0,0,.6);
   --edit:#28220F; --edit-line:#7A6B22; --edit-ink:#E8CF5A;
-  --etc:#86CBF7; --etc-soft:#1B2C3B; --band:rgba(173,162,255,.06); --stripe:#4A3626;
+  --etc:#86CBF7; --etc-soft:#1B2C3B; --gc:#A3B9FF; --gc-soft:#222B45; --band:rgba(173,162,255,.06); --stripe:#4A3626;
   --goal:#F2C86B; --goal-soft:#3A2F17;
   --accent:#FF77AE; --accent-ink:#FFFFFF; --accent-deep:#C94A80; --accent-soft:#4A2238; --accent-text:#FF9CC5;
   --shadow:0 1px 0 rgba(0,0,0,.25),0 8px 20px rgba(0,0,0,.28);
@@ -348,6 +349,16 @@ button.mrow{cursor:pointer}
 .h1row .h1{margin-right:auto}
 .h1row{justify-content:flex-start}
 .wk-blk.shift{background:repeating-linear-gradient(135deg,var(--other-soft) 0 5px,var(--stripe) 5px 9px);color:var(--other);border-left:3px solid var(--other);font-weight:700}
+.wk-blk.gcal{background:var(--gc-soft);color:var(--gc);border-left:3px solid var(--gc);font-weight:700}
+.wk-legend .gc-i{background:var(--gc-soft);box-shadow:inset 3px 0 0 var(--gc)}
+.wk-pop .stag.g{background:var(--gc-soft);color:var(--gc)}
+.mc-d .gc{display:block;width:22px;height:4px;border-radius:2px;background:var(--gc)}
+.gsync{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;color:var(--ink-2);padding:8px 8px 8px 14px;border:1px dashed var(--line);border-radius:14px;margin:0 0 12px}
+.gcals{display:grid;gap:8px}
+.gbtns{display:flex;gap:8px;flex-wrap:wrap}
+.plinks{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.plinks a{color:var(--ink-2)}
+.beta{font-size:11px;font-weight:700;color:var(--gc);background:var(--gc-soft);border-radius:999px;padding:2px 8px;white-space:nowrap}
 .wk-legend .shift-i{background:repeating-linear-gradient(135deg,var(--other-soft) 0 3px,var(--stripe) 3px 5px);box-shadow:inset 3px 0 0 var(--other)}
 .sf-chips{display:flex;flex-wrap:wrap;gap:6px}
 .sf-chip{border:1px solid var(--line);border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;background:var(--surface);color:var(--ink);cursor:pointer}
@@ -579,6 +590,11 @@ const IS_STANDALONE = (() => { try { return window.matchMedia('(display-mode: st
 // 感想フォーム（GoogleフォームのURL）。空のあいだは設定画面にボタンを出さない
 const FEEDBACK_URL = 'https://forms.gle/vNWosybxXnKr1gSEA';
 const EXTRA_PERIODS = [['18:30','20:00'],['20:15','21:45']];
+// Googleカレンダー連携（Web版だけ）。クライアントIDは config.js（window.DANDORI_CONFIG）で設定する
+const GCAL_CLIENT_ID = String((window.DANDORI_CONFIG && window.DANDORI_CONFIG.gcalClientId) || '').trim();
+const GCAL_ON = IS_WEB && !!GCAL_CLIENT_ID;
+const GCAL_EV = 'https://www.googleapis.com/auth/calendar.events.readonly', GCAL_LIST = 'https://www.googleapis.com/auth/calendar.calendarlist.readonly';
+const GCAL_DAYS = 28;
 
 const pad = n => String(n).padStart(2, '0');
 const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -632,6 +648,7 @@ function merge(d){
     shifts:Array.isArray(d.shifts) ? d.shifts : [],
     places:Array.isArray(d.places) ? d.places : [],
     goals:Array.isArray(d.goals) ? d.goals : [],
+    gcal:d.gcal && typeof d.gcal === 'object' && Array.isArray(d.gcal.events) ? d.gcal : undefined,
     periods:Array.isArray(d.periods) && d.periods.length ? d.periods : b.periods,
     timetable:d.timetable && typeof d.timetable === 'object' ? d.timetable : {},
     cond:d.cond && typeof d.cond === 'object' ? d.cond : {},
@@ -689,6 +706,7 @@ function prune(){
   for (const k of Object.keys(S.doneDays)) if (daysBetween(k, today) > 150) delete S.doneDays[k];
   S.shifts = (S.shifts || []).filter(x => x && x.date && daysBetween(x.date, today) <= 60);
   S.goals = (S.goals || []).filter(g => g && (!g.doneAt || daysBetween(g.doneAt, today) <= 30));
+  if (S.gcal) S.gcal.events = (S.gcal.events || []).filter(x => x && x.date >= addDays(today, -1));
 }
 async function boot(){
   render();
@@ -738,7 +756,7 @@ function onSnap(snap){
 }
 
 /* ---------- 空き時間の計算 ---------- */
-function busyFor(date){
+function busyFor(date, own){
   const wd = parseYmd(date).getDay();
   const out = [];
   if (wd >= 1 && wd <= 6){
@@ -749,6 +767,7 @@ function busyFor(date){
   }
   S.jobs.filter(j => j.wd === wd).forEach(j => out.push({s:toMin(j.start), e:toMin(j.end), label:j.label || 'バイト'}));
   shiftsOn(date).forEach(x => out.push({s:toMin(x.start), e:toMin(x.end), label:x.place || 'バイト'}));
+  if (!own) gcalOn(date).forEach(x => { if (!x.allDay && !x.free) out.push({s:toMin(x.start), e:toMin(x.end), label:x.title}); });
   return out.sort((a, b) => a.s - b.s);
 }
 function freeFor(date, fromMin){
@@ -822,12 +841,157 @@ function shiftPresets(){
   const ks = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a]).slice(0, 3);
   return ks.length ? ks : ['18:00-22:00', '10:00-15:00'];
 }
+/* ---------- Googleカレンダーの予定（読むだけ。Web版で読み込んで、この端末に保存） ---------- */
+const gcalCalOn = id => { const c = S.gcal && (S.gcal.cals || []).find(x => x.id === id); return !c || c.on !== false; };
+const gcalOn = date => !S.gcal ? [] : (S.gcal.events || []).filter(x => x.date === date && gcalCalOn(x.cal))
+  .sort((a, b) => (a.allDay ? -1 : toMin(a.start)) - (b.allDay ? -1 : toMin(b.start)));
+// 授業・毎週の予定・シフトとほぼ同じ時間の予定は、画面では二重に出さない
+function gcalDup(date, x){
+  if (x.allDay) return false;
+  const s = toMin(x.start), e = toMin(x.end), len = Math.max(1, e - s);
+  return busyFor(date, true).some(b => Math.min(b.e, e) - Math.max(b.s, s) >= len * 0.8);
+}
+const hhmm = m => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
+function gcalAdd(out, cal, e, from, to){
+  if (!e || e.status === 'cancelled') return;
+  if ((e.attendees || []).some(a => a.self && a.responseStatus === 'declined')) return;
+  if (/ダンドリ/.test(e.description || '')) return; // ダンドリから入れた締切・朝の通知は読み込まない
+  const title = String(e.summary || '（タイトルなし）').slice(0, 60), free = e.transparency === 'transparent', id = String(e.id || newId());
+  if (e.start && e.start.date){
+    const end = (e.end && e.end.date) || addDays(e.start.date, 1);
+    for (let d = e.start.date, i = 0; d < end && i < 31; d = addDays(d, 1), i++) if (d >= from && d < to) out.push({id:`${id}@${d}`, cal, date:d, allDay:true, title});
+    return;
+  }
+  const s = new Date(e.start && e.start.dateTime), en = new Date(e.end && e.end.dateTime);
+  if (isNaN(s) || isNaN(en) || en <= s) return;
+  // 日をまたぐ予定は、日ごとに分ける
+  for (let d = ymd(s), i = 0; i < 14; d = addDays(d, 1), i++){
+    const d0 = parseYmd(d), d1 = parseYmd(addDays(d, 1));
+    if (d0 >= en) break;
+    const a = s > d0 ? s : d0, b = en < d1 ? en : d1;
+    const am = a.getHours() * 60 + a.getMinutes(), bm = b >= d1 ? 1440 : b.getHours() * 60 + b.getMinutes();
+    if (d >= from && d < to && bm > am) out.push({id:`${id}@${d}`, cal, date:d, start:hhmm(am), end:bm >= 1440 ? '24:00' : hhmm(bm), title, free});
+  }
+}
+const G = {tok:'', exp:0, list:false, client:null, p:null, busy:false};
+function gisLoad(){
+  if (!GCAL_ON) return Promise.resolve(false);
+  if (window.google && google.accounts && google.accounts.oauth2) return Promise.resolve(true);
+  if (G.p) return G.p;
+  G.p = new Promise(res => {
+    const sc = document.createElement('script');
+    sc.src = 'https://accounts.google.com/gsi/client'; sc.async = true;
+    sc.onload = () => res(true); sc.onerror = () => { G.p = null; sc.remove(); res(false); };
+    document.head.appendChild(sc);
+  });
+  return G.p;
+}
+function gcalClient(){
+  if (G.client) return G.client;
+  if (!(window.google && google.accounts && google.accounts.oauth2)) return null;
+  G.client = google.accounts.oauth2.initTokenClient({client_id:GCAL_CLIENT_ID, scope:`${GCAL_EV} ${GCAL_LIST}`, callback:gcalToken, error_callback:gcalAuthErr});
+  return G.client;
+}
+function gcalBusyUI(on){
+  document.querySelectorAll('[data-act="g-sync"],[data-act="g-link"]').forEach(b => {
+    if (on){ if (!b.dataset.lab) b.dataset.lab = b.textContent; b.textContent = '読み込み中…'; b.disabled = true; }
+    else { if (b.dataset.lab) b.textContent = b.dataset.lab; b.disabled = false; }
+  });
+}
+// ボタンを押したときに呼ぶ（Googleのログイン画面は、ボタンを押した流れの中でしか開けない）
+function gcalStart(){
+  if (G.busy) return;
+  if (IN_APP){ toast(`${IN_APP}の中ではGoogleにログインできません。Safari・Chromeで開いてください`); return; }
+  if (G.tok && Date.now() < G.exp - 60000){ gcalSync(); return; }
+  const c = gcalClient();
+  if (!c){ gisLoad().then(ok => toast(ok ? 'Googleの準備ができました。もう一度押してください' : 'Googleにつながりませんでした。通信を確認してください')); return; }
+  G.busy = true; gcalBusyUI(true);
+  try { c.requestAccessToken({prompt:''}); } catch (e) { G.busy = false; gcalBusyUI(false); toast('Googleのログイン画面を開けませんでした'); }
+}
+function gcalToken(r){
+  G.busy = false;
+  if (!r || r.error || !r.access_token){ gcalBusyUI(false); toast('Googleの許可がもらえませんでした'); return; }
+  const o2 = google.accounts.oauth2;
+  if (!o2.hasGrantedAnyScope(r, GCAL_EV)){ gcalBusyUI(false); toast('「予定を見る」にチェックを入れると読み込めます'); return; }
+  G.tok = r.access_token; G.exp = Date.now() + (Number(r.expires_in) || 3600) * 1000;
+  G.list = o2.hasGrantedAnyScope(r, GCAL_LIST);
+  gcalSync();
+}
+function gcalAuthErr(e){
+  G.busy = false; gcalBusyUI(false);
+  const t = e && e.type;
+  toast(t === 'popup_failed_to_open' ? 'ログイン画面が開けませんでした。ポップアップのブロックを外してください' : t === 'popup_closed' ? 'ログイン画面が閉じられました' : 'Googleとの連携がうまくいきませんでした');
+}
+async function gcalSync(){
+  G.busy = true; gcalBusyUI(true);
+  const api = async path => {
+    const r = await fetch('https://www.googleapis.com/calendar/v3' + path, {headers:{Authorization:'Bearer ' + G.tok}});
+    if (!r.ok){ const err = new Error('http ' + r.status); err.status = r.status; throw err; }
+    return r.json();
+  };
+  try {
+    const old = (S.gcal && S.gcal.cals) || [];
+    let cals = [];
+    if (G.list){
+      const j = await api('/users/me/calendarList?minAccessRole=reader&maxResults=50&fields=' + encodeURIComponent('items(id,summary,summaryOverride,primary,selected)'));
+      cals = (j.items || []).map(c => ({id:String(c.id), name:c.primary ? 'メインのカレンダー' : String(c.summaryOverride || c.summary || 'カレンダー'), primary:!!c.primary,
+        def:!!(c.primary || c.selected) && !/#holiday@|#contacts@|#weeknum@/.test(String(c.id))}));
+    }
+    if (!cals.length) cals = [{id:'primary', name:'メインのカレンダー', primary:true, def:true}];
+    cals.sort((a, b) => b.primary - a.primary);
+    cals = cals.slice(0, 15).map(c => { const o = old.find(x => x.id === c.id); return {id:c.id, name:c.name.slice(0, 40), primary:c.primary, on:o ? o.on !== false : c.def}; });
+    const from = todayStr(), to = addDays(from, GCAL_DAYS);
+    const q = `singleEvents=true&orderBy=startTime&maxResults=250&timeMin=${encodeURIComponent(parseYmd(from).toISOString())}&timeMax=${encodeURIComponent(parseYmd(to).toISOString())}&fields=${encodeURIComponent('items(id,summary,description,start,end,status,transparency,attendees(self,responseStatus))')}`;
+    const lists = await Promise.all(cals.filter(c => c.on).map(c => api(`/calendars/${encodeURIComponent(c.id)}/events?${q}`)
+      .then(j => ({c, items:j.items || []}))
+      .catch(err => { if (err.status === 401 || (err.status === 403 && c.primary)) throw err; return {c, items:[]}; })));
+    const events = [];
+    for (const {c, items} of lists) for (const e of items) gcalAdd(events, c.id, e, from, to);
+    S.gcal = {cals, events:events.slice(0, 600), syncedAt:new Date().toISOString()};
+    commit();
+    const box = document.getElementById('gcal-box'); if (box) box.outerHTML = gcalBox();
+    toast(`Googleの予定を${events.length}件読み込みました。空き時間に反映しています`, false, 'happy');
+  } catch (e) {
+    if (e && e.status === 401){ G.tok = ''; G.exp = 0; toast('ログインの期限が切れました。もう一度押してください'); }
+    else if (e && e.status === 403) toast('Googleに断られました。テスト中は、登録した人だけが使えます');
+    else toast('Googleの予定を読み込めませんでした。通信を確認してください');
+  } finally { G.busy = false; gcalBusyUI(false); }
+}
+const gcalWhen = (iso, short) => { const d = new Date(iso); if (isNaN(d)) return '前回'; const ds = ymd(d); return `${ds === todayStr() ? '今日' : short ? `${d.getMonth() + 1}/${d.getDate()}` : md(ds)} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+function gcalBox(){
+  const g = S.gcal;
+  if (!IS_WEB) return g ? `<div class="rowcard" id="gcal-box"><div class="kv"><span>Googleカレンダーの予定</span><span>${(g.events || []).length}件</span></div><p class="note">Web版で読み込んだ予定です。ここでは更新できません。</p><div class="gbtns"><button type="button" class="btn danger" data-act="g-off">読み込んだ予定を消す</button></div></div>` : '';
+  if (!GCAL_CLIENT_ID) return '';
+  gisLoad();
+  const head = '<div class="kv"><span>Googleカレンダー連携</span><span class="beta">テスト版</span></div>';
+  if (IN_APP) return `<div class="rowcard" id="gcal-box">${head}<p class="note">${IN_APP}の中のブラウザでは、Googleにログインできません。メニューの「ブラウザで開く」から、Safari・Chromeで開いてください。</p></div>`;
+  if (!g) return `<div class="rowcard" id="gcal-box">${head}<p class="note">Googleカレンダーの予定を読み込んで、空き時間の計算に使います。予定を見るだけで、書きかえたり消したりはしません。読み込んだ予定は、この端末の中だけに保存します。<a href="privacy.html#google" target="_blank" rel="noopener">くわしく</a></p><div class="gbtns"><button type="button" class="btn primary" data-act="g-link">Googleで連携</button></div></div>`;
+  const n = (g.events || []).filter(x => gcalCalOn(x.cal)).length;
+  return `<div class="rowcard" id="gcal-box">${head}<p class="note">${gcalWhen(g.syncedAt)}に読み込み・これから4週間の予定 ${n}件</p>
+    ${(g.cals || []).length > 1 ? `<div class="gcals"><span class="flabel">読み込むカレンダー</span>${g.cals.map(c => `<label class="tog"><input type="checkbox" data-act="g-cal" data-id="${esc(c.id)}" ${c.on !== false ? 'checked' : ''}>${esc(c.name)}</label>`).join('')}</div>` : ''}
+    <div class="gbtns"><button type="button" class="btn" data-act="g-sync">今すぐ更新</button><button type="button" class="btn danger" data-act="g-off">連携をやめる</button></div></div>`;
+}
+// 今日の画面：前に読み込んでから時間がたっていたら、更新ボタンを出す
+function gcalChip(){
+  if (!GCAL_ON || !S.gcal || IN_APP) return '';
+  const t = new Date(S.gcal.syncedAt);
+  if (!isNaN(t) && ymd(t) === todayStr() && Date.now() - t < 6 * 3600000) return '';
+  gisLoad();
+  return `<div class="gsync"><span>Googleの予定：${gcalWhen(S.gcal.syncedAt, true)}に読み込み</span><button type="button" class="btn small" data-act="g-sync">更新</button></div>`;
+}
+function showGcalInfo(b){
+  hideTtInfo();
+  const x = gcalOn(b.dataset.d).find(z => z.id === b.dataset.id); if (!x) return;
+  const cal = ((S.gcal && S.gcal.cals) || []).find(c => c.id === x.cal);
+  placePop(b, `<b>${esc(x.title)}</b><span class="stag g">Google</span><br>${md(x.date)} ${esc(x.start)}〜${esc(x.end)}${x.free ? '<br>「空き時間」の予定なので、段取りは入れています' : ''}${cal ? `<br><span class="sub">${esc(cal.name)}</span>` : ''}<br><span class="sub">直すときはGoogleカレンダーで</span>`);
+}
 /* その日の授業・毎週の予定・ほかのシフトのうち、指定の時間と重なるもの */
 function busyLabelsOn(date, s, e, skipId){
   const wd = parseYmd(date).getDay(), out = [];
   if (wd >= 1 && wd <= 6) S.periods.forEach((p, i) => { const n = S.timetable[`${wd}-${i + 1}`]; if (n && toMin(p[0]) < e && toMin(p[1]) > s) out.push(`${n}（${p[0]}〜${p[1]}）`); });
   S.jobs.filter(j => j.wd === wd).forEach(j => { if (toMin(j.start) < e && toMin(j.end) > s) out.push(`${j.label || JOB_KIND[jobKind(j)]}（${j.start}〜${j.end}）`); });
   shiftsOn(date).forEach(x => { if (x.id !== skipId && toMin(x.start) < e && toMin(x.end) > s) out.push(`${x.place}のシフト（${x.start}〜${x.end}）`); });
+  gcalOn(date).forEach(x => { if (!x.allDay && !x.free && toMin(x.start) < e && toMin(x.end) > s) out.push(`${x.title}（Google・${x.start}〜${x.end}）`); });
   return out;
 }
 function keepShiftInputs(){
@@ -1422,6 +1586,7 @@ function onboarding(){
     </ol>
     <div class="intro-acts"><button type="button" class="btn primary" data-act="load-sample" ${dis}>サンプルで試す</button><button type="button" class="btn" data-act="tab" data-v="week" ${dis}>時間割から始める</button></div>
     ${store.mode === 'loading' ? '<p class="hint">保存先を準備しています…</p>' : ''}
+    ${IS_WEB ? '<p class="note plinks"><a href="about.html">ダンドリについて</a><a href="privacy.html">プライバシーポリシー</a></p>' : ''}
   </section>`;
 }
 /* ---------- ナマケ先輩（キャラクター）。表情：normal / happy / panic / sleep。切り抜き：full / card / head ---------- */
@@ -1520,6 +1685,7 @@ function todayView(){
     <div class="seg" role="group" aria-label="表示する日">${segBtn('day','today','今日',isToday)}${segBtn('day','tomorrow','あした',!isToday)}</div>
   </section>
   ${senpaiCard(P, date, isToday, studyMin + lifeMin)}
+  ${isToday ? gcalChip() : ''}
   ${isToday ? backupCard(today) : ''}
   ${al.length ? `<section class="alerts" aria-label="要注意">${al.map(a => `<div class="alert lv${a.lv}">${a.lv >= 2 ? `<span class="mini" role="img" aria-label="${a.label}">${senpai('panic', 'head')}</span>` : `<b>${a.label}</b>`}<span>${a.html}</span></div>`).join('')}</section>` : ''}
   ${adder()}
@@ -1655,7 +1821,8 @@ async function pipeBytes(bytes, stream){
   return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer());
 }
 async function makeCode(){
-  const data = JSON.parse(JSON.stringify(S)); delete data.sid;
+  // Googleカレンダーの予定はコードに入れない（新しい端末で、もう一度連携して読み込む）
+  const data = JSON.parse(JSON.stringify(S)); delete data.sid; delete data.gcal;
   const raw = new TextEncoder().encode(JSON.stringify({app:'dandori', v:1, at:new Date().toISOString(), data}));
   let bytes = raw, ver = '0';
   if (CAN_ZIP){ try { bytes = await pipeBytes(raw, new CompressionStream('deflate-raw')); ver = '1'; } catch (e) { bytes = raw; ver = '0'; } }
@@ -1939,8 +2106,17 @@ function weekGrid(editing, mon){
     });
     shiftItems[d] = list;
   });
+  // Googleカレンダーの予定（授業・シフトと同じものは出さない。重なるときは少しずらす）
+  if (!editing) days.forEach(d => {
+    gcalOn(dates[d]).filter(x => !x.allDay && !gcalDup(dates[d], x)).forEach(x => {
+      const it = {type:'gcal', id:x.id, label:x.title, s:toMin(x.start), e:toMin(x.end), start:x.start, end:x.end, lane:0, ovl:false, d:dates[d]};
+      for (const o of by[d].concat(shiftItems[d])) if (Math.min(o.e, it.e) - Math.max(o.s, it.s) > 0) it.lane = Math.max(it.lane, (o.lane || 0) + 1);
+      shiftItems[d].push(it);
+    });
+  });
   const all = Object.values(by).flat().concat(Object.values(shiftItems).flat());
-  const st = Math.min(8 * 60, ...all.map(x => x.s), ...S.periods.map(p => toMin(p[0])), ...timed.map(t => toMin(t.dueTime)));
+  // Googleの深夜の予定（夜行バスなど）で、表が夜中から始まらないように6時で切る
+  const st = Math.min(8 * 60, ...all.map(x => x.type === 'gcal' ? Math.max(x.s, 360) : x.s), ...S.periods.map(p => toMin(p[0])), ...timed.map(t => toMin(t.dueTime)));
   const en = Math.max(22 * 60, ...all.map(x => x.e), ...S.periods.map(p => toMin(p[1])), ...timed.map(t => toMin(t.dueTime) + 30));
   const H0 = Math.floor(st / 60), H1 = Math.min(24, Math.ceil(en / 60)), PX = 36;
   const y = m => (m - H0 * 60) / 60 * PX;
@@ -1964,11 +2140,12 @@ function weekGrid(editing, mon){
       html += `<button type="button" class="wk-slot" style="top:${a + 1}px;height:${b - a - 2}px" data-act="cell" data-k="${k}" aria-label="${WD[d]}曜${i + 1}限に授業を入れる">＋</button>`;
     });
     for (const it of by[d].concat(shiftItems[d])){
-      const a = y(it.s), h = Math.max(16, y(it.e) - a), lane = Math.min(it.lane, 3);
+      if (it.e <= H0 * 60) continue;
+      const a = y(Math.max(it.s, H0 * 60)), h = Math.max(16, y(it.e) - a), lane = Math.min(it.lane, 3);
       const wk = it.type === 'cls' && S.weekly.some(w => w.on && w.course === it.label);
       const ref = it.type === 'cls' ? `data-k="${it.k}"` : `data-id="${it.id}"`;
-      const act = it.type === 'shift' ? `data-act="tt-shift" ${ref}` : editing ? (it.type === 'cls' ? `data-act="cell" ${ref}` : `data-act="edit-job" ${ref}`) : `data-act="tt-info" data-wd="${d}" data-type="${it.type}" ${ref}`;
-      const name = it.type === 'cls' ? `${WD[d]}曜${it.period}限 ${it.label}` : it.type === 'shift' ? `${md(dates[d])} ${it.start}から${it.end} ${it.label}のシフト` : `${WD[d]}曜 ${it.start}から${it.end} ${it.label}`;
+      const act = it.type === 'gcal' ? `data-act="tt-g" data-d="${it.d}" data-id="${esc(it.id)}"` : it.type === 'shift' ? `data-act="tt-shift" ${ref}` : editing ? (it.type === 'cls' ? `data-act="cell" ${ref}` : `data-act="edit-job" ${ref}`) : `data-act="tt-info" data-wd="${d}" data-type="${it.type}" ${ref}`;
+      const name = it.type === 'cls' ? `${WD[d]}曜${it.period}限 ${it.label}` : it.type === 'gcal' ? `${md(dates[d])} ${it.start}から${it.end} ${it.label}（Googleカレンダー）` : it.type === 'shift' ? `${md(dates[d])} ${it.start}から${it.end} ${it.label}のシフト` : `${WD[d]}曜 ${it.start}から${it.end} ${it.label}`;
       html += `<button type="button" class="wk-blk ${it.type}${it.ovl ? ' ovl' : ''}" style="top:${a}px;height:${h}px;${lane ? `left:${2 + lane * 6}px;` : ''}" ${act} aria-label="${esc(name)}${it.ovl ? '（ほかの予定と重なっています）' : ''}${editing ? '（押すと直せます）' : ''}">${esc(it.label)}${it.type !== 'cls' ? `<span class="tm">${esc(it.start)}<br>〜${esc(it.end)}</span>` : ''}${wk ? '<i class="wkdot" aria-hidden="true"></i>' : ''}${it.ovl ? '<span class="ov" aria-hidden="true">!</span>' : ''}</button>`;
     }
     for (const t of timed.filter(x => x.deadline === dates[d]))
@@ -1978,7 +2155,7 @@ function weekGrid(editing, mon){
   }).join('');
   const kinds = new Set(all.map(x => x.type));
   const sw = (bg, c) => `<i style="background:var(${bg});box-shadow:inset 3px 0 0 var(${c})"></i>`;
-  const legend = `<div class="wk-legend" aria-hidden="true"><span>${sw('--study-soft', '--study')}授業</span>${kinds.has('cir') ? `<span>${sw('--life-soft', '--life')}サークル</span>` : ''}${kinds.has('job') ? `<span>${sw('--other-soft', '--other')}バイト${kinds.has('shift') ? '（毎週）' : ''}</span>` : ''}${kinds.has('shift') ? '<span><i class="shift-i"></i>シフト</span>' : ''}${kinds.has('etc') ? `<span>${sw('--etc-soft', '--etc')}その他</span>` : ''}${editing ? `<span><i style="background:var(--band);box-shadow:inset 0 0 0 1px var(--grid)"></i>1〜${S.periods.length}限</span>` : '<span><span class="flg"></span>締切（赤＝あしたまで）</span><span><span class="nowk"></span>今の時刻</span>'}</div>`;
+  const legend = `<div class="wk-legend" aria-hidden="true"><span>${sw('--study-soft', '--study')}授業</span>${kinds.has('cir') ? `<span>${sw('--life-soft', '--life')}サークル</span>` : ''}${kinds.has('job') ? `<span>${sw('--other-soft', '--other')}バイト${kinds.has('shift') ? '（毎週）' : ''}</span>` : ''}${kinds.has('shift') ? '<span><i class="shift-i"></i>シフト</span>' : ''}${kinds.has('etc') ? `<span>${sw('--etc-soft', '--etc')}その他</span>` : ''}${kinds.has('gcal') ? '<span><i class="gc-i"></i>Google</span>' : ''}${editing ? `<span><i style="background:var(--band);box-shadow:inset 0 0 0 1px var(--grid)"></i>1〜${S.periods.length}限</span>` : '<span><span class="flg"></span>締切（赤＝あしたまで）</span><span><span class="nowk"></span>今の時刻</span>'}</div>`;
   return {html:`<div class="wk-card${editing ? ' editing' : ''}"><div class="wk-head"><span></span>${head}</div>
     <div class="wk-body" id="wk-body" style="height:${(H1 - H0) * PX}px">${bands}${lines}<div class="wk-axis">${axis}</div>${cols}</div></div>${legend}`, warns, swarns};
 }
@@ -2033,6 +2210,7 @@ function dayItems(date){
   if (wd >= 1 && wd <= 6) S.periods.forEach((p, i) => { const n = S.timetable[`${wd}-${i + 1}`]; if (n) out.push({s:p[0], e:p[1], label:`${i + 1}限 ${n}`, c:'var(--study)'}); });
   S.jobs.filter(j => j.wd === wd).forEach(j => { const k = jobKind(j); out.push({s:j.start, e:j.end, label:j.label || JOB_KIND[k], c:k === 'cir' ? 'var(--life)' : k === 'etc' ? 'var(--etc)' : 'var(--other)'}); });
   shiftsOn(date).forEach(x => out.push({s:x.start, e:x.end, label:`${x.place || 'バイト'}（シフト）`, c:'var(--other)'}));
+  gcalOn(date).forEach(x => { if (!gcalDup(date, x)) out.push({s:x.allDay ? '終日' : x.start, e:x.end || '', label:x.title, c:'var(--gc)'}); });
   return out.sort((a, b) => toMin(a.s) - toMin(b.s));
 }
 function monthCalHTML(sh){
@@ -2042,8 +2220,8 @@ function monthCalHTML(sh){
   let cells = '';
   for (let i = 0; i < n; i++){
     const ds = addDays(start, i), dd = parseYmd(ds);
-    const dl = S.tasks.filter(t => t.deadline === ds && !t.done), urg = dl.some(dueUrgent), sh2 = shiftsOn(ds).length > 0;
-    cells += `<button type="button" class="mc-d${dd.getMonth() !== m ? ' out' : ''}${ds < today ? ' past' : ''}${ds === today ? ' today' : ''}${ds === sh.sel ? ' sel' : ''}${dd.getDay() === 0 ? ' sun' : ''}" data-act="mcal-day" data-d="${ds}" aria-pressed="${ds === sh.sel}" aria-label="${md(ds)}${dl.length ? `、締切${dl.length}件` : ''}${sh2 ? '、シフトあり' : ''}"><span class="n">${dd.getDate()}</span>${sh2 ? '<i class="sh" aria-hidden="true"></i>' : ''}${dl.length ? `<span class="cnt${urg ? ' u' : ''}" aria-hidden="true">${dl.length}</span>` : ''}</button>`;
+    const dl = S.tasks.filter(t => t.deadline === ds && !t.done), urg = dl.some(dueUrgent), sh2 = shiftsOn(ds).length > 0, gc = gcalOn(ds).some(x => !gcalDup(ds, x));
+    cells += `<button type="button" class="mc-d${dd.getMonth() !== m ? ' out' : ''}${ds < today ? ' past' : ''}${ds === today ? ' today' : ''}${ds === sh.sel ? ' sel' : ''}${dd.getDay() === 0 ? ' sun' : ''}" data-act="mcal-day" data-d="${ds}" aria-pressed="${ds === sh.sel}" aria-label="${md(ds)}${dl.length ? `、締切${dl.length}件` : ''}${sh2 ? '、シフトあり' : ''}${gc ? '、Googleの予定あり' : ''}"><span class="n">${dd.getDate()}</span>${sh2 ? '<i class="sh" aria-hidden="true"></i>' : ''}${gc ? '<i class="gc" aria-hidden="true"></i>' : ''}${dl.length ? `<span class="cnt${urg ? ' u' : ''}" aria-hidden="true">${dl.length}</span>` : ''}</button>`;
   }
   const d = sh.sel, dls = S.tasks.filter(t => t.deadline === d).sort((a, b) => (a.dueTime || '99').localeCompare(b.dueTime || '99'));
   const items = dayItems(d);
@@ -2250,7 +2428,9 @@ function sheetHTML(sh){
       <div class="rowcard"><div class="kv"><span>保存先</span><span>${store.mode === 'cloud' ? 'クラウド' : store.mode === 'local' ? 'この端末' : '準備中'}</span></div>
       <p class="note">${store.mode === 'cloud' ? 'あなたのデータは、あなただけが見られる場所に保存されています。共有した友人にも、作成者にも見えません。' : 'このブラウザの中だけに保存されています。作成者にも見えません。別の端末では見られず、ブラウザのデータを消すと消えます。'}</p>
       <button type="button" class="btn" data-act="transfer">引き継ぎコード（機種変更・別の端末へ）</button></div>
+      ${gcalBox()}
       ${FEEDBACK_URL ? `<div class="rowcard"><div class="kv"><span>感想・要望</span></div><p class="note">使ってみた感想や「こんな機能がほしい」を教えてください。1分で終わります。名前やメールアドレスは聞きません。</p><a class="btn" href="${esc(FEEDBACK_URL)}" target="_blank" rel="noopener">感想を送る</a></div>` : ''}
+      ${IS_WEB ? '<p class="note plinks"><a href="about.html" target="_blank" rel="noopener">ダンドリについて</a><a href="privacy.html" target="_blank" rel="noopener">プライバシーポリシー</a></p>' : ''}
       <div class="sh-acts"><button type="submit" class="btn primary">保存</button><button type="button" class="btn danger" data-act="reset-all">すべてのデータを消す</button>${cancel}</div>`;
     }
     case 'mcal': return monthCalHTML(sh);
@@ -2477,14 +2657,14 @@ function toast(msg, undo, face){
 
 /* ---------- 操作 ---------- */
 document.addEventListener('click', e => {
-  if (!e.target.closest('.wk-pop') && !e.target.closest('[data-act="tt-info"],[data-act="tt-dl"],[data-act="tt-shift"]')) hideTtInfo();
+  if (!e.target.closest('.wk-pop') && !e.target.closest('[data-act="tt-info"],[data-act="tt-dl"],[data-act="tt-shift"],[data-act="tt-g"]')) hideTtInfo();
   try { onClick(e); } catch (err) { console.error(err); toast('うまく操作できませんでした。ページを開き直してから、もう一度試してください'); }
 });
 function onClick(e){
   if (e.target === sheetEl){ closeSheet(); return; }
   const b = e.target.closest('[data-act]'); if (!b) return;
   const a = b.dataset.act, today = todayStr();
-  if (store.mode === 'loading' && !['tab','day','filter','close','help','tt-info','tt-dl','tt-shift','wk-prev','wk-next','wk-today','mcal','mcal-day','mcal-month','mcal-today'].includes(a)){ toast('保存先を準備しています。少し待ってから操作してください'); return; }
+  if (store.mode === 'loading' && !['tab','day','filter','close','help','tt-info','tt-dl','tt-shift','tt-g','wk-prev','wk-next','wk-today','mcal','mcal-day','mcal-month','mcal-today'].includes(a)){ toast('保存先を準備しています。少し待ってから操作してください'); return; }
   switch (a){
     case 'tab':
       UI.view = b.dataset.v;
@@ -2582,6 +2762,24 @@ function onClick(e){
     case 'tt-info': showTtInfo(b); break;
     case 'tt-dl': showDlInfo(b); break;
     case 'tt-shift': showShiftInfo(b); break;
+    case 'tt-g': showGcalInfo(b); break;
+    case 'g-link': case 'g-sync': gcalStart(); break;
+    case 'g-cal': {
+      const c = S.gcal && (S.gcal.cals || []).find(x => x.id === b.dataset.id); if (!c) break;
+      c.on = !!b.checked; commit();
+      if (c.on && IS_WEB) gcalStart();
+      else { const box = document.getElementById('gcal-box'); if (box) box.outerHTML = gcalBox(); }
+      break;
+    }
+    case 'g-off': {
+      if (!b.dataset.armed){ b.dataset.armed = '1'; b.textContent = 'もう一度押すとやめます'; break; }
+      const tok = G.tok; G.tok = ''; G.exp = 0;
+      delete S.gcal; commit();
+      if (tok && window.google && google.accounts && google.accounts.oauth2) { try { google.accounts.oauth2.revoke(tok, () => {}); } catch (err) {} }
+      const box = document.getElementById('gcal-box'); if (box) box.outerHTML = gcalBox();
+      toast(tok || !IS_WEB ? '読み込んだGoogleの予定を消しました' : '予定を消しました。Googleアカウントの「サードパーティのアプリとサービス」からも外せます');
+      break;
+    }
     case 'mcal': openMonthCal(b.dataset.d); break;
     case 'mcal-day': UI.sheet.sel = b.dataset.d; renderSheet(); break;
     case 'mcal-month': {
