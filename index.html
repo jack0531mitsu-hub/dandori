@@ -1112,7 +1112,7 @@ function openShiftSheet(){
 /* ---------- 毎週の予定の種類（バイト／サークル／その他） ---------- */
 const JOB_KIND = {job:'バイト', cir:'サークル', etc:'その他'};
 const jobKind = j => JOB_KIND[j.kind] ? j.kind : (/サークル|部活/.test(j.label || '') ? 'cir' : (!j.label || /バイト/.test(j.label)) ? 'job' : 'etc');
-/* ---------- 毎週の課題：授業が終わったら、次の授業までの課題を自動で入れる ---------- */
+/* ---------- 毎週の課題：授業が終わったら（授業なしなら前の締切が過ぎたら）、次の分を自動で入れる ---------- */
 function courseSlots(course){
   const out = [];
   for (const [k, v] of Object.entries(S.timetable)){
@@ -1125,6 +1125,28 @@ function courseSlots(course){
 }
 // 「週1回」にしたときは、その週の最初のコマだけを数える
 const weeklySlots = w => { const s = courseSlots(w.course); return w.per === 'week' ? s.slice(0, 1) : s; };
+// 締切の決め方：'class'＝次の授業まで／'fixed'＝毎週決まった曜日・時刻（授業なしは必ず fixed）
+const wDue = w => w.course && w.due !== 'fixed' ? 'class' : 'fixed';
+const wDueWd = w => Number.isInteger(w.dueWd) && w.dueWd >= 0 && w.dueWd <= 6 ? w.dueWd : 0;
+const wDueTime = w => /^\d{2}:\d{2}$/.test(w.dueTime || '') ? w.dueTime : '23:59';
+const wRule = w => `毎週${WD[wDueWd(w)]}曜 ${wDueTime(w)}`;
+// fromDate の fromMin より後で、いちばん近い「決まった曜日・時刻」
+function nextFixedDue(w, fromDate, fromMin){
+  const wd = wDueWd(w), tm = wDueTime(w);
+  for (let i = 0; i <= 7; i++){
+    const ds = addDays(fromDate, i);
+    if (parseYmd(ds).getDay() !== wd || (i === 0 && toMin(tm) <= fromMin)) continue;
+    return {date:ds, start:tm};
+  }
+  return null;
+}
+// いま出ている回。授業ありは直前に終わった授業、授業なしは次の締切
+function currentOcc(w, today, now){
+  if (w.course) return lastEndedClass(w, today, now);
+  const f = nextFixedDue(w, today, now);
+  return f ? {date:f.date, end:f.start, key:`d:${f.date}`} : null;
+}
+const sameTitle = (a, b) => { const n = x => String(x || '').normalize('NFKC').replace(/\s+/g, ''); return !!n(b) && n(a).startsWith(n(b)); };
 function lastEndedClass(w, today, now){
   const slots = weeklySlots(w);
   for (let i = 0; i <= 7 && slots.length; i++){
@@ -1144,6 +1166,10 @@ function nextWeeklyClass(w){
   return null;
 }
 function weeklyDue(w, occ){
+  if (wDue(w) === 'fixed'){
+    const f = w.course ? nextFixedDue(w, occ.date, toMin(occ.end)) : {date:occ.date, start:occ.end};
+    return f ? {deadline:f.date, dueTime:f.start, next:f, fixed:true} : null;
+  }
   let nc = null;
   if (w.per === 'week'){
     const s = weeklySlots(w)[0];
@@ -1153,12 +1179,24 @@ function weeklyDue(w, occ){
   if (S.settings.courseDue === 'daybefore' && addDays(nc.date, -1) > occ.date) return {deadline:addDays(nc.date, -1), dueTime:null, next:nc};
   return {deadline:nc.date, dueTime:nc.start, next:nc};
 }
+// 毎週の課題のシートの入力を読む（なかった欄は base の値を使う）
+function readWeeklyForm(fd, base){
+  base = base || {};
+  const course = String(fd.get('wk-course') || '');
+  const due = !course || fd.get('wk-due') === 'fixed' ? 'fixed' : 'class';
+  const dwd = Number(fd.get('wk-dwd')), dt = String(fd.get('wk-dtime') || '');
+  return {course, title:String(fd.get('wk-title') || '').trim().slice(0, 40), min:clamp(round5(fd.get('wk-min')), 5, 600), imp:clamp(Number(fd.get('wk-imp')) || 2, 1, 3),
+    per:fd.has('wk-per') ? (fd.get('wk-per') === 'week' ? 'week' : 'class') : base.per === 'week' ? 'week' : 'class',
+    on:fd.get('wk-on') === 'on', now:fd.has('wk-hasnow') ? fd.get('wk-now') === 'on' : base.now !== false, due,
+    dueWd:fd.has('wk-dwd') && Number.isInteger(dwd) ? clamp(dwd, 0, 6) : wDueWd(base),
+    dueTime:/^\d{2}:\d{2}$/.test(dt) ? dt : wDueTime(base)};
+}
 function runWeekly(){
   const today = todayStr(), now = nowMin(), made = [];
   let changed = false;
   for (const w of S.weekly || []){
-    if (!w.on || !courseNames().includes(w.course)) continue;
-    const occ = lastEndedClass(w, today, now);
+    if (!w.on || (w.course && !courseNames().includes(w.course))) continue;
+    const occ = currentOcc(w, today, now);
     if (!occ || w.lastKey === occ.key) continue;
     w.lastKey = occ.key; changed = true;
     if (S.tasks.some(t => t.weekly === w.id && t.occ === occ.key)) continue;
@@ -1166,22 +1204,35 @@ function runWeekly(){
     // 授業中などで、締切がもう過ぎているときは入れない
     if (due.deadline < today || (due.deadline === today && due.dueTime && toMin(due.dueTime) <= now)) continue;
     // 同じ授業で同じころが締切のやることを自分で入れてあれば、それを今回の分として扱う
-    const same = S.tasks.find(t => !t.done && !t.weekly && t.course === w.course && t.deadline && t.deadline <= due.next.date && t.deadline >= addDays(due.next.date, -1));
+    const same = S.tasks.find(t => !t.done && !t.weekly && (w.course ? t.course === w.course : sameTitle(t.title, w.title)) && t.deadline && t.deadline <= due.next.date && t.deadline >= addDays(due.next.date, -1));
     if (same){ same.weekly = w.id; same.occ = occ.key; continue; }
-    const d = parseYmd(occ.date);
-    const t = makeTask({title:`${w.title}（${d.getMonth()+1}/${d.getDate()}の回）`, cat:'study', deadline:due.deadline, dueTime:due.dueTime, course:w.course, min:w.min, imp:w.imp});
+    const d = parseYmd(w.course ? occ.date : due.deadline);
+    const t = makeTask({title:`${w.title}（${d.getMonth()+1}/${d.getDate()}${w.course ? 'の回' : '締切'}）`, cat:'study', deadline:due.deadline, dueTime:due.dueTime, course:w.course || null, min:w.min, imp:w.imp});
     t.weekly = w.id; t.occ = occ.key;
+    if (due.fixed) t.dueFixed = true;
     S.tasks.push(t); made.push(t);
   }
   return {made, changed};
 }
 function weeklyStatus(w, short){
-  if (!courseNames().includes(w.course)) return '時間割にこの授業がありません';
+  if (w.course && !courseNames().includes(w.course)) return '時間割にこの授業がありません';
   if (!w.on) return 'お休み中（自動では追加しません）';
+  if (!w.course){
+    const cur = nextFixedDue(w, todayStr(), nowMin()); if (!cur) return '';
+    const nx = nextFixedDue(w, cur.date, toMin(cur.start));
+    if (short) return `締切 ${wRule(w)}`;
+    return w.lastKey === `d:${cur.date}` ? `締切（${md(cur.date)} ${cur.start}）が過ぎたら、次の分（締切 ${md(nx.date)} ${nx.start}）を追加` : `締切 ${md(cur.date)} ${cur.start}の分を追加`;
+  }
   const o = nextWeeklyClass(w); if (!o) return '';
   const due = weeklyDue(w, o);
   if (short) return `${mdS(o.date)}に追加${due ? ` → 締切 ${mdS(due.deadline)}` : ''}`;
   return `次は${md(o.date)} ${o.end}に追加${due ? `（締切 ${md(due.deadline)}${due.dueTime ? ' ' + due.dueTime : ''}）` : ''}`;
+}
+// シートで見せる「こう入ります」の一文
+function weeklyPreview(v){
+  if (v.course) return weeklyStatus({...v, on:true, lastKey:null});
+  const cur = nextFixedDue(v, todayStr(), nowMin()); if (!cur) return '';
+  return `次の締切は ${md(cur.date)} ${cur.start}。締切が過ぎると、次の週の分が入ります`;
 }
 function toastWeekly(made){
   if (!made.length) return;
@@ -1193,7 +1244,9 @@ function checkWeekly(){
   if (wk.changed){ commit(); toastWeekly(wk.made); }
   return wk.changed;
 }
-const dueText = t => t.deadline ? `${md(t.deadline)}${t.dueTime ? ` ${t.dueTime}${t.course ? `（${t.course}の前）` : ''}` : ''}` : '締切なし';
+// 締切の時刻が「授業の始まり」のときだけ true（毎週日曜23:59 のような決まった締切は false）
+const atClass = t => !!(t && t.course && t.dueTime && !t.dueFixed);
+const dueText = t => t.deadline ? `${md(t.deadline)}${t.dueTime ? ` ${t.dueTime}${atClass(t) ? `（${t.course}の前）` : ''}` : ''}` : '締切なし';
 
 /* ---------- 優先度の計算 ---------- */
 const ratio = cat => clamp((S.learn[cat] || {r:1}).r || 1, 0.5, 2.5);
@@ -1207,8 +1260,8 @@ function taskScore(t, d){
 function taskWhy(d, t){
   if (d === null) return '締切なし';
   if (d < 0) return `締切を${-d}日過ぎています`;
-  if (d === 0) return t && t.dueTime ? `今日${t.dueTime}の授業まで` : '締切は今日';
-  if (d === 1) return t && t.dueTime ? `あした${t.dueTime}の授業まで` : '締切はあした';
+  if (d === 0) return t && t.dueTime ? `今日${t.dueTime}${atClass(t) ? 'の授業' : ''}まで` : '締切は今日';
+  if (d === 1) return t && t.dueTime ? `あした${t.dueTime}${atClass(t) ? 'の授業' : ''}まで` : '締切はあした';
   return `あと${d}日`;
 }
 function routineDue(r, date){
@@ -2201,10 +2254,10 @@ function routineRow(r, today){
     <button type="button" class="btn small" data-act="edit-routine" data-id="${r.id}">編集</button></article>`;
 }
 function weeklySection(){
-  const list = S.weekly || [], has = courseNames().length > 0;
+  const list = S.weekly || [];
   return `<section class="sect"><h2 class="h2">毎週の課題<button type="button" class="qm" data-act="help" data-k="week" aria-label="毎週の課題の説明">?</button></h2>
-  ${list.length ? `<div class="tlist">${list.map(w => `<article class="trow two"><div class="body"><div class="title">${esc(w.title)}</div><div class="meta"><span class="tag ${w.on && courseNames().includes(w.course) ? 'study' : 'plain'}">${esc(w.course)}</span><span>${dur(w.min)}</span><span>${esc(weeklyStatus(w, true))}</span></div></div><button type="button" class="btn small" data-act="weekly-edit" data-id="${w.id}">編集</button></article>`).join('')}</div>` : `<div class="empty">${has ? 'まだありません。例：毎週の「ライリス」の課題、毎回の予習など。' : 'まず上の時間割に授業を入れてください。'}</div>`}
-  ${has ? '<div><button type="button" class="btn" data-act="weekly-new">毎週の課題を追加</button></div>' : ''}</section>`;
+  ${list.length ? `<div class="tlist">${list.map(w => { const ok = w.on && (!w.course || courseNames().includes(w.course)); return `<article class="trow two"><div class="body"><div class="title">${esc(w.title)}</div><div class="meta"><span class="tag ${ok ? 'study' : 'plain'}">${esc(w.course || '授業なし')}</span><span>${dur(w.min)}</span><span>${esc(weeklyStatus(w, true))}</span></div></div><button type="button" class="btn small" data-act="weekly-edit" data-id="${w.id}">編集</button></article>`; }).join('')}</div>` : '<div class="empty">まだありません。例：毎回の予習、金曜の授業で出て日曜が締切の課題、授業と関係ない毎週の小テストなど。</div>'}
+  <div><button type="button" class="btn" data-act="weekly-new">毎週の課題を追加</button></div></section>`;
 }
 /* 曜日ごとの授業と予定。重なっているものに印を付ける */
 function weekItems(){
@@ -2324,7 +2377,7 @@ function weekDeadlineList(mon, off){
   const rows = list.map(t => {
     const d = daysBetween(today, t.deadline), dd = parseYmd(t.deadline);
     const left = t.done ? '終わりました' : d < 0 ? `${-d}日過ぎています` : d === 0 ? '今日' : d === 1 ? 'あした' : `あと${d}日`;
-    return `<button type="button" class="wk-drow${t.done ? ' done' : ''}" data-act="edit-task" data-id="${t.id}"><span class="when"><b>${WD[dd.getDay()]} ${dd.getMonth() + 1}/${dd.getDate()}</b>${t.dueTime ? esc(t.dueTime) : '日付だけ'}</span><span class="ttl">${esc(t.title)}<small>${left}${!t.done && t.course && t.dueTime ? `・${esc(t.course)}の前` : ''}</small></span>${t.done ? '<span class="chk" aria-label="済み">✓</span>' : gradeTag(taskScore(t, d))}</button>`;
+    return `<button type="button" class="wk-drow${t.done ? ' done' : ''}" data-act="edit-task" data-id="${t.id}"><span class="when"><b>${WD[dd.getDay()]} ${dd.getMonth() + 1}/${dd.getDate()}</b>${t.dueTime ? esc(t.dueTime) : '日付だけ'}</span><span class="ttl">${esc(t.title)}<small>${left}${!t.done && atClass(t) ? `・${esc(t.course)}の前` : ''}</small></span>${t.done ? '<span class="chk" aria-label="済み">✓</span>' : gradeTag(taskScore(t, d))}</button>`;
   }).join('');
   return `<section class="sect"><h2 class="h2">${off === 0 ? '今週の締切' : 'この週の締切'}<span class="h2-sub">${list.length ? `${list.length}件${doneN ? `（済み${doneN}件）` : ''}` : ''}</span></h2>
   ${list.length ? `<div class="wk-dlist">${rows}</div>` : '<div class="empty">この週の締切はありません。</div>'}</section>`;
@@ -2354,7 +2407,7 @@ function showDlInfo(b){
   const t = S.tasks.find(x => x.id === b.dataset.id); if (!t) return;
   const d = daysBetween(todayStr(), t.deadline);
   const left = d < 0 ? `${-d}日過ぎています` : d === 0 ? '今日' : d === 1 ? 'あした' : `あと${d}日`;
-  placePop(b, `<b>${esc(t.title)}</b><br>締切 ${md(t.deadline)} ${esc(t.dueTime || '')}${t.course ? `<span class="sub">（${esc(t.course)}の前）</span>` : ''}
+  placePop(b, `<b>${esc(t.title)}</b><br>締切 ${md(t.deadline)} ${esc(t.dueTime || '')}${atClass(t) ? `<span class="sub">（${esc(t.course)}の前）</span>` : ''}
     <div class="prow">${gradeTag(taskScore(t, d))}<span>${left}・作業の目安 ${dur(effMin(t))}</span></div>
     <div class="pacts"><button type="button" data-act="open-done" data-kind="task" data-id="${t.id}">完了を記録</button><button type="button" class="g" data-act="edit-task" data-id="${t.id}">編集</button></div>`);
 }
@@ -2504,7 +2557,7 @@ const HELP = {
     '<b>予定</b>（青）：歯医者など、その時間に用事があるもの。「＋ 予定」か、やることの欄に「歯医者 10/22 16時-17時」のように書くと入ります。',
     '<b>この時間にやる</b>（ピンクの点線）：時刻を決めたやること。その日にできなかったら、次の日からは空き時間に自動で入ります。',
     'やることの名前に授業名を入れると（例：「ライリス 課題」）、次の授業を締切にします。',
-    '<b>毎週の課題</b>：毎週出る課題を登録すると、授業が終わったときに「次の授業まで」の課題として自動で入ります。休講の週は、入った課題を消してください。',
+    '<b>毎週の課題</b>：毎週出る課題を登録すると、自動でやることに入ります。締切は「次の授業まで」のほか、「毎週日曜 23:59」のような決まった曜日・時刻にもできます（例：金4の授業で出て、日曜が締切）。授業と関係ない課題は「授業なし」にすると、締切が過ぎるたびに次の週の分が入ります。休講の週は、入った課題を消してください。',
     '予定が重なると「!」が出ます。締切の ▶ は、赤があしたまでです。']; }},
   plan:{t:'今日の段取りって？', b:['授業・バイト・シフト・予定のない空き時間に、締切が近くて大事なものから順に入れています。', 'ピンクの枠は「この時間にやる」。決めた時間にそのまま入ります。', '上から順に進めるのがおすすめ。順番どおりにできなくても、開くたびに「今から」の時間で組み直します。', '入りきらないものは、あした以降に回ります。「元気／ふつう／お疲れ」で、その日にやる量が変わります。']},
   prio:{t:'並び順の見方', b:['優先度の高い順です。左のマークが優先度で、SS（今すぐ）からE（いつでもよい）までの7段階。締切までの日数・かかる時間・重要度から計算しています。'], grades:true},
@@ -2528,10 +2581,10 @@ function sheetHTML(sh){
       <div class="sh-acts"><button type="submit" class="btn primary">追加する</button>${cancel}</div>`;
     case 'task': {
       const t = sh.id ? S.tasks.find(x => x.id === sh.id) : null;
-      const v = t ? {title:t.title, cat:t.cat, deadline:t.deadline, min:t.remaining, imp:t.imp, editing:true, note:t.dueTime ? `締切は ${dueText(t)} です（授業が始まる前まで）` : ''} : {title:'', cat:'study', deadline:sh.deadline || '', min:60, imp:2};
+      const v = t ? {title:t.title, cat:t.cat, deadline:t.deadline, min:t.remaining, imp:t.imp, editing:true, note:t.dueTime ? `締切は ${dueText(t)} です${atClass(t) ? '（授業が始まる前まで）' : ''}` : ''} : {title:'', cat:'study', deadline:sh.deadline || '', min:60, imp:2};
       const wc = t && !t.weekly ? (t.course && courseNames().includes(t.course) ? t.course : matchCourse(t.title)) : null;
       return `<h2 class="sh-title">${t ? 'やることを編集' : 'やることを追加'}</h2>${taskFields(0, v)}
-      ${wc ? `<button type="button" class="link" data-act="weekly-from-task" data-id="${t.id}">毎週出る課題なら：「${esc(wc)}」の毎週の課題にする</button>` : ''}
+      ${t && !t.weekly && !t.done && (wc || t.cat === 'study') ? `<button type="button" class="link" data-act="weekly-from-task" data-id="${t.id}">${wc ? `毎週出る課題なら：「${esc(wc)}」の毎週の課題にする` : '毎週出る課題なら：毎週の課題にする'}</button>` : ''}
       ${t && !t.done ? `<button type="button" class="link" data-act="pin-edit" data-id="${t.id}">${t.pin ? `この時間にやる：${esc(dayWord(t.pin.date))} ${esc(t.pin.start)}〜${esc(t.pin.end)}（変える）` : '時間を決めてやる（この時間にやる）'}</button>` : ''}
       ${t && t.weekly ? '<p class="note">この課題は「毎週の課題」から自動で入りました。設定は時間割の画面で変えられます。</p>' : ''}
       <div class="sh-acts"><button type="submit" class="btn primary">保存</button>${t ? `<button type="button" class="btn" data-act="open-done" data-kind="task" data-id="${t.id}">完了を記録</button><button type="button" class="btn danger" data-act="del" data-what="task" data-id="${t.id}">削除</button>` : ''}${cancel}</div>`;
@@ -2665,19 +2718,24 @@ function sheetHTML(sh){
     case 'weekly': {
       const w = sh.id ? S.weekly.find(x => x.id === sh.id) : null;
       const names = courseNames();
-      const v = w || {course:sh.course && names.includes(sh.course) ? sh.course : names[0] || '', title:sh.title || '', min:sh.min || 60, imp:sh.imp || 2, per:'class', on:true};
-      if (!v.title) v.title = v.course ? `${v.course} 課題` : '';
+      const v = sh.draft || (w ? {...w} : {course:sh.course != null && (sh.course === '' || names.includes(sh.course)) ? sh.course : names[0] || '', title:sh.title || '', min:sh.min || 60, imp:sh.imp || 2, per:'class', on:true, due:sh.due || 'class', dueWd:sh.dueWd, dueTime:sh.dueTime});
+      if (!sh.draft && !v.title && v.course) v.title = `${v.course} 課題`;
+      const fixed = wDue(v) === 'fixed', lost = v.course && !names.includes(v.course);
+      const pv = lost ? '' : weeklyPreview(v);
       return `<h2 class="sh-title">${w ? '毎週の課題を編集' : '毎週の課題を追加'}</h2>
-      <p class="note">授業が終わると、次の授業までが締切の課題として、やることに自動で入ります。</p>
-      <div class="f"><label for="wk-course">授業</label><select id="wk-course" name="wk-course" data-prev="${esc(v.course)}">${names.map(c => `<option value="${esc(c)}" ${c === v.course ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></div>
-      <div class="f"><label for="wk-title">課題の名前</label><input id="wk-title" name="wk-title" type="text" maxlength="40" value="${esc(v.title)}"></div>
-      <div class="f2"><div class="f"><label for="wk-min">作業時間の目安（分）</label><input id="wk-min" name="wk-min" type="number" inputmode="numeric" min="5" max="600" step="5" value="${v.min}"></div>
-      <div class="f"><label for="wk-per">授業が週2回以上あるとき</label><select id="wk-per" name="wk-per"><option value="class" ${v.per !== 'week' ? 'selected' : ''}>授業のたびに追加</option><option value="week" ${v.per === 'week' ? 'selected' : ''}>週1回（最初の授業のあと）</option></select></div></div>
+      <p class="note">毎週出る課題を登録すると、やることに自動で入ります。</p>
+      <div class="f"><label for="wk-course">授業</label><select id="wk-course" name="wk-course" data-prev="${esc(v.course || '')}">${names.map(c => `<option value="${esc(c)}" ${c === v.course ? 'selected' : ''}>${esc(c)}</option>`).join('')}${lost ? `<option value="${esc(v.course)}" selected>${esc(v.course)}（時間割にありません）</option>` : ''}<option value="" ${!v.course ? 'selected' : ''}>授業なし（授業と関係ない毎週の課題）</option></select></div>
+      <div class="f"><label for="wk-title">課題の名前</label><input id="wk-title" name="wk-title" type="text" maxlength="40" value="${esc(v.title || '')}" placeholder="例：英語の小テスト"></div>
+      <div class="f"><label for="wk-due">締切</label><select id="wk-due" name="wk-due">${v.course ? `<option value="class" ${!fixed ? 'selected' : ''}>次の授業まで</option>` : ''}<option value="fixed" ${fixed ? 'selected' : ''}>毎週決まった曜日・時刻（例：日曜 23:59）</option></select></div>
+      ${fixed ? `<div class="f2"><div class="f"><label for="wk-dwd">締切の曜日</label><select id="wk-dwd" name="wk-dwd">${[1,2,3,4,5,6,0].map(d => `<option value="${d}" ${wDueWd(v) === d ? 'selected' : ''}>${WD[d]}曜</option>`).join('')}</select></div><div class="f"><label for="wk-dtime">締切の時刻</label><input id="wk-dtime" name="wk-dtime" type="time" value="${wDueTime(v)}"></div></div>` : ''}
+      ${pv ? `<p class="note wk-pv">→ ${esc(pv)}</p>` : ''}
+      ${v.course ? `<div class="f2"><div class="f"><label for="wk-min">作業時間の目安（分）</label><input id="wk-min" name="wk-min" type="number" inputmode="numeric" min="5" max="600" step="5" value="${v.min}"></div>
+      <div class="f"><label for="wk-per">授業が週2回以上あるとき</label><select id="wk-per" name="wk-per"><option value="class" ${v.per !== 'week' ? 'selected' : ''}>授業のたびに追加</option><option value="week" ${v.per === 'week' ? 'selected' : ''}>週1回（最初の授業のあと）</option></select></div></div>` : `<div class="f"><label for="wk-min">作業時間の目安（分）</label><input id="wk-min" name="wk-min" type="number" inputmode="numeric" min="5" max="600" step="5" value="${v.min}"></div>`}
       <div class="f"><span class="flabel">重要度</span><div class="seg" role="radiogroup" aria-label="重要度">${[1,2,3].map(n => `<label class="segopt"><input type="radio" name="wk-imp" value="${n}" ${(v.imp || 2) === n ? 'checked' : ''}><span>${['','低い','ふつう','高い'][n]}</span></label>`).join('')}</div></div>
       <label class="tog" for="wk-on"><input id="wk-on" name="wk-on" type="checkbox" ${v.on ? 'checked' : ''}>自動で追加する（夏休みなどは外しておく）</label>
-      ${!w && !sh.fromTask ? '<label class="tog" for="wk-now"><input id="wk-now" name="wk-now" type="checkbox" checked>今週の分もすぐ追加する（前回の授業で出た課題）</label>' : ''}
+      ${!w && !sh.fromTask ? `<input type="hidden" name="wk-hasnow" value="1"><label class="tog" for="wk-now"><input id="wk-now" name="wk-now" type="checkbox" ${v.now !== false ? 'checked' : ''}>${v.course ? '今週の分もすぐ追加する（前回の授業で出た課題）' : '今週の分もすぐ追加する（次の締切の分）'}</label>` : ''}
       ${sh.fromTask ? '<p class="note">いま編集していた課題を、今週の分として扱います。</p>' : ''}
-      <p class="note">締切は「設定」の「授業の課題の締切」に合わせます（今は：${S.settings.courseDue === 'daybefore' ? '次の授業の前日まで' : '次の授業が始まる前まで'}）。</p>
+      <p class="note">${!v.course ? '締切が過ぎると、次の週の分が自動で入ります。休みの週は、入った課題を消してください。' : fixed ? `授業が終わると、そのあとの最初の${WD[wDueWd(v)]}曜 ${wDueTime(v)}を締切にして入ります。` : `締切は「設定」の「授業の課題の締切」に合わせます（今は：${S.settings.courseDue === 'daybefore' ? '次の授業の前日まで' : '次の授業が始まる前まで'}）。`}</p>
       <div class="sh-acts"><button type="submit" class="btn primary">保存</button>${w ? `<button type="button" class="btn danger" data-act="del" data-what="weekly" data-id="${w.id}">削除</button>` : ''}${cancel}</div>`;
     }
     case 'transfer': {
@@ -2868,26 +2926,30 @@ async function sheetSubmit(submitter){
       closeSheet(); commit(); toast('シフトを直しました'); return;
     }
     case 'weekly': {
-      const course = String(fd.get('wk-course') || '');
-      if (!courseNames().includes(course)){ toast('授業を選んでください'); return; }
-      const title = String(fd.get('wk-title') || '').trim().slice(0, 40) || `${course} 課題`;
-      const v = {course, title, min:clamp(round5(fd.get('wk-min')), 5, 600), imp:clamp(Number(fd.get('wk-imp')) || 2, 1, 3), per:fd.get('wk-per') === 'week' ? 'week' : 'class', on:fd.get('wk-on') === 'on'};
+      const old = sh.id ? S.weekly.find(x => x.id === sh.id) : null;
+      if (sh.id && !old) return;
+      const v = readWeeklyForm(fd, sh.draft || old), now = v.now;
+      delete v.now;
+      if (v.course && !courseNames().includes(v.course)){ toast('授業を選んでください（授業と関係ない課題は「授業なし」）'); return; }
+      if (!v.title) v.title = v.course ? `${v.course} 課題` : '';
+      if (!v.title){ toast('課題の名前を入れてください'); return; }
+      const title = v.title;
       let w;
-      if (sh.id){
-        w = S.weekly.find(x => x.id === sh.id); if (!w) return;
-        const moved = w.course !== v.course || w.per !== v.per;
+      if (old){
+        w = old;
+        const moved = w.course !== v.course || w.per !== v.per || wDue(w) !== wDue(v) || (wDue(v) === 'fixed' && (wDueWd(w) !== v.dueWd || wDueTime(w) !== v.dueTime));
         Object.assign(w, v);
-        // 授業を変えたときは、すでに終わった回の分をさかのぼって入れない
-        if (moved){ const o = lastEndedClass(w, todayStr(), nowMin()); w.lastKey = o ? o.key : null; }
+        // 授業や締切を変えたときは、いま出ている回の分を二重に入れない
+        if (moved){ const o = currentOcc(w, todayStr(), nowMin()); w.lastKey = o ? o.key : null; }
       } else {
         w = {id:newId(), ...v, lastKey:null};
         S.weekly.push(w);
-        const o = lastEndedClass(w, todayStr(), nowMin());
+        const o = currentOcc(w, todayStr(), nowMin());
         if (sh.fromTask){
           const t = S.tasks.find(x => x.id === sh.fromTask);
-          if (t){ t.weekly = w.id; t.occ = o ? o.key : null; t.course = course; }
+          if (t){ t.weekly = w.id; t.occ = o ? o.key : null; t.course = v.course || null; }
           w.lastKey = o ? o.key : null;
-        } else if (fd.get('wk-now') !== 'on') w.lastKey = o ? o.key : null;
+        } else if (!now) w.lastKey = o ? o.key : null;
       }
       const made = runWeekly().made;
       closeSheet(); commit();
@@ -3128,9 +3190,9 @@ function onClick(e){
     case 'weekly-edit': openSheet({type:'weekly', id:b.dataset.id}); break;
     case 'weekly-from-task': {
       const t = S.tasks.find(x => x.id === b.dataset.id); if (!t) break;
-      const course = t.course && courseNames().includes(t.course) ? t.course : matchCourse(t.title);
-      if (!course){ toast('時間割の授業が見つかりません'); break; }
-      openSheet({type:'weekly', course, title:t.title.replace(/（\d+\/\d+の回）$/, ''), min:t.est || 60, imp:t.imp || 2, fromTask:t.id});
+      const course = (t.course && courseNames().includes(t.course) ? t.course : matchCourse(t.title)) || '';
+      const fx = !course ? {due:'fixed', dueWd:t.deadline ? parseYmd(t.deadline).getDay() : 0, dueTime:t.dueTime || '23:59'} : {};
+      openSheet({type:'weekly', course, title:t.title.replace(/（\d+\/\d+(の回|締切)）$/, ''), min:t.est || 60, imp:t.imp || 2, fromTask:t.id, ...fx});
       break;
     }
     case 'tr-make': trMake().catch(err => { console.error(err); toast('コードを作れませんでした'); }); break;
@@ -3172,10 +3234,17 @@ document.addEventListener('change', e => {
     const li = formEl.querySelector('#j-label');
     if (li && (!li.value.trim() || Object.values(JOB_KIND).includes(li.value.trim()))) li.value = JOB_KIND[e.target.value] || '';
   }
-  if (e.target.id === 'wk-course'){
-    const ti = formEl.querySelector('#wk-title'), prev = e.target.dataset.prev || '';
-    if (ti && (!ti.value.trim() || ti.value === `${prev} 課題`)) ti.value = `${e.target.value} 課題`;
-    e.target.dataset.prev = e.target.value;
+  if (UI.sheet && UI.sheet.type === 'weekly' && ['wk-course', 'wk-due', 'wk-dwd', 'wk-dtime', 'wk-per'].includes(e.target.id)){
+    const sh = UI.sheet, prev = formEl.querySelector('#wk-course') ? formEl.querySelector('#wk-course').dataset.prev || '' : '';
+    if (e.target.id === 'wk-course'){
+      const ti = formEl.querySelector('#wk-title');
+      if (ti && (!ti.value.trim() || ti.value === `${prev} 課題`)) ti.value = e.target.value ? `${e.target.value} 課題` : '';
+    }
+    const w = sh.id ? S.weekly.find(x => x.id === sh.id) : null;
+    sh.draft = readWeeklyForm(new FormData(formEl), sh.draft || w);
+    // 「授業なし」から授業を選び直したときは、ふだんの「次の授業まで」に戻す
+    if (e.target.id === 'wk-course' && !prev && e.target.value) sh.draft.due = 'class';
+    renderSheet();
   }
   if (e.target.id === 'tr-filein' && e.target.files && e.target.files[0]){
     const file = e.target.files[0];
