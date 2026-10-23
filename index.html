@@ -34,7 +34,7 @@
   --other:#E5853F; --other-soft:#FFEDE1;
   --busy:#E9CFDC;
   --marker:#FFC4DC;
-  --warn:#E04375; --warn-soft:#FFE4EC;
+  --warn:#E04375; --warn-soft:#FFE4EC; --sun:#C8561A; --sun-btn:#FF8A3D; --sun-btn-ink:#3A1A05;
   --focus:#7C6CF2;
   --scrim:rgba(40,20,40,.42);
   --edit:#FFF8D6; --edit-line:#E3C445; --edit-ink:#8A6D00;
@@ -58,7 +58,7 @@
     --other:#F7B488; --other-soft:#3A2A1F;
     --busy:#4B3F57;
     --marker:#7A3558;
-    --warn:#FF86A8; --warn-soft:#41202E;
+    --warn:#FF86A8; --warn-soft:#41202E; --sun:#FFA066; --sun-btn:#FF8A3D; --sun-btn-ink:#3A1A05;
     --focus:#ADA2FF;
     --scrim:rgba(0,0,0,.6);
     --edit:#28220F; --edit-line:#7A6B22; --edit-ink:#E8CF5A;
@@ -79,7 +79,7 @@
   --other:#F7B488; --other-soft:#3A2A1F;
   --busy:#4B3F57;
   --marker:#7A3558;
-  --warn:#FF86A8; --warn-soft:#41202E;
+  --warn:#FF86A8; --warn-soft:#41202E; --sun:#FFA066; --sun-btn:#FF8A3D; --sun-btn-ink:#3A1A05;
   --focus:#ADA2FF;
   --scrim:rgba(0,0,0,.6);
   --edit:#28220F; --edit-line:#7A6B22; --edit-ink:#E8CF5A;
@@ -551,6 +551,67 @@ button.yrow{cursor:pointer}
 .bubble .mline b.ok{color:var(--life);background:none;padding:0}
 .bubble .mline b.ng{color:var(--accent-text);background:none;padding:0}
 .cond{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+/* ナマケ先輩のカード（1行） */
+.morning.mini{grid-template-columns:52px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px 10px 10px}
+.morning.mini .sq{width:52px;height:58px;overflow:hidden}
+.morning.mini .sq svg{width:60px;height:auto;display:block;margin:-3px 0 0 -4px}
+.mtext .mline{margin:0;font-size:15px;font-weight:700;line-height:1.35}
+.mtext .nw{white-space:nowrap}
+.mtext .msub{margin:2px 0 0;font-size:12.5px;color:var(--ink-2);line-height:1.45}
+.mtext b.ok{color:var(--life)} .mtext b.ng{color:var(--accent-text)}
+.condsel{position:relative;display:block}
+.condsel select{appearance:none;-webkit-appearance:none;width:auto;min-height:34px;padding:4px 26px 4px 12px;border-radius:999px;background:var(--sunk);font-size:13px;font-weight:700;color:var(--ink-2);cursor:pointer}
+.condsel::after{content:"▾";position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--ink-2);pointer-events:none}
+/* お知らせを1行にたたんだもの */
+.alert1{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;text-align:left;border:0;border-radius:10px;background:var(--warn-soft);padding:11px 14px;font:inherit;font-size:14px;color:var(--ink);cursor:pointer}
+.alert1 b{color:var(--warn)}
+.alert1.lv1{background:var(--sunk)} .alert1.lv1 b{color:var(--ink-2)}
+.alert1 span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--ink-2)}
+.alert1 i{font-style:normal;font-weight:700;color:var(--ink-3)}
+.alerts-fold{justify-self:end;font-size:13px;margin-top:-4px}
+.adder.slim{padding:8px}
+/* 朝の「まずは、これだけ」 */
+.first{display:grid;gap:12px;padding:16px 16px 12px;border-radius:var(--radius);background:linear-gradient(160deg, rgba(255,138,61,.20) 0%, rgba(255,138,61,0) 70%), var(--surface);border:2px solid rgba(255,138,61,.55)}
+.fhi{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--ink-2)}
+.fhi b{font-family:var(--font-display);font-weight:400;font-size:19px;color:var(--sun)}
+.fdone{font-size:13px;font-weight:700;color:var(--life)}
+.flb{font-size:13px;font-weight:700;color:var(--sun)}
+.ftk{font-size:22px;font-weight:900;line-height:1.35;color:var(--ink);margin-top:2px}
+.fsub{font-size:12.5px;color:var(--ink-2);line-height:1.5;margin-top:4px}
+.fgo{border:0;border-radius:999px;padding:13px;font:inherit;font-weight:900;font-size:16px;color:var(--sun-btn-ink);background:var(--sun-btn);box-shadow:0 4px 0 rgba(160,60,10,.45);cursor:pointer}
+.falts{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
+.falt{font-size:13px;justify-self:center}
+/* 優先度：左の線の色（赤＝今日やる／黄＝今週中／灰＝余裕あり） */
+.p1{--pc:var(--warn)} .p2{--pc:#E9A23B} .p3{--pc:var(--ink-3)}
+.lvbar{border-left:6px solid var(--pc)!important}
+.trow.lvbar{grid-template-columns:minmax(0,1fr);cursor:pointer}
+.trow.lvbar:active{background:var(--sunk)}
+.trow .meta .one.u,.mtx .why.u{color:var(--warn);font-weight:700}
+.hotx{font-size:12px;font-weight:700;color:var(--warn)}
+.wk2{display:inline-block;font-size:11px;font-weight:700;color:var(--ink-3);border:1px solid var(--line);border-radius:5px;padding:0 5px;margin-left:6px;vertical-align:2px}
+.pgrp{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--ink-2);margin:6px 2px -2px}
+.pgrp:first-child{margin-top:0}
+.pgrp i{width:10px;height:10px;border-radius:50%;background:var(--pc)}
+.pgrp small{font-size:12px;font-weight:500;color:var(--ink-3)}
+.prio{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--ink-2);white-space:nowrap}
+.prio i{width:8px;height:8px;border-radius:50%;background:var(--pc)}
+.prio.p1{color:var(--warn)}
+.mtx{font-size:13px;color:var(--ink-2)}
+/* 「くわしい設定 ›」「毎週の課題 ›」のような、押すと開く1行 */
+.more-row{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:46px;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font:inherit;font-size:14px;color:var(--ink-2);text-align:left;cursor:pointer}
+.more-row b{color:var(--ink)}
+.more-row .sub{margin-left:10px}
+.more-row .sub.u{color:var(--warn);font-weight:700}
+.more-row + .more-row{margin-top:-4px}
+.wk-dlt{display:flex;align-items:baseline;justify-content:space-between}
+.more-box{display:grid;gap:12px}
+.more-box[hidden]{display:none}
+.sh-title .qm{margin-left:8px;vertical-align:3px}
+.pick{display:grid;gap:8px}
+.pickbtn{display:grid;gap:2px;width:100%;text-align:left;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font:inherit;color:var(--ink);cursor:pointer}
+.pickbtn b{font-size:16px}
+.pickbtn span{font-size:13px;color:var(--ink-2)}
+.item .meta .tag + .mtx{margin-left:2px}
 .cond>span{font-size:12px;font-weight:700;color:var(--ink-2)}
 .alert:has(.mini){grid-template-columns:34px 1fr;align-items:center}
 .alert .mini svg{width:40px;height:40px;display:block;margin:-6px -3px}
@@ -1350,6 +1411,13 @@ const GRADES = [
 ];
 const gradeOf = s => GRADES.find(x => s >= x.min).g;
 const gradeTag = (s, big) => { const g = gradeOf(s); return `<span class="grade g-${g}${big ? ' big' : ''}" title="優先度 ${g}">${g}</span>`; };
+// 見せるときは3つにまとめる（点数の計算は GRADES と同じ）。左の色の線と「今日やる」などの言葉で表す
+const PRIO = [
+  {lv:1, min:8, name:'今日やる', sub:'今日のうちに', desc:'締切が今日か、過ぎている。時間がかかるものは早めにここに入ります'},
+  {lv:2, min:1.8, name:'今週中', sub:'あした〜今週', desc:'あしたから今週のうちに'},
+  {lv:3, min:-Infinity, name:'余裕あり', sub:'来週以降でOK', desc:'締切が来週以降、または締切のないもの'}];
+const prioOf = s => PRIO.find(x => s >= x.min);
+const prioTag = s => { const p = prioOf(s); return `<span class="prio p${p.lv}" title="優先度：${p.name}"><i aria-hidden="true"></i>${p.name}</span>`; };
 
 function itemsFor(date){
   const items = [];
@@ -1510,6 +1578,7 @@ function streakInfo(){
 function recordDone(kind, id, act, how, amount){
   const today = todayStr();
   UI.undo = JSON.stringify(S);
+  if (S.firstRun && S.firstRun.id === id) S.firstRun = null;
   act = clamp(Math.round(Number(act) || 0), 1, 600);
   const firstToday = !((S.doneDays || {})[today] > 0);
   let msg, goalDone = '', gLeft = 0;
@@ -1715,7 +1784,7 @@ function render(){
 }
 function header(){
   const chip = {loading:'準備中', cloud:'クラウドに保存', local:'この端末に保存'}[store.mode];
-  return `<header class="top"><span class="logo">ダンドリ</span><span class="sync ${store.mode}">${chip}</span><button class="btn ghost small" type="button" data-act="settings">設定</button></header>`
+  return `<header class="top"><span class="logo">ダンドリ</span>${store.mode === 'loading' ? `<span class="sync ${store.mode}">${chip}</span>` : '<span></span>'}<button class="btn ghost small" type="button" data-act="settings">設定</button></header>`
     + (S.sample ? `<div class="samplebar"><span>サンプルデータを表示しています</span><button class="btn small" type="button" data-act="clear-sample">消して自分の予定を入れる</button></div>` : '')
     + inAppBar() + a2hsBar();
 }
@@ -1821,33 +1890,65 @@ function senpai(expr = 'normal', crop = 'full'){
   return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${g}</svg>`;
 }
 
-/* 朝の「3秒チェック」：ナマケ先輩が、今日やる量をひとことで言う */
+/* 朝の「3秒チェック」：ナマケ先輩が、今日やる量をひとことで言う（1行のカード。調子もここで選ぶ） */
 function senpaiCard(P, date, isToday, total){
-  const h = new Date().getHours(), cond = condOf(date);
+  const cond = condOf(date), day = isToday ? '今日' : 'あした';
   const doneToday = (S.doneDays || {})[todayStr()] || 0;
-  let face = 'normal', greet, line;
-  if (isToday){
-    greet = h < 4 ? 'まだ起きてるの？' : h < 11 ? 'おはよ。' : h < 17 ? 'おつかれ。' : 'こんばんは。';
-    if (P.plan.length && !P.overflow.length) line = `今日は <b>${P.plan.length}件・${dur(total)}</b>。<br>空き時間に<b class="ok">収まる</b>から、さっさと終わらせて昼寝しよ。`;
-    else if (P.plan.length){ line = `時間が足りないから、<b>${P.plan.length}件</b>に<b class="ng">しぼった</b>。<br>残り${P.overflow.length}件は、あしたでいいよ。`; }
-    else if (P.overflow.length || P.freeTotal < 15) line = '今日はもう空き時間がないね。<br>あしたの段取りだけ見とこ。';
-    else if (doneToday){ face = 'sleep'; greet = 'おつかれ。'; line = '今日のぶんは<b>ぜんぶ終わり</b>。<br>えらい。じゃ、おやすみ。'; }
-    else { face = 'sleep'; line = '今日はゆったりの日。<br>休むのも段取りのうち。'; }
-  } else {
-    greet = 'あしたの話。';
-    line = P.plan.length ? `あしたは <b>${P.plan.length}件・${dur(total)}</b>。${P.overflow.length ? `<br>入りきらない${P.overflow.length}件は、あさって以降に回すね。` : '<br>先に見ておくと、気がラク。'}` : 'あしたは、やることなし。<br>…最高。';
-    if (!P.plan.length) face = 'sleep';
-  }
-  const st = streakInfo();
-  const sline = st.n === 0 ? '1つ終わらせるとスタート' : st.todayDone ? `今日も進めた。ベストは${st.best}日` : `今日1つ終わらせると${st.n + 1}日目`;
-  return `<section class="morning" aria-label="${isToday ? '今日のまとめ' : 'あしたのまとめ'}">
-    <div class="sq-row"><div class="sq">${senpai(face, 'card')}</div><div class="bubble"><p class="greet">${greet}</p><p class="mline">${line}</p></div></div>
-    <div class="cond"><span>${isToday ? '今日' : 'あした'}の調子</span><div class="seg" role="group" aria-label="コンディション">${Object.keys(COND).map(k => segBtn('cond', k, COND[k].label, k === cond, `data-date="${date}"`)).join('')}</div></div>
-    ${isToday ? `<div class="streak">
-      <div class="snum"><b>${st.n}</b><span>日</span></div>
-      <div class="stext"><span class="slabel">やった記録</span><span>${sline}</span></div>
-    </div>` : ''}
+  let face = 'normal', main, sub;
+  if (P.plan.length && !P.overflow.length){ main = `${day}は <span class="nw">${P.plan.length}件・${dur(total)}</span>`; sub = '空き時間に<b class="ok">収まる</b>'; }
+  else if (P.plan.length){ main = `${day}は <b class="ng">${P.plan.length}件にしぼった</b>`; sub = `残り${P.overflow.length}件は${isToday ? 'あした' : 'あさって'}以降に回すね`; }
+  else if (isToday && (P.overflow.length || P.freeTotal < 15)){ main = '今日はもう空き時間なし'; sub = 'あしたの段取りだけ見とこ'; }
+  else if (isToday && doneToday){ face = 'sleep'; main = '今日のぶんは<b class="ok">ぜんぶ終わり</b>'; sub = 'えらい。じゃ、おやすみ'; }
+  else if (isToday){ face = 'sleep'; main = '今日はゆったりの日'; sub = '休むのも段取りのうち'; }
+  else { face = 'sleep'; main = 'あしたは、やることなし'; sub = '…最高'; }
+  if (isToday){ const st = streakInfo(); sub += `・記録 ${st.n}日`; }
+  return `<section class="morning mini" aria-label="${day}のまとめ">
+    <div class="sq">${senpai(face, 'card')}</div>
+    <div class="mtext"><p class="mline">${main}</p><p class="msub">${sub}</p></div>
+    <label class="condsel"><span class="sr">${day}の調子</span><select data-cond="${date}">${Object.keys(COND).map(k => `<option value="${k}" ${k === cond ? 'selected' : ''}>${COND[k].label}</option>`).join('')}</select></label>
   </section>`;
+}
+/* 朝の「まずは、これだけ」：起きたら、今やることを1つだけ決めて出す（4時〜11時） */
+const FIRST_FROM = 4 * 60, FIRST_TO = 11 * 60, FIRST_CHUNK = 20;
+function firstPick(P, today){
+  const skip = S.firstSkip && S.firstSkip.d === today ? S.firstSkip.ids : [];
+  return P.plan.filter(p => !p.ev && !p.pinned && p.id && !skip.includes(p.id)).sort((a, b) => b.score - a.score)[0] || null;
+}
+function firstChunk(p){
+  if (p.kind === 'task'){ const total = effMin(p.ref); const n = total > FIRST_CHUNK + 5 ? FIRST_CHUNK : total; return {n, total, split:n < total}; }
+  return {n:p.min, total:p.min, split:false};
+}
+function firstCard(P, isToday){
+  const today = todayStr(), now = nowMin();
+  if (!isToday || now < FIRST_FROM || now >= FIRST_TO || S.firstOff === today) return '';
+  const run = S.firstRun && S.firstRun.d === today ? S.firstRun : null;
+  if (run){
+    const list = run.kind === 'routine' ? S.routines : run.kind === 'goal' ? (S.goals || []) : S.tasks, x = list.find(y => y.id === run.id);
+    if (x) return `<section class="first" aria-label="いまやっていること"><div class="fhi"><b>やってる途中</b><span class="mono">${clock(run.start)}〜${clock(run.end)}</span></div>
+      <div><div class="flb">いまは、これだけ</div><div class="ftk">${esc(run.title)}</div></div>
+      <button type="button" class="fgo" data-act="done" data-kind="${run.kind}" data-id="${run.id}" data-min="${run.min}"${run.q ? ` data-q="${run.q}"` : ''}>できた（記録する）</button>
+      <button type="button" class="link falt" data-act="first-stop">やめる</button></section>`;
+  }
+  const p = firstPick(P, today);
+  const doneN = (S.doneDays || {})[today] || 0, last = doneN ? S.log.filter(l => l.d === today).slice(-1)[0] : null;
+  if (!p) return doneN ? '' : '';
+  const c = firstChunk(p), title = c.split ? `${p.title}を${c.n}分` : /）$/.test(p.title) ? `${p.title} ${dur(c.n)}` : `${p.title}（${dur(c.n)}）`;
+  const sub = `${esc(p.why)}${c.split ? `。全部で${dur(c.total)}のうち、最初の${c.n}分だけ` : ''}`;
+  return `<section class="first" aria-label="今朝やること">
+    ${last ? `<div class="fdone">✓ ${esc(last.title)} できた</div>` : `<div class="fhi"><b>おはよ。</b><span class="mono">${clock(now)}</span></div>`}
+    <div><div class="flb">${last ? '次は、これだけ' : 'まずは、これだけ'}</div><div class="ftk">${esc(title)}</div><div class="fsub">${sub}</div></div>
+    <button type="button" class="fgo" data-act="first-start" data-kind="${p.kind}" data-id="${p.id}" data-min="${c.n}" data-title="${esc(title)}"${p.kind === 'goal' && p.q ? ` data-q="${p.q}"` : ''}>始める（${dur(c.n)}）</button>
+    <div class="falts"><button type="button" class="link falt" data-act="first-skip" data-id="${p.id}">今はむり。別のにする</button>${last ? '<button type="button" class="link falt" data-act="first-off">今日はここまで</button>' : ''}</div>
+  </section>`;
+}
+/* お知らせ：2件以上あるときは「要注意 N件 ›」の1行にたたむ（押すと開く） */
+function alertsHTML(al){
+  if (!al.length) return '';
+  const full = `<section class="alerts" aria-label="要注意">${al.map(a => `<div class="alert lv${a.lv}">${a.lv >= 2 ? `<span class="mini" role="img" aria-label="${a.label}">${senpai('panic', 'head')}</span>` : `<b>${a.label}</b>`}<span>${a.html}</span></div>`).join('')}</section>`;
+  if (al.length < 2) return full;
+  if (UI.alertsOpen) return full + '<button type="button" class="link alerts-fold" data-act="alerts-toggle" aria-expanded="true">たたむ</button>';
+  const hot = al.some(a => a.lv >= 2), first = String(al[0].html).replace(/<[^>]*>/g, '').split('｜')[0];
+  return `<button type="button" class="alert1${hot ? '' : ' lv1'}" data-act="alerts-toggle" aria-expanded="false"><b>${hot ? '要注意' : 'お知らせ'} ${al.length}件</b><span>${first} ほか</span><i aria-hidden="true">›</i></button>`;
 }
 function todayView(){
   if (!hasData(S)) return onboarding();
@@ -1862,16 +1963,17 @@ function todayView(){
     <h1 class="date"><button type="button" class="datebtn" data-act="mcal" data-d="${date}" aria-label="${md(date)}。押すと月のカレンダーを開きます">${CAL_ICON}${md(date)}<span class="car" aria-hidden="true">▼</span></button></h1>
     <div class="seg" role="group" aria-label="表示する日">${segBtn('day','today','今日',isToday)}${segBtn('day','tomorrow','あした',!isToday)}</div>
   </section>
+  ${firstCard(P, isToday)}
   ${senpaiCard(P, date, isToday, studyMin + lifeMin)}
   ${isToday ? gcalChip() : ''}
   ${isToday ? backupCard(today) : ''}
-  ${al.length ? `<section class="alerts" aria-label="要注意">${al.map(a => `<div class="alert lv${a.lv}">${a.lv >= 2 ? `<span class="mini" role="img" aria-label="${a.label}">${senpai('panic', 'head')}</span>` : `<b>${a.label}</b>`}<span>${a.html}</span></div>`).join('')}</section>` : ''}
-  ${adder()}
+  ${alertsHTML(al)}
+  ${adder(true)}
   <section class="sect">
     <h2 class="h2">${isToday ? '今日の段取り' : 'あしたの段取り'}<button type="button" class="qm" data-act="help" data-k="plan" aria-label="段取りの説明">?</button><span class="h2-sub">${P.plan.length ? `${P.plan.length}件・${dur(studyMin + lifeMin)}` : ''}</span></h2>
     ${P.plan.length ? `<div class="plan">${planList(P.plan, isToday, dayEvents(date, isToday))}</div>` : emptyPlan(P, isToday)}
   </section>
-  ${P.overflow.length ? `<section class="sect"><h2 class="h2">入りきらなかったもの<span class="h2-sub">${isToday ? 'あした以降に回ります' : 'あさって以降に回ります'}</span></h2><div class="rest">${P.overflow.map(o => `<div class="rrow"><span class="title">${esc(o.title)}</span><span class="meta">${gradeTag(o.score)}<span>${esc(o.why)}</span><span class="num">${dur(o.min)}</span></span></div>`).join('')}</div></section>` : ''}
+  ${P.overflow.length ? `<section class="sect"><h2 class="h2">入りきらなかったもの<span class="h2-sub">${isToday ? 'あした以降に回ります' : 'あさって以降に回ります'}</span></h2><div class="rest">${P.overflow.map(o => `<div class="rrow"><span class="title">${esc(o.title)}</span><span class="meta">${prioTag(o.score)}<span>${esc(o.why)}</span><span class="num">${dur(o.min)}</span></span></div>`).join('')}</div></section>` : ''}
   ${isToday ? doneToday(today) : ''}`;
 }
 /* その日の予定（自分で入れたもの＋Googleから読み込んだもの）。今日は終わったものを出さない */
@@ -1903,21 +2005,25 @@ function planList(plan, isToday, evs){
 function planItem(p, isToday, idx, noFirst){
   // コツコツ目標が時間内に入りきらないときは、入る量だけにする
   if (p.kind === 'goal' && p.partial){ const q = Math.max(1, Math.floor(p.min / (Number(p.ref.per) || 1))); p = {...p, q, title:goalTitle(p.ref, q)}; }
-  const tags = [gradeTag(p.score), `<span class="tag ${p.kind === 'goal' ? 'goal' : p.cat}">${p.kind === 'routine' ? '家事' : p.kind === 'goal' ? 'コツコツ' : CAT[p.cat]}</span>`, `<span class="tag ${p.score >= 8 ? 'hot' : 'plain'}">${esc(p.why)}</span>`];
-  if (p.partial && p.kind !== 'goal') tags.push(`<span class="tag plain">一部だけ進める</span>`);
-  if (p.pinned) tags.splice(2, 1, '<span class="tag pin">時間を決めた</span>', ...(p.score >= 8 ? [`<span class="tag hot">${esc(p.why)}</span>`] : []));
+  // 1行に出すのは「なぜ今日か・何分」だけ。種類は右の丸の色、優先度は左の線の色で分かる
+  const lv = prioOf(p.score).lv;
+  const tags = [];
+  if (p.kind === 'goal') tags.push('<span class="tag goal">コツコツ</span>');
+  if (p.pinned) tags.push('<span class="tag pin">時間を決めた</span>');
+  const whyTxt = `<span class="why${p.score >= 8 ? ' u' : ''}">${esc(p.why)}</span>・`;
+  const partTxt = p.partial && p.kind !== 'goal' ? '・一部だけ進める' : '';
   const times = S.settings.showTimes;
   const first = p.nowPin || (!times && idx === 0 && !noFirst && !p.pinned);
   const left = times || p.pinned
     ? `<div class="time"><span>${clock(p.s)}</span><span>${clock(p.e)}</span></div>`
     : `<div class="ord${first ? ' first' : ''}"><span class="sr">${idx + 1}番目</span><span aria-hidden="true">${idx + 1}</span></div>`;
-  return `<article class="item${times ? '' : ' ordered'}${first ? ' is-next' : ''}${p.pinned ? ' pinned' : ''}">
+  return `<article class="item lvbar p${lv}${times ? '' : ' ordered'}${first ? ' is-next' : ''}${p.pinned ? ' pinned' : ''}">
     ${left}
     <div class="body">${first ? `<div class="nextlabel">${p.nowPin ? '今の時間はこれ' : isToday ? '次はこれ' : 'あしたの最初はこれ'}</div>` : ''}<div class="title">${esc(p.title)}</div>
-      <div class="meta">${tags.join('')}<span class="num">${dur(p.min)}</span>${p.pinned ? `<button type="button" class="link" data-act="pin-edit" data-id="${p.id}">時間を変える</button>` : isToday ? `<button type="button" class="link" data-act="later" data-kind="${p.kind}" data-id="${p.id}">後回し</button>` : ''}</div>
+      <div class="meta">${tags.join('')}<span class="mtx">${whyTxt}<span class="num">${dur(p.min)}</span>${partTxt}</span>${p.pinned ? `<button type="button" class="link" data-act="pin-edit" data-id="${p.id}">時間を変える</button>` : isToday ? `<button type="button" class="link" data-act="later" data-kind="${p.kind}" data-id="${p.id}">後回し</button>` : ''}</div>
       ${p.kind === 'goal' ? `<div class="gbar"><i style="width:${Math.round(p.ref.done / Math.max(1, p.ref.total) * 100)}%"></i></div>` : ''}
     </div>
-    ${isToday ? `<button type="button" class="check ${p.cat}" data-act="done" data-kind="${p.kind}" data-id="${p.id}" data-min="${p.min}"${p.kind === 'goal' ? ` data-q="${p.q}"` : ''} aria-label="${esc(p.title)}を記録する"></button>` : gradeTag(p.score, true)}
+    ${isToday ? `<button type="button" class="check ${p.cat}" data-act="done" data-kind="${p.kind}" data-id="${p.id}" data-min="${p.min}"${p.kind === 'goal' ? ` data-q="${p.q}"` : ''} aria-label="${esc(p.title)}を記録する"></button>` : '<span></span>'}
   </article>`;
 }
 function emptyPlan(P, isToday){
@@ -1932,12 +2038,12 @@ function doneToday(today){
   const total = l.reduce((a, x) => a + (x.act || 0), 0);
   return `<details class="done"><summary>今日終わったこと（${l.length}件・${dur(total)}）</summary>${l.map(x => `<div class="drow"><span>${esc(x.title)}</span><span class="num">${dur(x.act)}</span></div>`).join('')}</details>`;
 }
-function adder(){
-  return `<form class="adder" data-form="quick" autocomplete="off">
+function adder(slim){
+  return `<form class="adder${slim ? ' slim' : ''}" data-form="quick" autocomplete="off">
     <label class="sr" for="quick-in">やることを追加</label>
     <div class="adder-row"><input id="quick-in" name="q" type="text" placeholder="${esc(courseNames().length ? `例：${courseNames()[0]} 課題 60分` : '例：民法レポート あさって 90分')}" enterkeyhint="done"><button class="btn primary" type="submit">追加</button></div>
     <p class="qhint" id="quick-hint" aria-live="polite" hidden></p>
-    <div class="adder-opts">${sampleFn ? `<label class="tog"><input id="ai-toggle" type="checkbox" ${UI.ai ? 'checked' : ''}>AIで読み取る</label>` : '<span></span>'}<button type="button" class="link" data-act="new-task">項目ごとに入力</button></div>
+    ${slim ? '' : `<div class="adder-opts">${sampleFn ? `<label class="tog"><input id="ai-toggle" type="checkbox" ${UI.ai ? 'checked' : ''}>AIで読み取る</label>` : '<span></span>'}<button type="button" class="link" data-act="new-task">項目ごとに入力</button></div>`}
   </form>`;
 }
 function tasksView(){
@@ -1948,7 +2054,7 @@ function tasksView(){
   return `<h1 class="h1">やること<button type="button" class="qm" data-act="help" data-k="prio" aria-label="並び順の説明">?</button></h1>
   ${adder()}
   <div class="seg" role="group" aria-label="種類で絞り込む">${[['all','すべて'],['study','学業'],['life','生活'],['other','その他']].map(([k, l]) => segBtn('filter', k, l, UI.filter === k)).join('')}</div>
-  ${list.length ? `<div class="tlist">${list.map(x => taskRow(x, risky)).join('')}</div>` : `<div class="empty">ここにはまだありません。上の欄に「レポート あした 60分」のように書くと追加できます。</div>`}
+  ${list.length ? `<div class="tlist">${(() => { let last = 0; return list.map(x => { const p = prioOf(x.score), head = p.lv !== last ? `<div class="pgrp p${p.lv}"><i aria-hidden="true"></i>${p.name}<small>${p.sub}</small></div>` : ''; last = p.lv; return head + taskRow(x, risky); }).join(''); })()}</div>` : `<div class="empty">ここにはまだありません。上の欄に「レポート あした 60分」のように書くと追加できます。</div>`}
   ${goalsSection()}
   ${done.length ? `<details class="done"><summary>終わったこと（${done.length}件）</summary>${done.map(t => `<div class="drow"><span>${esc(t.title)}</span><span class="num">${t.actual ? dur(t.actual) : ''}</span></div>`).join('')}</details>` : ''}
   ${calendarPanel()}`;
@@ -1975,7 +2081,7 @@ function icsFold(line){
 function gcalMorningUrl(){
   const m = toMin(S.settings.morningTime || '07:30'), today = todayStr();
   const start = nowMin() < m ? today : addDays(today, 1);
-  const p = new URLSearchParams({action:'TEMPLATE', text:'今日の段取りを見る（ダンドリ）', dates:`${ymdC(start)}T${hm(m)}/${ymdC(start)}T${hm(Math.min(m + 5, 23*60 + 59))}`, details:'ダンドリを開いて、今日やることを確認', recur:'RRULE:FREQ=DAILY', ctz:TZ});
+  const p = new URLSearchParams({action:'TEMPLATE', text:'ダンドリを開く（今朝やることが決まっています）', dates:`${ymdC(start)}T${hm(m)}/${ymdC(start)}T${hm(Math.min(m + 5, 23*60 + 59))}`, details:'開くと「まずは、これだけ」が出ます', recur:'RRULE:FREQ=DAILY', ctz:TZ});
   return `https://calendar.google.com/calendar/render?${p.toString()}`;
 }
 function buildIcs(list, morning){
@@ -1993,9 +2099,9 @@ function buildIcs(list, morning){
   }
   if (morning){
     const m = toMin(S.settings.morningTime || '07:30'), today = todayStr();
-    const start = nowMin() < m ? today : addDays(today, 1), title = icsEsc('今日の段取りを見る（ダンドリ）');
+    const start = nowMin() < m ? today : addDays(today, 1), title = icsEsc('ダンドリを開く（今朝やることが決まっています）');
     L.push('BEGIN:VEVENT', 'UID:morning-check@dandori', `DTSTAMP:${stamp}`, `DTSTART:${ymdC(start)}T${hm(m)}`, `DTEND:${ymdC(start)}T${hm(Math.min(m + 5, 23*60 + 59))}`, 'RRULE:FREQ=DAILY',
-      `SUMMARY:${title}`, `DESCRIPTION:${icsEsc('ダンドリを開いて、今日やることを確認')}`, 'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${title}`, 'TRIGGER:PT0S', 'END:VALARM', 'END:VEVENT');
+      `SUMMARY:${title}`, `DESCRIPTION:${icsEsc('開くと「まずは、これだけ」が出ます')}`, 'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${title}`, 'TRIGGER:PT0S', 'END:VALARM', 'END:VEVENT');
   }
   L.push('END:VCALENDAR');
   return L.map(icsFold).join('\r\n') + '\r\n';
@@ -2168,13 +2274,11 @@ function taskRow({t, d, score}, risky){
     const c = t.course || matchCourse(t.title), cd = c ? courseDue(c) : null;
     if (cd) sug = `<button type="button" class="link" data-act="auto-due" data-id="${t.id}">締切を次の「${esc(c)}」の授業（${md(cd.deadline)}${cd.dueTime ? ' ' + cd.dueTime : ''}）にする</button>`;
   }
-  const eff = effMin(t);
-  return `<article class="trow">
-    ${gradeTag(score, true)}
-    <div class="body"><div class="title">${esc(t.title)}</div>
-      <div class="meta"><span class="tag ${t.cat}">${CAT[t.cat] || 'その他'}</span>${t.weekly ? '<span class="tag wk">毎週</span>' : ''}${t.pin ? `<span class="tag pin">${esc(dayWord(t.pin.date))} ${esc(t.pin.start)}〜</span>` : ''}${risky.has(t.id) ? '<span class="tag hot">間に合わないおそれ</span>' : ''}<span class="one">${esc(due)}・${dur(eff)}・${'★'.repeat(t.imp || 2)}</span>${sug}</div>
+  const eff = effMin(t), lv = prioOf(score).lv, urgent = t.deadline && d <= 0;
+  return `<article class="trow lvbar p${lv}" data-act="edit-task" data-id="${t.id}" role="button" tabindex="0" aria-label="${esc(t.title)}（押すと編集）">
+    <div class="body"><div class="title">${esc(t.title)}${t.weekly ? '<span class="wk2">毎週</span>' : ''}</div>
+      <div class="meta"><span class="one${urgent ? ' u' : ''}">${esc(due)}・${dur(eff)}</span>${t.pin ? `<span class="tag pin">${esc(dayWord(t.pin.date))} ${esc(t.pin.start)}〜</span>` : ''}${risky.has(t.id) ? '<span class="hotx">間に合わないおそれ</span>' : ''}${sug}</div>
     </div>
-    <button type="button" class="btn small" data-act="edit-task" data-id="${t.id}">編集</button>
   </article>`;
 }
 
@@ -2253,11 +2357,13 @@ function routineRow(r, today){
     <div class="meta">${status}<span>${schedLabel(r)}</span><span>約${dur(r.est)}</span>${r.last ? `<span>前回 ${md(r.last)}</span>` : ''}</div></div>
     <button type="button" class="btn small" data-act="edit-routine" data-id="${r.id}">編集</button></article>`;
 }
-function weeklySection(){
+function weeklyListHTML(back){
   const list = S.weekly || [];
-  return `<section class="sect"><h2 class="h2">毎週の課題<button type="button" class="qm" data-act="help" data-k="week" aria-label="毎週の課題の説明">?</button></h2>
-  ${list.length ? `<div class="tlist">${list.map(w => { const ok = w.on && (!w.course || courseNames().includes(w.course)); return `<article class="trow two"><div class="body"><div class="title">${esc(w.title)}</div><div class="meta"><span class="tag ${ok ? 'study' : 'plain'}">${esc(w.course || '授業なし')}</span><span>${dur(w.min)}</span><span>${esc(weeklyStatus(w, true))}</span></div></div><button type="button" class="btn small" data-act="weekly-edit" data-id="${w.id}">編集</button></article>`; }).join('')}</div>` : '<div class="empty">まだありません。例：毎回の予習、金曜の授業で出て日曜が締切の課題、授業と関係ない毎週の小テストなど。</div>'}
-  <div><button type="button" class="btn" data-act="weekly-new">毎週の課題を追加</button></div></section>`;
+  return list.length ? `<div class="tlist">${list.map(w => { const ok = w.on && (!w.course || courseNames().includes(w.course)); return `<article class="trow two"><div class="body"><div class="title">${esc(w.title)}</div><div class="meta"><span class="tag ${ok ? 'study' : 'plain'}">${esc(w.course || '授業なし')}</span><span>${dur(w.min)}</span><span>${esc(weeklyStatus(w, true))}</span></div></div><button type="button" class="btn small" data-act="weekly-edit" data-id="${w.id}"${back ? ` data-back="${back}"` : ''}>編集</button></article>`; }).join('')}</div>` : '<div class="empty">まだありません。例：毎回の予習、金曜の授業で出て日曜が締切の課題、授業と関係ない毎週の小テストなど。</div>';
+}
+function weeklyRow(){
+  const n = (S.weekly || []).length, off = (S.weekly || []).filter(w => !w.on).length;
+  return `<button type="button" class="more-row" data-act="weekly-list"><span><b>毎週の課題</b><span class="sub">${n ? `${n}件${off ? `（お休み中${off}件）` : ''}` : 'まだありません'}</span></span><span aria-hidden="true">›</span></button>`;
 }
 /* 曜日ごとの授業と予定。重なっているものに印を付ける */
 function weekItems(){
@@ -2372,14 +2478,23 @@ function weekGrid(editing, mon){
   return {html:`<div class="wk-card${editing ? ' editing' : ''}"><div class="wk-head"><span></span>${head}</div>
     <div class="wk-body" id="wk-body" style="height:${(H1 - H0) * PX}px">${bands}${lines}<div class="wk-axis">${axis}</div>${cols}</div></div>${legend}`, warns, swarns};
 }
+// 表示している週の締切：時間割の下は1行だけ。押すと日付の順の一覧
+const weekDlName = off => off === 0 ? '今週の締切' : off === 1 ? '来週の締切' : off === -1 ? '先週の締切' : 'この週の締切';
+function weekDlRow(mon, off){
+  const list = weekDeadlines(mon), today = todayStr(), left = list.filter(t => !t.done);
+  const tn = left.filter(t => t.deadline === today).length, over = left.filter(t => t.deadline < today).length;
+  const extra = [tn ? `今日 ${tn}件` : '', over ? `過ぎた ${over}件` : ''].filter(Boolean).join('・');
+  const sub = list.length ? `${left.length}件${extra ? `（${extra}）` : ''}${left.length < list.length ? `・済み${list.length - left.length}件` : ''}` : 'なし';
+  return `<button type="button" class="more-row" data-act="week-dl" data-mon="${mon}" data-off="${off}"><span><b>${weekDlName(off)}</b><span class="sub${extra ? ' u' : ''}">${sub}</span></span><span aria-hidden="true">›</span></button>`;
+}
 function weekDeadlineList(mon, off){
   const list = weekDeadlines(mon), today = todayStr(), doneN = list.filter(t => t.done).length;
   const rows = list.map(t => {
     const d = daysBetween(today, t.deadline), dd = parseYmd(t.deadline);
     const left = t.done ? '終わりました' : d < 0 ? `${-d}日過ぎています` : d === 0 ? '今日' : d === 1 ? 'あした' : `あと${d}日`;
-    return `<button type="button" class="wk-drow${t.done ? ' done' : ''}" data-act="edit-task" data-id="${t.id}"><span class="when"><b>${WD[dd.getDay()]} ${dd.getMonth() + 1}/${dd.getDate()}</b>${t.dueTime ? esc(t.dueTime) : '日付だけ'}</span><span class="ttl">${esc(t.title)}<small>${left}${!t.done && atClass(t) ? `・${esc(t.course)}の前` : ''}</small></span>${t.done ? '<span class="chk" aria-label="済み">✓</span>' : gradeTag(taskScore(t, d))}</button>`;
+    return `<button type="button" class="wk-drow${t.done ? ' done' : ''}" data-act="edit-task" data-id="${t.id}"><span class="when"><b>${WD[dd.getDay()]} ${dd.getMonth() + 1}/${dd.getDate()}</b>${t.dueTime ? esc(t.dueTime) : '日付だけ'}</span><span class="ttl">${esc(t.title)}<small>${left}${!t.done && atClass(t) ? `・${esc(t.course)}の前` : ''}</small></span>${t.done ? '<span class="chk" aria-label="済み">✓</span>' : prioTag(taskScore(t, d))}</button>`;
   }).join('');
-  return `<section class="sect"><h2 class="h2">${off === 0 ? '今週の締切' : 'この週の締切'}<span class="h2-sub">${list.length ? `${list.length}件${doneN ? `（済み${doneN}件）` : ''}` : ''}</span></h2>
+  return `<section class="sect"><h2 class="sh-title wk-dlt">${weekDlName(off)}<span class="h2-sub">${list.length ? `${list.length}件${doneN ? `（済み${doneN}件）` : ''}` : ''}</span></h2>
   ${list.length ? `<div class="wk-dlist">${rows}</div>` : '<div class="empty">この週の締切はありません。</div>'}</section>`;
 }
 const weekIsEmpty = () => !Object.values(S.timetable).some(Boolean) && !S.jobs.length;
@@ -2408,7 +2523,7 @@ function showDlInfo(b){
   const d = daysBetween(todayStr(), t.deadline);
   const left = d < 0 ? `${-d}日過ぎています` : d === 0 ? '今日' : d === 1 ? 'あした' : `あと${d}日`;
   placePop(b, `<b>${esc(t.title)}</b><br>締切 ${md(t.deadline)} ${esc(t.dueTime || '')}${atClass(t) ? `<span class="sub">（${esc(t.course)}の前）</span>` : ''}
-    <div class="prow">${gradeTag(taskScore(t, d))}<span>${left}・作業の目安 ${dur(effMin(t))}</span></div>
+    <div class="prow">${prioTag(taskScore(t, d))}<span>${left}・作業の目安 ${dur(effMin(t))}</span></div>
     <div class="pacts"><button type="button" data-act="open-done" data-kind="task" data-id="${t.id}">完了を記録</button><button type="button" class="g" data-act="edit-task" data-id="${t.id}">編集</button></div>`);
 }
 /* ---------- 月のカレンダー（日付を押すと開く。見るだけ） ---------- */
@@ -2439,7 +2554,7 @@ function monthCalHTML(sh){
   }
   const d = sh.sel, dls = S.tasks.filter(t => t.deadline === d).sort((a, b) => (a.dueTime || '99').localeCompare(b.dueTime || '99'));
   const items = dayItems(d);
-  const dlRows = dls.map(t => { const k = daysBetween(today, t.deadline); return `<button type="button" class="mrow${t.done ? ' done' : ''}" data-act="edit-task" data-id="${t.id}"><span class="tm">${t.dueTime ? esc(t.dueTime) : '日付だけ'}</span><span class="t">${esc(t.title)}</span>${t.done ? '<span class="tm">済み</span>' : gradeTag(taskScore(t, k))}</button>`; }).join('');
+  const dlRows = dls.map(t => { const k = daysBetween(today, t.deadline); return `<button type="button" class="mrow${t.done ? ' done' : ''}" data-act="edit-task" data-id="${t.id}"><span class="tm">${t.dueTime ? esc(t.dueTime) : '日付だけ'}</span><span class="t">${esc(t.title)}</span>${t.done ? '<span class="tm">済み</span>' : prioTag(taskScore(t, k))}</button>`; }).join('');
   const itRows = items.map(x => `<${x.ev ? `button type="button" data-act="ev-edit" data-id="${x.ev}"` : 'div'} class="mrow"><span class="tm">${esc(x.s)}</span><span class="t">${esc(x.label)}${x.ev ? `<span class="end">〜${esc(x.e)}</span>` : ''}</span><i class="k" style="background:${x.c}" aria-hidden="true"></i></${x.ev ? 'button' : 'div'}>`).join('');
   const pins = pinsShown(d);
   const pinRows = pins.map(t => `<${t.done ? 'div' : `button type="button" data-act="pin-edit" data-id="${t.id}"`} class="mrow${t.done ? ' done' : ''}"><span class="tm">${esc(t.pin.start)}</span><span class="t">${esc(t.title)}<span class="end">〜${esc(t.pin.end)}</span></span><i class="k" style="background:var(--accent)" aria-hidden="true"></i></${t.done ? 'div' : 'button'}>`).join('');
@@ -2494,7 +2609,7 @@ function weekView(){
   const jobs = S.jobs.slice().sort((a, b) => ((a.wd + 6) % 7) - ((b.wd + 6) % 7) || toMin(a.start) - toMin(b.start));
   const kindTag = k => ({job:'other', cir:'life', etc:'etc'})[k];
   const rel = off === 0 ? '今週' : off === 1 ? '来週' : off === -1 ? '先週' : off > 0 ? `${off}週間後` : `${-off}週間前`;
-  return `<div class="h1row"><h1 class="h1">時間割<button type="button" class="qm" data-act="help" data-k="week" aria-label="時間割の説明">?</button></h1>${editing ? '<button type="button" class="btn primary small" data-act="tt-done">完了</button>' : `<button type="button" class="btn small" data-act="ev-new">＋ 予定</button><button type="button" class="btn small accent" data-act="shift-new">＋ シフト</button><button type="button" class="btn small" data-act="tt-edit">${PENCIL}編集</button>`}</div>
+  return `<div class="h1row"><h1 class="h1">時間割<button type="button" class="qm" data-act="help" data-k="week" aria-label="時間割の説明">?</button></h1>${editing ? '<button type="button" class="btn primary small" data-act="tt-done">完了</button>' : `<button type="button" class="btn small" data-act="add-pick">＋ 追加</button><button type="button" class="btn small" data-act="tt-edit">${PENCIL}編集</button>`}</div>
   ${editing ? `<div class="wk-banner" role="status"><b>編集中</b><span>毎週の時間割です。点線の枠を押すと授業を入れられます。授業やバイトを押すと直せます。</span></div>`
     : `<div class="wk-nav"><button type="button" class="wk-arr" data-act="wk-prev" aria-label="前の週">‹</button><div class="wk-range"><button type="button" class="rbtn" data-act="mcal" data-d="${off ? mon : todayStr()}" aria-label="${md(mon)}から${md(sun)}。押すと月のカレンダーを開きます">${CAL_ICON}${md(mon)} 〜 ${md(sun)}</button>${off ? `<button type="button" class="link" data-act="wk-today">${rel}・今週に戻る</button>` : '<span>今週</span>'}</div><button type="button" class="wk-arr" data-act="wk-next" aria-label="次の週">›</button></div>`}
   ${!editing && weekIsEmpty() ? '<div class="empty"><span>まだ何も入っていません。「編集」を押して、時間割とバイト・サークルを入れましょう。</span><button type="button" class="btn small" data-act="tt-edit">編集する</button></div>' : ''}
@@ -2504,8 +2619,8 @@ function weekView(){
   ${editing ? `<div class="acts"><button type="button" class="btn" data-act="new-job">＋ バイト・サークルを追加</button><button type="button" class="btn" data-act="periods">時限の時刻を編集</button></div>
   <section class="sect"><h2 class="h2">バイト・サークル（毎週の予定）</h2>
   ${jobs.length ? `<div class="tlist">${jobs.map(j => { const k = jobKind(j); return `<article class="trow two"><div class="body"><div class="title">${esc(j.label || JOB_KIND[k])}</div><div class="meta"><span class="tag ${kindTag(k)}">${JOB_KIND[k]}</span><span>毎週${WD[j.wd]}曜</span><span class="num">${esc(j.start)}–${esc(j.end)}</span></div></div><button type="button" class="btn small" data-act="edit-job" data-id="${j.id}">編集</button></article>`; }).join('')}</div>` : '<div class="empty">まだありません。バイトやサークルなど、毎週決まった予定を入れてください。</div>'}
-  </section>` : weekDeadlineList(mon, off)}
-  ${weeklySection()}`;
+  </section>` : weekDlRow(mon, off)}
+  ${weeklyRow()}`;
 }
 
 /* ---------- シート ---------- */
@@ -2554,13 +2669,13 @@ const HELP = {
   goal:{t:'コツコツ目標って？', b:['資格・期末テスト・課題図書など、「いつまでに、どれだけ」がある目標を、毎日の量に割って「今日の段取り」に入れます。', '授業・バイト・サークルの多い日は少なめ、空いている日は多めに配ります（オフにすると毎日同じ量）。', 'できなかった日があっても大丈夫。ひらいた日から、残りの日数で自動で割り直します。', '予定より遅れると優先度が上がり、先に進んでいると「休んでもOK」になります。']},
   week:{t:'時間割の使い方', get b(){ return [
     `授業・バイト・サークル・シフト・予定の時間は、空き時間から自動で外します（前後${S.settings.buffer}分も空けます）。`,
-    '<b>予定</b>（青）：歯医者など、その時間に用事があるもの。「＋ 予定」か、やることの欄に「歯医者 10/22 16時-17時」のように書くと入ります。',
+    '<b>予定</b>（青）：歯医者など、その時間に用事があるもの。「＋ 追加」→「予定」か、やることの欄に「歯医者 10/22 16時-17時」のように書くと入ります。',
     '<b>この時間にやる</b>（ピンクの点線）：時刻を決めたやること。その日にできなかったら、次の日からは空き時間に自動で入ります。',
     'やることの名前に授業名を入れると（例：「ライリス 課題」）、次の授業を締切にします。',
-    '<b>毎週の課題</b>：毎週出る課題を登録すると、自動でやることに入ります。締切は「次の授業まで」のほか、「毎週日曜 23:59」のような決まった曜日・時刻にもできます（例：金4の授業で出て、日曜が締切）。授業と関係ない課題は「授業なし」にすると、締切が過ぎるたびに次の週の分が入ります。休講の週は、入った課題を消してください。',
+    '<b>毎週の課題</b>：毎週出る課題を登録すると、自動でやることに入ります。締切は「次の授業まで」のほか、「毎週日曜 23:59」のような決まった曜日・時刻にもできます（例：金4の授業で出て、日曜が締切）。授業と関係ない課題は「授業なし」にすると、締切が過ぎるたびに次の週の分が入ります。休講の週は、入った課題を消してください。設定は、時間割の下の「毎週の課題」から。',
     '予定が重なると「!」が出ます。締切の ▶ は、赤があしたまでです。']; }},
   plan:{t:'今日の段取りって？', b:['授業・バイト・シフト・予定のない空き時間に、締切が近くて大事なものから順に入れています。', 'ピンクの枠は「この時間にやる」。決めた時間にそのまま入ります。', '上から順に進めるのがおすすめ。順番どおりにできなくても、開くたびに「今から」の時間で組み直します。', '入りきらないものは、あした以降に回ります。「元気／ふつう／お疲れ」で、その日にやる量が変わります。']},
-  prio:{t:'並び順の見方', b:['優先度の高い順です。左のマークが優先度で、SS（今すぐ）からE（いつでもよい）までの7段階。締切までの日数・かかる時間・重要度から計算しています。'], grades:true},
+  prio:{t:'並び順の見方', b:['優先度の高い順です。左の線の色が優先度で、「今日やる」「今週中」「余裕あり」の3つ。締切までの日数・かかる時間・重要度から計算しています。', '行を押すと、直したり完了を記録したりできます。'], grades:true},
   cal:{t:'カレンダーで通知', b:['スマホのカレンダーに入れておくと、カレンダーの通知で知らせてくれます。', '締切の通知は、時刻つきなら前日の同じ時刻と3時間前、日付だけなら前日20時と当日8時です。', 'まだ試している機能です。']}
 };
 function sheetHTML(sh){
@@ -2569,7 +2684,7 @@ function sheetHTML(sh){
     case 'help': {
       const h = HELP[sh.k] || HELP.plan;
       return `<h2 class="sh-title">${h.t}</h2><div class="help">${h.b.map(x => `<p>${x}</p>`).join('')}</div>
-      ${h.grades ? `<div>${GRADES.map(x => `<div class="drow"><span class="grade g-${x.g}">${x.g}</span><span class="gdesc">${x.desc}</span></div>`).join('')}<p class="note gnote">重要度を「高い」にすると1段階ほど上がり、「低い」にすると下がります。</p></div>` : ''}
+      ${h.grades ? `<div>${PRIO.map(x => `<div class="drow"><span class="prio p${x.lv}"><i aria-hidden="true"></i>${x.name}</span><span class="gdesc">${x.desc}</span></div>`).join('')}<p class="note gnote">重要度を「高い」にすると上に来やすく、「低い」にすると下に行きやすくなります。</p></div>` : ''}
       <div class="sh-acts">${cancel}</div>`;
     }
     case 'thinking':
@@ -2721,23 +2836,42 @@ function sheetHTML(sh){
       const v = sh.draft || (w ? {...w} : {course:sh.course != null && (sh.course === '' || names.includes(sh.course)) ? sh.course : names[0] || '', title:sh.title || '', min:sh.min || 60, imp:sh.imp || 2, per:'class', on:true, due:sh.due || 'class', dueWd:sh.dueWd, dueTime:sh.dueTime});
       if (!sh.draft && !v.title && v.course) v.title = `${v.course} 課題`;
       const fixed = wDue(v) === 'fixed', lost = v.course && !names.includes(v.course);
-      const pv = lost ? '' : weeklyPreview(v);
-      return `<h2 class="sh-title">${w ? '毎週の課題を編集' : '毎週の課題を追加'}</h2>
-      <p class="note">毎週出る課題を登録すると、やることに自動で入ります。</p>
+      const pv = lost ? '' : weeklyPreview(v), more = !!sh.more, mins = clamp(Number(v.min) || 60, 5, 600);
+      const helpTxt = '毎週出る課題を登録すると、やることに自動で入ります。' + (!v.course ? '締切が過ぎると、次の週の分が自動で入ります。休みの週は、入った課題を消してください。' : fixed ? `授業が終わると、そのあとの最初の${WD[wDueWd(v)]}曜 ${wDueTime(v)}を締切にして入ります。` : `締切は「設定」の「授業の課題の締切」に合わせます（今は：${S.settings.courseDue === 'daybefore' ? '次の授業の前日まで' : '次の授業が始まる前まで'}）。`);
+      return `<h2 class="sh-title">${w ? '毎週の課題を編集' : '毎週の課題を追加'}<button type="button" class="qm" data-act="wk-help" aria-expanded="${sh.help ? 'true' : 'false'}" aria-label="毎週の課題の説明">?</button></h2>
+      ${sh.help ? `<p class="note">${helpTxt}</p>` : ''}
       <div class="f"><label for="wk-course">授業</label><select id="wk-course" name="wk-course" data-prev="${esc(v.course || '')}">${names.map(c => `<option value="${esc(c)}" ${c === v.course ? 'selected' : ''}>${esc(c)}</option>`).join('')}${lost ? `<option value="${esc(v.course)}" selected>${esc(v.course)}（時間割にありません）</option>` : ''}<option value="" ${!v.course ? 'selected' : ''}>授業なし（授業と関係ない毎週の課題）</option></select></div>
       <div class="f"><label for="wk-title">課題の名前</label><input id="wk-title" name="wk-title" type="text" maxlength="40" value="${esc(v.title || '')}" placeholder="例：英語の小テスト"></div>
       <div class="f"><label for="wk-due">締切</label><select id="wk-due" name="wk-due">${v.course ? `<option value="class" ${!fixed ? 'selected' : ''}>次の授業まで</option>` : ''}<option value="fixed" ${fixed ? 'selected' : ''}>毎週決まった曜日・時刻（例：日曜 23:59）</option></select></div>
       ${fixed ? `<div class="f2"><div class="f"><label for="wk-dwd">締切の曜日</label><select id="wk-dwd" name="wk-dwd">${[1,2,3,4,5,6,0].map(d => `<option value="${d}" ${wDueWd(v) === d ? 'selected' : ''}>${WD[d]}曜</option>`).join('')}</select></div><div class="f"><label for="wk-dtime">締切の時刻</label><input id="wk-dtime" name="wk-dtime" type="time" value="${wDueTime(v)}"></div></div>` : ''}
       ${pv ? `<p class="note wk-pv">→ ${esc(pv)}</p>` : ''}
+      <button type="button" class="more-row" data-act="wk-more" aria-expanded="${more}"><span><b>くわしい設定</b>${more ? '' : `<span class="sub">作業 ${dur(mins)}・重要度 ${['','低い','ふつう','高い'][v.imp || 2]}${v.on ? '' : '・お休み中'}</span>`}</span><span aria-hidden="true">${more ? '︿' : '›'}</span></button>
+      <div class="more-box"${more ? '' : ' hidden'}>
       ${v.course ? `<div class="f2"><div class="f"><label for="wk-min">作業時間の目安（分）</label><input id="wk-min" name="wk-min" type="number" inputmode="numeric" min="5" max="600" step="5" value="${v.min}"></div>
       <div class="f"><label for="wk-per">授業が週2回以上あるとき</label><select id="wk-per" name="wk-per"><option value="class" ${v.per !== 'week' ? 'selected' : ''}>授業のたびに追加</option><option value="week" ${v.per === 'week' ? 'selected' : ''}>週1回（最初の授業のあと）</option></select></div></div>` : `<div class="f"><label for="wk-min">作業時間の目安（分）</label><input id="wk-min" name="wk-min" type="number" inputmode="numeric" min="5" max="600" step="5" value="${v.min}"></div>`}
       <div class="f"><span class="flabel">重要度</span><div class="seg" role="radiogroup" aria-label="重要度">${[1,2,3].map(n => `<label class="segopt"><input type="radio" name="wk-imp" value="${n}" ${(v.imp || 2) === n ? 'checked' : ''}><span>${['','低い','ふつう','高い'][n]}</span></label>`).join('')}</div></div>
       <label class="tog" for="wk-on"><input id="wk-on" name="wk-on" type="checkbox" ${v.on ? 'checked' : ''}>自動で追加する（夏休みなどは外しておく）</label>
       ${!w && !sh.fromTask ? `<input type="hidden" name="wk-hasnow" value="1"><label class="tog" for="wk-now"><input id="wk-now" name="wk-now" type="checkbox" ${v.now !== false ? 'checked' : ''}>${v.course ? '今週の分もすぐ追加する（前回の授業で出た課題）' : '今週の分もすぐ追加する（次の締切の分）'}</label>` : ''}
+      </div>
       ${sh.fromTask ? '<p class="note">いま編集していた課題を、今週の分として扱います。</p>' : ''}
-      <p class="note">${!v.course ? '締切が過ぎると、次の週の分が自動で入ります。休みの週は、入った課題を消してください。' : fixed ? `授業が終わると、そのあとの最初の${WD[wDueWd(v)]}曜 ${wDueTime(v)}を締切にして入ります。` : `締切は「設定」の「授業の課題の締切」に合わせます（今は：${S.settings.courseDue === 'daybefore' ? '次の授業の前日まで' : '次の授業が始まる前まで'}）。`}</p>
       <div class="sh-acts"><button type="submit" class="btn primary">保存</button>${w ? `<button type="button" class="btn danger" data-act="del" data-what="weekly" data-id="${w.id}">削除</button>` : ''}${cancel}</div>`;
     }
+    case 'weekDl':
+      return `${weekDeadlineList(sh.mon, sh.off)}<p class="note">押すと、直したり完了を記録したりできます。</p><div class="sh-acts">${cancel}</div>`;
+    case 'weeklyList':
+      return `<h2 class="sh-title">毎週の課題</h2>
+      <p class="note">毎週出る課題を登録すると、やることに自動で入ります。</p>
+      ${weeklyListHTML('weeklyList')}
+      <div class="sh-acts"><button type="button" class="btn primary" data-act="weekly-new" data-back="weeklyList">毎週の課題を追加</button>${cancel}</div>`;
+    case 'addPick':
+      return `<h2 class="sh-title">時間割に追加</h2>
+      <div class="pick">
+        <button type="button" class="pickbtn" data-act="ev-new"><b>予定</b><span>歯医者・面談など、その日だけの用事</span></button>
+        <button type="button" class="pickbtn" data-act="shift-new"><b>シフト</b><span>バイトのシフトを、日付を選んで入れる</span></button>
+        <button type="button" class="pickbtn" data-act="weekly-new"><b>毎週の課題</b><span>毎週出る課題を、自動でやることに入れる</span></button>
+      </div>
+      <p class="note">授業・毎週のバイトやサークルは「編集」から入れます。</p>
+      <div class="sh-acts">${cancel}</div>`;
     case 'transfer': {
       const p = sh.preview, here = S.tasks.filter(t => !t.done).length;
       return `<h2 class="sh-title">引き継ぎコード</h2>
@@ -2951,8 +3085,9 @@ async function sheetSubmit(submitter){
           w.lastKey = o ? o.key : null;
         } else if (!now) w.lastKey = o ? o.key : null;
       }
-      const made = runWeekly().made;
+      const made = runWeekly().made, back = sh.back;
       closeSheet(); commit();
+      if (back === 'weeklyList') openSheet({type:'weeklyList'});
       if (made.length) toastWeekly(made);
       else { const st = weeklyStatus(w); toast(`「${title}」を毎週の課題にしました${st && w.on ? '。' + st : ''}`); }
       return;
@@ -2994,6 +3129,18 @@ function onClick(e){
     case 'day': UI.day = b.dataset.v; render(); break;
     case 'filter': UI.filter = b.dataset.v; render(); break;
     case 'cond': S.cond[b.dataset.date] = b.dataset.v; commit(); break;
+    case 'alerts-toggle': UI.alertsOpen = !UI.alertsOpen; render(); break;
+    case 'first-start': {
+      const m = nowMin(), n = clamp(Number(b.dataset.min) || FIRST_CHUNK, 5, 180);
+      S.firstRun = {d:today, kind:b.dataset.kind, id:b.dataset.id, title:b.dataset.title || '', min:n, start:m, end:Math.min(m + n, 23 * 60 + 59), q:Number(b.dataset.q) || 0};
+      commit(); break;
+    }
+    case 'first-stop': S.firstRun = null; commit(); break;
+    case 'first-skip': {
+      const ids = S.firstSkip && S.firstSkip.d === today ? S.firstSkip.ids : [];
+      S.firstSkip = {d:today, ids:ids.concat(b.dataset.id).slice(-20)}; commit(); break;
+    }
+    case 'first-off': S.firstOff = today; S.firstRun = null; commit(); toast('今日の朝はここまで。おつかれ'); break;
     case 'later': {
       UI.undo = JSON.stringify(S);
       const list = b.dataset.kind === 'routine' ? S.routines : b.dataset.kind === 'goal' ? (S.goals || []) : S.tasks;
@@ -3186,8 +3333,18 @@ function onClick(e){
     case 'wk-prev': UI.weekOff = (UI.weekOff || 0) - 1; render(); break;
     case 'wk-next': UI.weekOff = (UI.weekOff || 0) + 1; render(); break;
     case 'wk-today': UI.weekOff = 0; render(); break;
-    case 'weekly-new': openSheet({type:'weekly', course:b.dataset.course || null}); break;
-    case 'weekly-edit': openSheet({type:'weekly', id:b.dataset.id}); break;
+    case 'weekly-new': openSheet({type:'weekly', course:b.dataset.course || null, back:b.dataset.back || null}); break;
+    case 'weekly-edit': openSheet({type:'weekly', id:b.dataset.id, back:b.dataset.back || null}); break;
+    case 'weekly-list': openSheet({type:'weeklyList'}); break;
+    case 'week-dl': openSheet({type:'weekDl', mon:b.dataset.mon, off:Number(b.dataset.off) || 0}); break;
+    case 'add-pick': openSheet({type:'addPick'}); break;
+    case 'wk-help': case 'wk-more': {
+      const sh = UI.sheet; if (!sh || sh.type !== 'weekly') break;
+      const w = sh.id ? S.weekly.find(x => x.id === sh.id) : null;
+      sh.draft = readWeeklyForm(new FormData(formEl), sh.draft || w);
+      if (a === 'wk-help') sh.help = !sh.help; else sh.more = !sh.more;
+      renderSheet(); break;
+    }
     case 'weekly-from-task': {
       const t = S.tasks.find(x => x.id === b.dataset.id); if (!t) break;
       const course = (t.course && courseNames().includes(t.course) ? t.course : matchCourse(t.title)) || '';
@@ -3216,6 +3373,10 @@ document.addEventListener('submit', e => {
 });
 document.addEventListener('change', e => {
   goalLive(e); timedLive(e);
+  if (e.target.dataset && e.target.dataset.cond){
+    if (store.mode === 'loading'){ render(); return; }
+    S.cond[e.target.dataset.cond] = e.target.value; commit();
+  }
   if (e.target.id === 'ai-toggle') UI.ai = e.target.checked;
   if (UI.sheet && UI.sheet.type === 'shift' && e.target.closest('#sheet-form')){
     const sh = UI.sheet;
@@ -3271,7 +3432,11 @@ document.addEventListener('input', e => {
   if (e.target.id === 'quick-in') updateQuickHint();
   if (e.target.id === 's-ratio'){ const o = document.getElementById('s-ratio-out'); if (o) o.textContent = e.target.value; }
 });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && UI.sheet) closeSheet(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && UI.sheet) closeSheet();
+  // 行ごと押せるもの（やることの行など）は、キーボードの Enter・スペースでも開く
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('[role=button][data-act]')){ e.preventDefault(); e.target.click(); }
+});
 setInterval(() => { if (checkWeekly()) return; if (UI.sheet) return; if ((UI.view === 'today' && document.activeElement?.id !== 'quick-in') || (UI.view === 'week' && !UI.ttEdit && !document.getElementById('wk-pop'))) render(); }, 60000);
 
 boot();
